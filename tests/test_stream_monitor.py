@@ -1,5 +1,6 @@
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -189,6 +190,89 @@ class TestRunway(unittest.TestCase):
         reader = self._reader(doc, 0, 0, usdc_units)
         r = M.check_runway(doc, reader)
         self.assertAlmostEqual(r["combined_days"], 100.0, delta=0.5)
+
+
+class TestBuildStatus(unittest.TestCase):
+    def _healthy_reader(self, doc):
+        known_out = sum(C.expected_rate(p["award_usd"]) for p in doc["providers"])
+        return FakeReader(
+            healthy_rates(doc),
+            account_net={doc["pod"].lower(): doc["master_stream_wei_s"] - known_out},
+            balances={
+                (C.USDCX.lower(), doc["pod"].lower()): 209438 * 10**18,
+                (C.USDCX.lower(), C.TIMELOCK.lower()): 690313 * 10**18,
+                (C.USDC.lower(), C.TIMELOCK.lower()): 7550477 * 10**6,
+            })
+
+    def test_healthy_status_document(self):
+        doc = load_real()
+        s = M.build_status(doc, self._healthy_reader(doc),
+                           25685582, "2026-08-05T21:00:00Z")
+        self.assertEqual(s["overall"], "healthy")
+        self.assertEqual(s["block_number"], 25685582)
+        self.assertTrue(s["_generated"])
+        self.assertEqual(len(s["streams"]), 10)
+        self.assertEqual(len(s["retired"]), 4)
+        self.assertEqual(M.findings(s), [])
+
+    def test_rate_mismatch_makes_status_critical(self):
+        doc = load_real()
+        rates = healthy_rates(doc)
+        rates[(doc["pod"], "0x168CAfEcFBE97dF85968Ea039CC11D10a9A44567")] = 1
+        known_out = sum(C.expected_rate(p["award_usd"]) for p in doc["providers"])
+        reader = FakeReader(
+            rates,
+            account_net={doc["pod"].lower(): doc["master_stream_wei_s"] - known_out},
+            balances={(C.USDCX.lower(), C.TIMELOCK.lower()): 10**30})
+        s = M.build_status(doc, reader, 1, "2026-08-05T21:00:00Z")
+        self.assertEqual(s["overall"], "critical")
+        f = M.findings(s)
+        self.assertTrue(any(x["code"] == "rate_mismatch"
+                            and x["subject"] == "namespace" for x in f))
+
+    def test_low_runway_makes_status_warning(self):
+        doc = load_real()
+        known_out = sum(C.expected_rate(p["award_usd"]) for p in doc["providers"])
+        daily = doc["master_stream_wei_s"] * 86400
+        reader = FakeReader(
+            healthy_rates(doc),
+            account_net={doc["pod"].lower(): doc["master_stream_wei_s"] - known_out},
+            balances={(C.USDCX.lower(), C.TIMELOCK.lower()): 30 * daily})
+        s = M.build_status(doc, reader, 1, "2026-08-05T21:00:00Z")
+        self.assertEqual(s["overall"], "warning")
+        self.assertTrue(any(x["code"] == "low_runway" for x in M.findings(s)))
+
+    def test_unaccounted_flow_is_critical(self):
+        doc = load_real()
+        known_out = sum(C.expected_rate(p["award_usd"]) for p in doc["providers"])
+        reader = FakeReader(
+            healthy_rates(doc),
+            account_net={doc["pod"].lower():
+                         doc["master_stream_wei_s"] - known_out - 10**12},
+            balances={(C.USDCX.lower(), C.TIMELOCK.lower()): 10**30})
+        s = M.build_status(doc, reader, 1, "2026-08-05T21:00:00Z")
+        self.assertEqual(s["overall"], "critical")
+        self.assertTrue(any(x["code"] == "unaccounted_flow" for x in M.findings(s)))
+
+
+class TestWriteStatus(unittest.TestCase):
+    def test_write_reports_change_then_no_change(self):
+        status = {"_generated": True, "overall": "healthy", "checked_at": "t1"}
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "status.json"
+            self.assertTrue(M.write_status(status, p))
+            self.assertFalse(M.write_status(status, p))
+
+    def test_checked_at_alone_does_not_count_as_change(self):
+        # Otherwise every daily run commits noise and the git history stops
+        # being a useful record of what actually changed.
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "status.json"
+            M.write_status({"_generated": True, "overall": "healthy",
+                            "checked_at": "t1"}, p)
+            self.assertFalse(
+                M.write_status({"_generated": True, "overall": "healthy",
+                                "checked_at": "t2"}, p))
 
 
 if __name__ == "__main__":
