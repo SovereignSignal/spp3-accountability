@@ -163,8 +163,8 @@ def findings(status):
             "severity": "critical",
             "code": s["state"],
             "subject": s["slug"],
-            "detail": "%s: expected %d wei/s (~$%.0f/yr), on-chain %d wei/s"
-                      % (s["name"], s["expected_wei_s"], s["expected_usd_yr"],
+            "detail": "expected %d wei/s (~$%.0f/yr), on-chain %d wei/s"
+                      % (s["expected_wei_s"], s["expected_usd_yr"],
                          s["actual_wei_s"]),
         })
     for r in status["retired"]:
@@ -174,8 +174,8 @@ def findings(status):
             "severity": "critical",
             "code": "unexpected_active",
             "subject": r["slug"],
-            "detail": "%s is retired but still streaming %d wei/s"
-                      % (r["name"], r["actual_wei_s"]),
+            "detail": "retired but still streaming %d wei/s"
+                      % r["actual_wei_s"],
         })
     if not status["net_flow"]["ok"]:
         out.append({
