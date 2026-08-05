@@ -6,9 +6,11 @@ output are display-only and never drive a verdict: the master stream's
 nominal $3.21M/yr is $3,207,871 once integer truncation is applied, so a
 dollar comparison would alert every day on a healthy system.
 """
+import argparse
 import json
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -237,3 +239,97 @@ def publish(path, message):
     except subprocess.CalledProcessError as e:
         print("WARN: push failed (%s); commit is local" % e, file=sys.stderr)
     return True
+
+
+ALERT_FLAG = C.LOG_DIR / "stream-alert.flag"
+
+
+def alert_decision(finding_list, flag_exists):
+    """Decide whether to speak, using the flag-file pattern the RFP harness
+    already uses. One alert per distinct fault, one recovery notice when it
+    clears, silence otherwise."""
+    if finding_list and not flag_exists:
+        return {"send": True, "kind": "alert", "set_flag": True, "clear_flag": False}
+    if finding_list and flag_exists:
+        return {"send": False, "kind": "none", "set_flag": False, "clear_flag": False}
+    if not finding_list and flag_exists:
+        return {"send": True, "kind": "recovery", "set_flag": False, "clear_flag": True}
+    return {"send": False, "kind": "none", "set_flag": False, "clear_flag": False}
+
+
+def _format_alert(status, finding_list):
+    lines = ["<b>[SPP3 STREAMS] %s</b>" % status["overall"].upper()]
+    for f in finding_list:
+        lines.append("%s <b>%s</b>: %s"
+                     % ("[!]" if f["severity"] == "critical" else "[~]",
+                        f["subject"], f["detail"]))
+    lines.append("Block %s, checked %s" % (status["block_number"],
+                                           status["checked_at"]))
+    return "\n".join(lines)
+
+
+def _format_heartbeat(status):
+    r = status["runway"]
+    return ("<b>[SPP3 STREAMS] weekly heartbeat: %s</b>\n"
+            "%d provider streams at ratified rates, %d retired streams stopped, "
+            "no unaccounted flow.\nRunway %.0f days. Block %s."
+            % (status["overall"], len(status["streams"]), len(status["retired"]),
+               r["combined_days"], status["block_number"]))
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description="SPP3 stream health monitor")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="check and print; write nothing, send nothing")
+    ap.add_argument("--no-notify", action="store_true", help="suppress Telegram")
+    ap.add_argument("--heartbeat", action="store_true",
+                    help="send the weekly all-clear even when healthy")
+    args = ap.parse_args(argv)
+
+    import chain
+    import validate
+    from notify import send as tg_send
+
+    providers = validate.load_providers(C.PROVIDERS_PATH)
+    client = chain.Chain()
+    block = client.block_number()
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    status = build_status(providers, client, block, now)
+    problems = findings(status)
+
+    print("overall=%s block=%d findings=%d via=%s"
+          % (status["overall"], block, len(problems), client.last_endpoint))
+    for f in problems:
+        print("  [%s] %s %s: %s"
+              % (f["severity"], f["code"], f["subject"], f["detail"]))
+
+    if args.dry_run:
+        print(json.dumps(status, indent=2, sort_keys=True))
+        return 0
+
+    C.LOG_DIR.mkdir(parents=True, exist_ok=True)
+    changed = write_status(status, C.STATUS_PATH)
+    if changed:
+        publish(C.STATUS_PATH, "chore(streams): status %s at block %d"
+                % (status["overall"], block))
+
+    decision = alert_decision(problems, ALERT_FLAG.exists())
+    if not args.no_notify:
+        if decision["kind"] == "alert":
+            tg_send(_format_alert(status, problems))
+        elif decision["kind"] == "recovery":
+            tg_send("<b>[SPP3 STREAMS] recovered</b>\nAll streams back at "
+                    "ratified rates. Block %d." % block)
+        elif args.heartbeat:
+            tg_send(_format_heartbeat(status))
+    if decision["set_flag"]:
+        ALERT_FLAG.write_text("alerted")
+    if decision["clear_flag"] and ALERT_FLAG.exists():
+        ALERT_FLAG.unlink()
+
+    return 2 if status["overall"] == "critical" else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
