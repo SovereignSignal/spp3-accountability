@@ -1,0 +1,122 @@
+{
+  "_generated": false,
+  "_source": "EP 6.49 executable; addresses from blockful ep-6-49/podStreamSetup.t.sol @04d349a; rates verified on-chain 2026-08-04 block 25685582",
+  "program": "spp3",
+  "schema_version": 1,
+  "pod": "0xB162Bf7A7fD64eF32b787719335d06B2780e31D1",
+  "master_stream_wei_s": 101720934415475068,
+  "providers": [
+    {
+      "slug": "namespace",
+      "name": "Namespace",
+      "award_usd": 500000,
+      "categories": [1, 2],
+      "approved_wallet": "0x168CAfEcFBE97dF85968Ea039CC11D10a9A44567",
+      "cohort": "spp3",
+      "recusals": ["sovereignsignal.eth"]
+    },
+    {
+      "slug": "goldsky",
+      "name": "Goldsky",
+      "award_usd": 450000,
+      "categories": [1],
+      "approved_wallet": "0x79d46b9a85F0CC040aE66186aDCa8e318b064485",
+      "cohort": "spp3",
+      "recusals": []
+    },
+    {
+      "slug": "unruggable",
+      "name": "Unruggable",
+      "award_usd": 400000,
+      "categories": [1, 2],
+      "approved_wallet": "0x64Ca550F78d6Cc711B247319CC71A04A166707Ab",
+      "cohort": "spp3",
+      "recusals": []
+    },
+    {
+      "slug": "fluidkey",
+      "name": "Fluidkey",
+      "award_usd": 340000,
+      "categories": [1, 2],
+      "approved_wallet": "0xdcC34c0da55cEF7AeD38Bb749AD97DAC12A9936C",
+      "cohort": "spp3",
+      "recusals": []
+    },
+    {
+      "slug": "eth-limo",
+      "name": "eth.limo",
+      "award_usd": 700000,
+      "categories": [],
+      "approved_wallet": "0xB352bB4E2A4f27683435f153A259f1B207218b1b",
+      "cohort": "spp2-continuing",
+      "recusals": []
+    },
+    {
+      "slug": "blockful",
+      "name": "blockful",
+      "award_usd": 700000,
+      "categories": [],
+      "approved_wallet": "0x6dcc3939f811E22E9Faa5B2C591Fbdbf7Ee47Ee3",
+      "cohort": "spp2-continuing",
+      "recusals": []
+    },
+    {
+      "slug": "coltron",
+      "name": "coltron.eth (Chair)",
+      "award_usd": 36000,
+      "categories": [],
+      "approved_wallet": "0x1D5460F896521aD685Ea4c3F2c679Ec0b6806359",
+      "cohort": "committee",
+      "recusals": []
+    },
+    {
+      "slug": "sovereignsignal",
+      "name": "sovereignsignal.eth",
+      "award_usd": 28000,
+      "categories": [],
+      "approved_wallet": "0x2D7d6Ec6198ADFD5850D00BD601958F6E316b05E",
+      "cohort": "committee",
+      "recusals": []
+    },
+    {
+      "slug": "austingriffith",
+      "name": "austingriffith.eth",
+      "award_usd": 28000,
+      "categories": [],
+      "approved_wallet": "0x34aA3F359A9D614239015126635CE7732c18fDF3",
+      "cohort": "committee",
+      "recusals": []
+    },
+    {
+      "slug": "abdullahumar",
+      "name": "abdullahumar.eth",
+      "award_usd": 28000,
+      "categories": [],
+      "approved_wallet": "0xaA4a9282594a8ec02116fc97B634648CCc9fBe5f",
+      "cohort": "committee",
+      "recusals": []
+    }
+  ],
+  "retired": [
+    {
+      "slug": "namehash",
+      "name": "NameHash",
+      "approved_wallet": "0x4dC96AAd2Daa3f84066F3A00EC41Fd1e88c8865A"
+    },
+    {
+      "slug": "efp",
+      "name": "EFP",
+      "approved_wallet": "0xE2Cded674643743ec1316858dFD4FD2116932E63"
+    },
+    {
+      "slug": "zk-email",
+      "name": "ZK Email",
+      "approved_wallet": "0xca07423a99210D1a667b33901deADfAEdA687639"
+    },
+    {
+      "slug": "justaname",
+      "name": "JustaName",
+      "approved_wallet": "0xdaBf4f1f58d9350731e218E25ACcaF91e0d01d33"
+    }
+  ]
+}
