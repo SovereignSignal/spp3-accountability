@@ -21,6 +21,11 @@ class FakeReader:
     def flowrate(self, token, sender, receiver):
         return self.rates.get((sender.lower(), receiver.lower()), 0)
 
+    def flow_info(self, token, sender, receiver):
+        return {"last_updated": 1785561311,
+                "flowrate": self.flowrate(token, sender, receiver),
+                "deposit": 0}
+
     def account_flowrate(self, token, account):
         return self.account_net.get(account.lower(), 0)
 
@@ -273,6 +278,26 @@ class TestWriteStatus(unittest.TestCase):
             self.assertFalse(
                 M.write_status({"_generated": True, "overall": "healthy",
                                 "checked_at": "t2"}, p))
+
+
+class TestSinceTimestamp(unittest.TestCase):
+    def test_streams_carry_flow_start(self):
+        doc = load_real()
+        results = M.check_streams(doc, FakeReader(healthy_rates(doc)))
+        self.assertTrue(all(r["since"] == 1785561311 for r in results))
+
+    def test_program_epoch_is_explicit_not_inferred(self):
+        # A stream's own lastUpdated is when the flow last CHANGED, not when
+        # SPP3 began. Unruggable was unchanged at $400k, so its flow still
+        # reports its 2025-09-12 SPP2 start. Inferring the epoch per stream
+        # would credit them 327 days of SPP2 money in an SPP3 total.
+        doc = load_real()
+        self.assertEqual(doc["spp3_stream_start"], 1785561311)
+
+    def test_retired_streams_have_no_start(self):
+        doc = load_real()
+        results = M.check_retired(doc, FakeReader(healthy_rates(doc)))
+        self.assertTrue(all(r["since"] == 0 for r in results))
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ def _usd_yr(wei_s):
     return wei_s * C.SECONDS_PER_YEAR / 10**18
 
 
-def _result(slug, name, cohort, address, expected, actual):
+def _result(slug, name, cohort, address, expected, actual, since=0):
     if expected == actual:
         state = "ok"
     elif expected > 0 and actual == 0:
@@ -37,6 +37,7 @@ def _result(slug, name, cohort, address, expected, actual):
         "address": address,
         "expected_wei_s": expected,
         "actual_wei_s": actual,
+        "since": since,
         "expected_usd_yr": _usd_yr(expected),
         "actual_usd_yr": _usd_yr(actual),
         "state": state,
@@ -50,9 +51,10 @@ def check_streams(providers, reader):
     out = []
     for p in providers["providers"]:
         expected = C.expected_rate(p["award_usd"])
-        actual = reader.flowrate(C.USDCX, pod, p["approved_wallet"])
+        info = reader.flow_info(C.USDCX, pod, p["approved_wallet"])
         out.append(_result(p["slug"], p["name"], p["cohort"],
-                           p["approved_wallet"], expected, actual))
+                           p["approved_wallet"], expected, info["flowrate"],
+                           since=info["last_updated"]))
     return out
 
 

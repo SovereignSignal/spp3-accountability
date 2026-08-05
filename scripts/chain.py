@@ -158,6 +158,22 @@ class Chain:
                            token, sender, receiver)
         return decode_int96(self.call(CFA_FORWARDER, data))
 
+    def flow_info(self, token, sender, receiver):
+        """(last_updated, flowrate, deposit) for one flow.
+
+        last_updated is when the flow was created or last changed, which for
+        the SPP3 cohort is the pod switch. It is what makes an honest
+        "delivered so far" figure possible: rate x elapsed, no guesswork.
+        """
+        data = encode_call("getFlowInfo(address,address,address)",
+                           token, sender, receiver)
+        h = self.call(CFA_FORWARDER, data)[2:]
+        return {
+            "last_updated": int(h[0:64], 16),
+            "flowrate": decode_int96("0x" + h[64:128]),
+            "deposit": int(h[128:192], 16),
+        }
+
     def account_flowrate(self, token, account):
         data = encode_call("getAccountFlowrate(address,address)", token, account)
         return decode_int96(self.call(CFA_FORWARDER, data))

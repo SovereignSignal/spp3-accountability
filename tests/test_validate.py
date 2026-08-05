@@ -15,6 +15,7 @@ def minimal():
         "schema_version": 1,
         "pod": "0xB162Bf7A7fD64eF32b787719335d06B2780e31D1",
         "master_stream_wei_s": 101720934415475068,
+        "spp3_stream_start": 1785561311,
         "providers": [{
             "slug": "namespace",
             "name": "Namespace",

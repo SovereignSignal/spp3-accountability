@@ -5,6 +5,8 @@
   "schema_version": 1,
   "pod": "0xB162Bf7A7fD64eF32b787719335d06B2780e31D1",
   "master_stream_wei_s": 101720934415475068,
+  "spp3_stream_start": 1785561311,
+  "_spp3_stream_start_note": "2026-08-01 05:15:11 UTC, the pod-side switch, read on-chain. Use THIS as the SPP3 epoch, never a stream's own lastUpdated: Unruggable's award was unchanged at $400k so its flow was never touched and still reports its 2025-09-12 SPP2 start.",
   "providers": [
     {
       "slug": "namespace",

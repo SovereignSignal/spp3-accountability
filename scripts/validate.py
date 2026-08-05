@@ -10,8 +10,8 @@ import re
 ADDRESS_RE = re.compile(r"^0x[0-9a-fA-F]{40}$")
 VALID_COHORTS = {"spp3", "spp2-continuing", "committee"}
 
-_TOP_LEVEL = ("program", "schema_version", "pod",
-              "master_stream_wei_s", "providers", "retired")
+_TOP_LEVEL = ("program", "schema_version", "pod", "master_stream_wei_s",
+              "spp3_stream_start", "providers", "retired")
 _PROVIDER_KEYS = ("slug", "name", "award_usd", "categories",
                   "approved_wallet", "cohort", "recusals")
 
@@ -31,6 +31,8 @@ def validate_providers(doc):
         errors.append("pod is not a valid address: %r" % doc["pod"])
     if not isinstance(doc["master_stream_wei_s"], int) or doc["master_stream_wei_s"] <= 0:
         errors.append("master_stream_wei_s must be a positive integer")
+    if not isinstance(doc["spp3_stream_start"], int) or doc["spp3_stream_start"] <= 0:
+        errors.append("spp3_stream_start must be a positive unix timestamp")
     if not isinstance(doc["providers"], list) or not doc["providers"]:
         return errors + ["providers must be a non-empty list"]
 
