@@ -1,0 +1,196 @@
+{
+  "_generated": true,
+  "_source": "stream_monitor.py",
+  "block_number": 25688648,
+  "checked_at": "2026-08-05T12:12:50Z",
+  "net_flow": {
+    "expected_net_wei_s": -67497852409250,
+    "known_out_wei_s": 101788432267884318,
+    "master_in_wei_s": 101720934415475068,
+    "ok": true,
+    "pod_net_wei_s": -67497852409250,
+    "unaccounted_wei_s": 0
+  },
+  "overall": "healthy",
+  "retired": [
+    {
+      "actual_usd_yr": 0.0,
+      "actual_wei_s": 0,
+      "address": "0x4dC96AAd2Daa3f84066F3A00EC41Fd1e88c8865A",
+      "cohort": "retired",
+      "expected_usd_yr": 0.0,
+      "expected_wei_s": 0,
+      "name": "NameHash",
+      "ok": true,
+      "slug": "namehash",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 0.0,
+      "actual_wei_s": 0,
+      "address": "0xE2Cded674643743ec1316858dFD4FD2116932E63",
+      "cohort": "retired",
+      "expected_usd_yr": 0.0,
+      "expected_wei_s": 0,
+      "name": "EFP",
+      "ok": true,
+      "slug": "efp",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 0.0,
+      "actual_wei_s": 0,
+      "address": "0xca07423a99210D1a667b33901deADfAEdA687639",
+      "cohort": "retired",
+      "expected_usd_yr": 0.0,
+      "expected_wei_s": 0,
+      "name": "ZK Email",
+      "ok": true,
+      "slug": "zk-email",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 0.0,
+      "actual_wei_s": 0,
+      "address": "0xdaBf4f1f58d9350731e218E25ACcaF91e0d01d33",
+      "cohort": "retired",
+      "expected_usd_yr": 0.0,
+      "expected_wei_s": 0,
+      "name": "JustaName",
+      "ok": true,
+      "slug": "justaname",
+      "state": "ok"
+    }
+  ],
+  "runway": {
+    "combined_days": 937.2321853822748,
+    "daily_burn_wei": 8788688733497045875200,
+    "level": "ok",
+    "ok": true,
+    "pod_usdcx": 209436147270577119450208,
+    "timelock_usdc": 7550477216881,
+    "timelock_usdcx": 686564731459013080296204
+  },
+  "streams": [
+    {
+      "actual_usd_yr": 500000.0,
+      "actual_wei_s": 15854895991882293,
+      "address": "0x168CAfEcFBE97dF85968Ea039CC11D10a9A44567",
+      "cohort": "spp3",
+      "expected_usd_yr": 500000.0,
+      "expected_wei_s": 15854895991882293,
+      "name": "Namespace",
+      "ok": true,
+      "slug": "namespace",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 449999.99999999994,
+      "actual_wei_s": 14269406392694063,
+      "address": "0x79d46b9a85F0CC040aE66186aDCa8e318b064485",
+      "cohort": "spp3",
+      "expected_usd_yr": 449999.99999999994,
+      "expected_wei_s": 14269406392694063,
+      "name": "Goldsky",
+      "ok": true,
+      "slug": "goldsky",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 400000.0,
+      "actual_wei_s": 12683916793505834,
+      "address": "0x64Ca550F78d6Cc711B247319CC71A04A166707Ab",
+      "cohort": "spp3",
+      "expected_usd_yr": 400000.0,
+      "expected_wei_s": 12683916793505834,
+      "name": "Unruggable",
+      "ok": true,
+      "slug": "unruggable",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 340000.0,
+      "actual_wei_s": 10781329274479959,
+      "address": "0xdcC34c0da55cEF7AeD38Bb749AD97DAC12A9936C",
+      "cohort": "spp3",
+      "expected_usd_yr": 340000.0,
+      "expected_wei_s": 10781329274479959,
+      "name": "Fluidkey",
+      "ok": true,
+      "slug": "fluidkey",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 700000.0,
+      "actual_wei_s": 22196854388635210,
+      "address": "0xB352bB4E2A4f27683435f153A259f1B207218b1b",
+      "cohort": "spp2-continuing",
+      "expected_usd_yr": 700000.0,
+      "expected_wei_s": 22196854388635210,
+      "name": "eth.limo",
+      "ok": true,
+      "slug": "eth-limo",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 700000.0,
+      "actual_wei_s": 22196854388635210,
+      "address": "0x6dcc3939f811E22E9Faa5B2C591Fbdbf7Ee47Ee3",
+      "cohort": "spp2-continuing",
+      "expected_usd_yr": 700000.0,
+      "expected_wei_s": 22196854388635210,
+      "name": "blockful",
+      "ok": true,
+      "slug": "blockful",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 36000.0,
+      "actual_wei_s": 1141552511415525,
+      "address": "0x1D5460F896521aD685Ea4c3F2c679Ec0b6806359",
+      "cohort": "committee",
+      "expected_usd_yr": 36000.0,
+      "expected_wei_s": 1141552511415525,
+      "name": "coltron.eth (Chair)",
+      "ok": true,
+      "slug": "coltron",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 27999.999999999985,
+      "actual_wei_s": 887874175545408,
+      "address": "0x2D7d6Ec6198ADFD5850D00BD601958F6E316b05E",
+      "cohort": "committee",
+      "expected_usd_yr": 27999.999999999985,
+      "expected_wei_s": 887874175545408,
+      "name": "sovereignsignal.eth",
+      "ok": true,
+      "slug": "sovereignsignal",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 27999.999999999985,
+      "actual_wei_s": 887874175545408,
+      "address": "0x34aA3F359A9D614239015126635CE7732c18fDF3",
+      "cohort": "committee",
+      "expected_usd_yr": 27999.999999999985,
+      "expected_wei_s": 887874175545408,
+      "name": "austingriffith.eth",
+      "ok": true,
+      "slug": "austingriffith",
+      "state": "ok"
+    },
+    {
+      "actual_usd_yr": 27999.999999999985,
+      "actual_wei_s": 887874175545408,
+      "address": "0xaA4a9282594a8ec02116fc97B634648CCc9fBe5f",
+      "cohort": "committee",
+      "expected_usd_yr": 27999.999999999985,
+      "expected_wei_s": 887874175545408,
+      "name": "abdullahumar.eth",
+      "ok": true,
+      "slug": "abdullahumar",
+      "state": "ok"
+    }
+  ]
+}
