@@ -4,6 +4,9 @@ Knows about Ethereum ABI encoding and JSON-RPC. Knows nothing about SPP3.
 Pure functions (keccak256, selector, encode_call, decode_*) are separated
 from network I/O so callers can unit-test logic without a connection.
 """
+import json
+import urllib.request
+
 _RC = [0x0000000000000001, 0x0000000000008082, 0x800000000000808A, 0x8000000080008000,
        0x000000000000808B, 0x0000000080000001, 0x8000000080008081, 0x8000000000008009,
        0x000000000000008A, 0x0000000000000088, 0x0000000080008009, 0x000000008000000A,
@@ -84,3 +87,81 @@ def decode_int96(hexstr):
     if v >= 1 << 95:
         v -= 1 << 96
     return v
+
+
+CFA_FORWARDER = "0xcfA132E353cB4E398080B9700609bb008eceB125"
+
+DEFAULT_RPCS = [
+    "https://eth.drpc.org",
+    "https://eth.merkle.io",
+    "https://rpc.flashbots.net",
+    "https://eth-mainnet.public.blastapi.io",
+    "https://ethereum-rpc.publicnode.com",
+    "https://cloudflare-eth.com",
+]
+
+USER_AGENT = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+
+RPC_TIMEOUT = 25
+
+
+class RpcUnavailable(RuntimeError):
+    """Every configured endpoint failed."""
+
+
+def _default_opener(url, body, headers):
+    req = urllib.request.Request(url, data=body, headers=headers)
+    with urllib.request.urlopen(req, timeout=RPC_TIMEOUT) as r:
+        return r.read()
+
+
+class Chain:
+    """Read-only JSON-RPC client with endpoint failover.
+
+    Public endpoints reject Python's default User-Agent with HTTP 403 and
+    reset connections mid-session, so failover is required, not optional.
+    """
+
+    def __init__(self, rpcs=None, opener=None):
+        self.rpcs = list(rpcs) if rpcs else list(DEFAULT_RPCS)
+        self.opener = opener or _default_opener
+        self.last_endpoint = None
+
+    def _rpc(self, method, params):
+        headers = {"Content-Type": "application/json",
+                   "User-Agent": USER_AGENT, "Accept": "*/*"}
+        body = json.dumps({"jsonrpc": "2.0", "id": 1,
+                           "method": method, "params": params}).encode()
+        errors = []
+        for url in self.rpcs:
+            try:
+                out = json.loads(self.opener(url, body, headers))
+                if "error" in out:
+                    errors.append("%s: %s" % (url, out["error"]))
+                    continue
+                self.last_endpoint = url
+                return out["result"]
+            except Exception as e:      # noqa: BLE001 - any transport failure fails over
+                errors.append("%s: %s" % (url, e))
+        raise RpcUnavailable("all %d endpoints failed: %s"
+                             % (len(self.rpcs), "; ".join(errors)))
+
+    def call(self, to, data):
+        return self._rpc("eth_call", [{"to": to, "data": data}, "latest"])
+
+    def block_number(self):
+        return decode_uint256(self._rpc("eth_blockNumber", []))
+
+    def flowrate(self, token, sender, receiver):
+        data = encode_call("getFlowrate(address,address,address)",
+                           token, sender, receiver)
+        return decode_int96(self.call(CFA_FORWARDER, data))
+
+    def account_flowrate(self, token, account):
+        data = encode_call("getAccountFlowrate(address,address)", token, account)
+        return decode_int96(self.call(CFA_FORWARDER, data))
+
+    def balance_of(self, token, account):
+        data = encode_call("balanceOf(address)", account)
+        return decode_uint256(self.call(token, data))

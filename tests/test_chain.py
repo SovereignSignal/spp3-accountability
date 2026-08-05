@@ -59,5 +59,80 @@ class TestDecoding(unittest.TestCase):
         self.assertEqual(chain.decode_int96("0x" + "00" * 32), 0)
 
 
+
+class FakeOpener:
+    """Records calls and replays scripted responses or raises."""
+
+    def __init__(self, responses):
+        self.responses = list(responses)
+        self.urls = []
+
+    def __call__(self, url, body, headers):
+        self.urls.append(url)
+        item = self.responses.pop(0)
+        if isinstance(item, Exception):
+            raise item
+        import json as _json
+        return _json.dumps(item).encode()
+
+
+class TestChainClient(unittest.TestCase):
+    def test_uses_first_working_endpoint(self):
+        op = FakeOpener([{"jsonrpc": "2.0", "id": 1, "result": "0x1f"}])
+        c = chain.Chain(rpcs=["https://a.example", "https://b.example"], opener=op)
+        self.assertEqual(c.call("0xdead", "0xbeef"), "0x1f")
+        self.assertEqual(op.urls, ["https://a.example"])
+
+    def test_fails_over_to_next_endpoint(self):
+        op = FakeOpener([OSError("connection reset"),
+                         {"jsonrpc": "2.0", "id": 1, "result": "0x2a"}])
+        c = chain.Chain(rpcs=["https://a.example", "https://b.example"], opener=op)
+        self.assertEqual(c.call("0xdead", "0xbeef"), "0x2a")
+        self.assertEqual(op.urls, ["https://a.example", "https://b.example"])
+
+    def test_fails_over_on_jsonrpc_error(self):
+        op = FakeOpener([{"jsonrpc": "2.0", "id": 1,
+                          "error": {"code": -32603, "message": "Internal error"}},
+                         {"jsonrpc": "2.0", "id": 1, "result": "0x7"}])
+        c = chain.Chain(rpcs=["https://a.example", "https://b.example"], opener=op)
+        self.assertEqual(c.call("0xdead", "0xbeef"), "0x7")
+
+    def test_raises_when_all_endpoints_fail(self):
+        op = FakeOpener([OSError("boom"), OSError("boom")])
+        c = chain.Chain(rpcs=["https://a.example", "https://b.example"], opener=op)
+        with self.assertRaises(chain.RpcUnavailable):
+            c.call("0xdead", "0xbeef")
+
+    def test_flowrate_decodes_int96(self):
+        raw = "0x" + format(15854895991882293, "064x")
+        op = FakeOpener([{"jsonrpc": "2.0", "id": 1, "result": raw}])
+        c = chain.Chain(rpcs=["https://a.example"], opener=op)
+        self.assertEqual(
+            c.flowrate("0x1BA8603DA702602A8657980e825A6DAa03Dee93a",
+                       "0xB162Bf7A7fD64eF32b787719335d06B2780e31D1",
+                       "0x168CAfEcFBE97dF85968Ea039CC11D10a9A44567"),
+            15854895991882293)
+
+    def test_account_flowrate_decodes_negative(self):
+        raw = "0x" + format((1 << 256) - 67497852409250, "064x")
+        op = FakeOpener([{"jsonrpc": "2.0", "id": 1, "result": raw}])
+        c = chain.Chain(rpcs=["https://a.example"], opener=op)
+        self.assertEqual(
+            c.account_flowrate("0x1BA8603DA702602A8657980e825A6DAa03Dee93a",
+                               "0xB162Bf7A7fD64eF32b787719335d06B2780e31D1"),
+            -67497852409250)
+
+    def test_sends_browser_user_agent(self):
+        captured = {}
+
+        def op(url, body, headers):
+            captured.update(headers)
+            import json as _json
+            return _json.dumps({"jsonrpc": "2.0", "id": 1, "result": "0x1"}).encode()
+
+        c = chain.Chain(rpcs=["https://a.example"], opener=op)
+        c.call("0xdead", "0xbeef")
+        self.assertIn("Mozilla", captured["User-Agent"])
+
 if __name__ == "__main__":
     unittest.main()
