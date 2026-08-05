@@ -114,5 +114,82 @@ class TestCheckRetired(unittest.TestCase):
         self.assertEqual(nh["state"], "unexpected_active")
 
 
+class TestNetFlowReconciliation(unittest.TestCase):
+    def _healthy(self, doc):
+        rates = healthy_rates(doc)
+        known_out = sum(C.expected_rate(p["award_usd"]) for p in doc["providers"])
+        net = doc["master_stream_wei_s"] - known_out
+        return FakeReader(rates, account_net={doc["pod"].lower(): net})
+
+    def test_no_unknown_streams(self):
+        doc = load_real()
+        r = M.reconcile_net_flow(doc, self._healthy(doc))
+        self.assertEqual(r["unaccounted_wei_s"], 0)
+        self.assertTrue(r["ok"])
+
+    def test_expected_net_matches_measured_reality(self):
+        # Measured on-chain 2026-08-04: pod net flow is -67497852409250.
+        doc = load_real()
+        r = M.reconcile_net_flow(doc, self._healthy(doc))
+        self.assertEqual(r["expected_net_wei_s"], -67497852409250)
+
+    def test_unknown_stream_detected(self):
+        doc = load_real()
+        rates = healthy_rates(doc)
+        known_out = sum(C.expected_rate(p["award_usd"]) for p in doc["providers"])
+        # A rogue receiver draining 1e12 wei/s that we do not know about.
+        net = doc["master_stream_wei_s"] - known_out - 10**12
+        reader = FakeReader(rates, account_net={doc["pod"].lower(): net})
+        r = M.reconcile_net_flow(doc, reader)
+        self.assertEqual(r["unaccounted_wei_s"], -10**12)
+        self.assertFalse(r["ok"])
+
+
+class TestRunway(unittest.TestCase):
+    def _reader(self, doc, pod_usdcx, tl_usdcx, tl_usdc):
+        return FakeReader(healthy_rates(doc), balances={
+            (C.USDCX.lower(), doc["pod"].lower()): pod_usdcx,
+            (C.USDCX.lower(), C.TIMELOCK.lower()): tl_usdcx,
+            (C.USDC.lower(), C.TIMELOCK.lower()): tl_usdc,
+        })
+
+    def test_healthy_runway_matches_measured_reality(self):
+        # Measured 2026-08-04: 690313.35 USDCx + 7550477.22 USDC at the
+        # timelock, master draw 8788.69 USDCx/day => ~937.7 days.
+        doc = load_real()
+        reader = self._reader(doc, 209438 * 10**18,
+                              690313 * 10**18, 7550477 * 10**6)
+        r = M.check_runway(doc, reader)
+        self.assertAlmostEqual(r["combined_days"], 937.7, delta=1.0)
+        self.assertEqual(r["level"], "ok")
+        self.assertTrue(r["ok"])
+
+    def test_warning_threshold(self):
+        doc = load_real()
+        # 30 days of runway: below the 60-day warning, above 21-day critical.
+        daily = doc["master_stream_wei_s"] * 86400
+        reader = self._reader(doc, 0, 30 * daily, 0)
+        r = M.check_runway(doc, reader)
+        self.assertEqual(r["level"], "warning")
+        self.assertFalse(r["ok"])
+
+    def test_critical_threshold(self):
+        doc = load_real()
+        daily = doc["master_stream_wei_s"] * 86400
+        reader = self._reader(doc, 0, 10 * daily, 0)
+        r = M.check_runway(doc, reader)
+        self.assertEqual(r["level"], "critical")
+        self.assertFalse(r["ok"])
+
+    def test_usdc_counts_toward_runway_with_decimal_scaling(self):
+        # USDC is 6dp, USDCx is 18dp. 1 USDC must count as 1e12 wei of USDCx.
+        doc = load_real()
+        daily = doc["master_stream_wei_s"] * 86400
+        usdc_units = (100 * daily) // 10**12
+        reader = self._reader(doc, 0, 0, usdc_units)
+        r = M.check_runway(doc, reader)
+        self.assertAlmostEqual(r["combined_days"], 100.0, delta=0.5)
+
+
 if __name__ == "__main__":
     unittest.main()
