@@ -1,0 +1,4 @@
+# Intentionally empty. The site and monitor use the Python standard library
+# only, on purpose: this repo also runs on a VM alongside live ENS SPP3 RFP
+# intake infrastructure, where adding dependencies is not worth the risk.
+# The file exists so Nixpacks detects a Python app and provisions a runtime.
