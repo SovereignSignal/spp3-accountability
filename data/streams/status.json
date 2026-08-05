@@ -1,8 +1,8 @@
 {
   "_generated": true,
   "_source": "stream_monitor.py",
-  "block_number": 25688648,
-  "checked_at": "2026-08-05T12:12:50Z",
+  "block_number": 25688716,
+  "checked_at": "2026-08-05T12:26:25Z",
   "net_flow": {
     "expected_net_wei_s": -67497852409250,
     "known_out_wei_s": 101788432267884318,
@@ -22,6 +22,7 @@
       "expected_wei_s": 0,
       "name": "NameHash",
       "ok": true,
+      "since": 0,
       "slug": "namehash",
       "state": "ok"
     },
@@ -34,6 +35,7 @@
       "expected_wei_s": 0,
       "name": "EFP",
       "ok": true,
+      "since": 0,
       "slug": "efp",
       "state": "ok"
     },
@@ -46,6 +48,7 @@
       "expected_wei_s": 0,
       "name": "ZK Email",
       "ok": true,
+      "since": 0,
       "slug": "zk-email",
       "state": "ok"
     },
@@ -58,18 +61,19 @@
       "expected_wei_s": 0,
       "name": "JustaName",
       "ok": true,
+      "since": 0,
       "slug": "justaname",
       "state": "ok"
     }
   ],
   "runway": {
-    "combined_days": 937.2321853822748,
+    "combined_days": 937.2223242711636,
     "daily_burn_wei": 8788688733497045875200,
     "level": "ok",
     "ok": true,
-    "pod_usdcx": 209436147270577119450208,
+    "pod_usdcx": 209436090572381095680208,
     "timelock_usdc": 7550477216881,
-    "timelock_usdcx": 686564731459013080296204
+    "timelock_usdcx": 686478065222891095538268
   },
   "streams": [
     {
@@ -81,6 +85,7 @@
       "expected_wei_s": 15854895991882293,
       "name": "Namespace",
       "ok": true,
+      "since": 1785561311,
       "slug": "namespace",
       "state": "ok"
     },
@@ -93,6 +98,7 @@
       "expected_wei_s": 14269406392694063,
       "name": "Goldsky",
       "ok": true,
+      "since": 1785561311,
       "slug": "goldsky",
       "state": "ok"
     },
@@ -105,6 +111,7 @@
       "expected_wei_s": 12683916793505834,
       "name": "Unruggable",
       "ok": true,
+      "since": 1757690159,
       "slug": "unruggable",
       "state": "ok"
     },
@@ -117,6 +124,7 @@
       "expected_wei_s": 10781329274479959,
       "name": "Fluidkey",
       "ok": true,
+      "since": 1785561311,
       "slug": "fluidkey",
       "state": "ok"
     },
@@ -129,6 +137,7 @@
       "expected_wei_s": 22196854388635210,
       "name": "eth.limo",
       "ok": true,
+      "since": 1757690159,
       "slug": "eth-limo",
       "state": "ok"
     },
@@ -141,6 +150,7 @@
       "expected_wei_s": 22196854388635210,
       "name": "blockful",
       "ok": true,
+      "since": 1757690159,
       "slug": "blockful",
       "state": "ok"
     },
@@ -153,6 +163,7 @@
       "expected_wei_s": 1141552511415525,
       "name": "coltron.eth (Chair)",
       "ok": true,
+      "since": 1785561311,
       "slug": "coltron",
       "state": "ok"
     },
@@ -165,6 +176,7 @@
       "expected_wei_s": 887874175545408,
       "name": "sovereignsignal.eth",
       "ok": true,
+      "since": 1785561311,
       "slug": "sovereignsignal",
       "state": "ok"
     },
@@ -177,6 +189,7 @@
       "expected_wei_s": 887874175545408,
       "name": "austingriffith.eth",
       "ok": true,
+      "since": 1785561311,
       "slug": "austingriffith",
       "state": "ok"
     },
@@ -189,6 +202,7 @@
       "expected_wei_s": 887874175545408,
       "name": "abdullahumar.eth",
       "ok": true,
+      "since": 1785561311,
       "slug": "abdullahumar",
       "state": "ok"
     }
