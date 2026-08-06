@@ -36,17 +36,31 @@ def _short(addr):
     return addr[:6] + "…" + addr[-4:]
 
 
-def _rows(streams, max_rate):
+def _rows(streams, max_rate, epoch):
+    """Rows for one cohort group.
+
+    The ticker counts from max(flow start, program epoch), never from the
+    flow's own start alone. Unruggable's award was unchanged at $400k across
+    cycles, so the switch never touched their flow and it still reports a
+    2025-09-12 SPP2 start; counting from it would show $358,777 beside
+    $5,919 for an identically-timed SPP3 award. The true flow start is kept
+    visible as provenance instead of being silently discarded.
+    """
     out = []
     for s in streams:
         pct = (s["actual_wei_s"] / max_rate * 100) if max_rate else 0
         state = "ok" if s["ok"] else "fault"
+        flow_start = s.get("since", 0)
+        ticks_from = max(flow_start, epoch)
+        provenance = ("flowing since " + _fmt_short(flow_start)) if flow_start else ""
         out.append(
             '<li class="stream stream--{state}">'
             '<div class="stream__id">'
             '<span class="stream__name">{name}</span>'
-            '<a class="stream__addr" href="https://etherscan.io/address/{addr}"'
+            '<span class="stream__meta">'
+            '<a href="https://etherscan.io/address/{addr}"'
             ' target="_blank" rel="noopener">{short}</a>'
+            '{prov}</span>'
             '</div>'
             '<div class="stream__bar"><span style="width:{pct:.2f}%"></span></div>'
             '<div class="stream__rate"><b>${rate}</b><span>/yr</span></div>'
@@ -56,8 +70,9 @@ def _rows(streams, max_rate):
             '</li>'.format(
                 state=state, name=_esc(s["name"]), addr=_esc(s["address"]),
                 short=_esc(_short(s["address"])), pct=pct,
+                prov=(" &middot; " + _esc(provenance)) if provenance else "",
                 rate=_money(_usd(s["expected_wei_s"])),
-                wei=s["actual_wei_s"], since=s.get("since", 0)))
+                wei=s["actual_wei_s"], since=ticks_from))
     return "\n".join(out)
 
 
@@ -115,9 +130,9 @@ def render(status, providers, now):
         days="%.1f" % days,
         cohort_yr=_money(_usd(cohort_rate)),
         n_cohort=len(cohort),
-        cohort_rows=_rows(cohort, max_rate),
-        continuing_rows=_rows(continuing, max_rate),
-        committee_rows=_rows(committee, max_rate),
+        cohort_rows=_rows(cohort, max_rate, epoch),
+        continuing_rows=_rows(continuing, max_rate, epoch),
+        committee_rows=_rows(committee, max_rate, epoch),
         checks=check_html,
         faults=faults,
         pod=_esc(status.get("_pod", "")),
@@ -132,6 +147,11 @@ def _parse_iso(s):
         return calendar.timegm(_t.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
     except (ValueError, TypeError):
         return 0
+
+
+def _fmt_short(ts):
+    import time as _t
+    return _t.strftime("%d %b %Y", _t.gmtime(ts))
 
 
 def _fmt_utc(ts):
@@ -196,8 +216,10 @@ ul{{list-style:none;margin:0;padding:0}}
 .stream:first-child{{border-top:0}}
 .stream__id{{display:flex;flex-direction:column;gap:1px;min-width:0}}
 .stream__name{{font-weight:580;font-size:15px}}
-.stream__addr{{font-family:var(--mono);font-size:11px;color:var(--mute);text-decoration:none}}
-.stream__addr:hover{{color:var(--flow);text-decoration:underline}}
+.stream__meta{{font-family:var(--mono);font-size:11px;color:var(--mute)}}
+.stream__meta a{{color:inherit;text-decoration:none}}
+.stream__meta a:hover{{color:var(--flow);text-decoration:underline}}
+.colnote{{margin:-8px 0 22px;font-size:13px;color:var(--mute);max-width:64ch}}
 .stream__bar{{height:5px;background:var(--rule);border-radius:3px;overflow:hidden}}
 .stream__bar span{{display:block;height:100%;background:var(--flow);border-radius:3px}}
 .stream--fault .stream__bar span{{background:var(--fault)}}
@@ -263,6 +285,9 @@ footer p{{margin:0 0 8px;max-width:78ch}}
   {faults}
 
   <section>
+    <p class="colnote">Amounts are delivered since the 1 Aug 2026 switch, so every
+      row is comparable. A provider whose rate was unchanged across cycles kept the
+      same uninterrupted stream, shown beside its address.</p>
     <h2>SPP3 cohort</h2>
     <ul>{cohort_rows}</ul>
     <h2>Continuing SPP2 streams</h2>
