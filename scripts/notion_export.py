@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""notion_export.py — export SPP3 committee Notion state to publishable JSON.
+"""notion_export.py — export SPP3 cohort state from committee Notion.
 
-Two databases feed the watchtower: the Marketplace RFP applications board and
-the cohort-round pipeline. Both live in the committee's private workspace and
-contain material that must not be published.
+Exports the cohort-round pipeline only. The Marketplace RFP board is a
+selection process still in flight, not an accountability record of funded
+work, and is deliberately not exported: leaving it in board.json kept
+applicant data reachable over HTTP after the page was removed.
 
 The export is a WHITELIST, never a blacklist. Only the fields named in
 PUBLIC_* below ever leave Notion. A new column added to either database is
@@ -28,23 +29,9 @@ sys.path.insert(0, "/home/ubuntu/RFP-Workspace/scripts")
 
 import acct_config as C  # noqa: E402
 
-RFP_DB_ID = "3a31724b-64c7-81b6-afc4-daa691030fac"
 PIPELINE_DB_ID = "3571724b-64c7-8108-ada5-f8ef55c094a3"
 
 # (notion property, output key, kind)
-PUBLIC_RFP = [
-    ("Applicant", "name", "title"),
-    ("Requested (USD)", "requested_usd", "number"),
-    ("Status", "status", "select"),
-    ("Gate Proposal", "gate_proposal", "select"),
-    ("Gate Flags", "gate_flags", "multi"),
-    ("Product URL", "product_url", "url"),
-    ("Final Score", "final_score", "number"),
-    ("Awarded (USD)", "awarded_usd", "number"),
-    ("Recusals", "recusals", "multi"),
-    ("Submission Date", "submitted", "created"),
-]
-
 PUBLIC_PIPELINE = [
     ("Applicant", "name", "title"),
     ("Requested (USD)", "requested_usd", "number"),
@@ -106,14 +93,12 @@ def export_rows(notion, db_id, fields):
 def main():
     import rfp_lib as L
 
-    rfp = export_rows(L.notion, RFP_DB_ID, PUBLIC_RFP)
     pipeline = export_rows(L.notion, PIPELINE_DB_ID, PUBLIC_PIPELINE)
 
     doc = {
         "_generated": True,
         "_source": "notion_export.py (field whitelist; individual scores and "
                    "contact details never leave the committee workspace)",
-        "rfp": sorted(rfp, key=lambda r: (r["submitted"] or "", r["name"])),
         "pipeline": sorted(pipeline, key=lambda r: -(r["awarded_usd"] or 0)),
     }
 
@@ -124,7 +109,7 @@ def main():
     changed = prev != new
     if changed:
         out.write_text(new)
-    print("rfp=%d pipeline=%d changed=%s" % (len(rfp), len(pipeline), changed))
+    print("pipeline=%d changed=%s" % (len(pipeline), changed))
     return 0
 
 

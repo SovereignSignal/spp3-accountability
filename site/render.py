@@ -1,23 +1,44 @@
-"""render.py — build the public stream-health page from status.json.
+"""render.py — ENS SPP3 cohort accountability tracker.
 
-Pure: takes the two data documents plus a clock reading and returns HTML.
-No I/O, so it is testable without a server or a chain connection.
+Tracks the four providers the DAO is actually funding: what they were funded to
+do, what money has reached them, what they have committed to, and whether their
+reports have landed.
 
-Design note: every figure the page asserts is derived from on-chain reads.
-The live counters are computed in the browser from (rate x elapsed) using the
-program epoch, never from a stream's own lastUpdated -- see spp3_stream_start
-in providers.json for why that distinction matters.
+  /                     overview: one card per provider, next obligation
+  /provider/<slug>      scope, funding, commitments, reports for one provider
+  /streams              every stream on the pod, integrity checks, runway
+  /reports              the reporting calendar and who owes what by when
+  /calendar             cohort obligations through the end of term
+
+Deliberately out of scope: the Marketplace RFP. That is a selection process
+still in flight, not an accountability record of funded work.
+
+Two rules hold everywhere and are enforced by tests:
+  - Live figures come from (rate x elapsed) against the explicit program epoch,
+    never a stream's own lastUpdated. See spp3_stream_start in providers.json.
+  - Cohort membership is decided by the chain, not the committee board, which
+    still lists a provider who declined.
 """
+import calendar as _cal
 import html
-import json
+import time as _time
 
 SECONDS_PER_YEAR = 31_536_000
+
+NAV = [("/", "Overview"), ("/providers", "Providers"), ("/streams", "Streams"),
+       ("/reports", "Reports"), ("/calendar", "Calendar")]
 
 VERDICT_COPY = {
     "healthy": "All streams flowing",
     "warning": "Streams flowing, funding needs attention",
     "critical": "Stream fault",
 }
+
+
+# ---------------------------------------------------------------- helpers
+
+def _esc(s):
+    return html.escape(str(s))
 
 
 def _usd(wei_s):
@@ -28,534 +49,622 @@ def _money(n, dp=0):
     return "{:,.{dp}f}".format(n, dp=dp)
 
 
-def _esc(s):
-    return html.escape(str(s))
+def _short(a):
+    return a[:6] + "…" + a[-4:]
 
 
-def _short(addr):
-    return addr[:6] + "…" + addr[-4:]
+def _fmt_short(ts):
+    return _time.strftime("%d %b %Y", _time.gmtime(ts))
 
 
-def _rows(streams, max_rate, epoch):
-    """Rows for one cohort group.
-
-    The ticker counts from max(flow start, program epoch), never from the
-    flow's own start alone. Unruggable's award was unchanged at $400k across
-    cycles, so the switch never touched their flow and it still reports a
-    2025-09-12 SPP2 start; counting from it would show $358,777 beside
-    $5,919 for an identically-timed SPP3 award. The true flow start is kept
-    visible as provenance instead of being silently discarded.
-    """
-    out = []
-    for s in streams:
-        pct = (s["actual_wei_s"] / max_rate * 100) if max_rate else 0
-        state = "ok" if s["ok"] else "fault"
-        flow_start = s.get("since", 0)
-        ticks_from = max(flow_start, epoch)
-        provenance = ("flowing since " + _fmt_short(flow_start)) if flow_start else ""
-        out.append(
-            '<li class="stream stream--{state}">'
-            '<div class="stream__id">'
-            '<span class="stream__name">{name}</span>'
-            '<span class="stream__meta">'
-            '<a href="https://etherscan.io/address/{addr}"'
-            ' target="_blank" rel="noopener">{short}</a>'
-            '{prov}</span>'
-            '</div>'
-            '<div class="stream__bar"><span style="width:{pct:.2f}%"></span></div>'
-            '<div class="stream__rate"><b>${rate}</b><span>/yr</span></div>'
-            '<div class="stream__acc" data-rate="{wei}" data-since="{since}">'
-            '<span class="acc__whole">0</span><span class="acc__frac">.00</span>'
-            '</div>'
-            '</li>'.format(
-                state=state, name=_esc(s["name"]), addr=_esc(s["address"]),
-                short=_esc(_short(s["address"])), pct=pct,
-                prov=(" &middot; " + _esc(provenance)) if provenance else "",
-                rate=_money(_usd(s["expected_wei_s"])),
-                wei=s["actual_wei_s"], since=ticks_from))
-    return "\n".join(out)
-
-
-RFP_STATE_ORDER = ["(ungated)", "Gate Review", "Eligible", "Returned", "Awarded"]
-
-
-def _days_to(datestr, now):
-    import calendar as _c
-    import time as _t
-    try:
-        ts = _c.timegm(_t.strptime(datestr, "%Y-%m-%d"))
-    except ValueError:
-        return None
-    return (ts - now) / 86400.0
-
-
-def _rfp_section(board, now):
-    """The decision clock. This is the part of SPP3 that is actually moving."""
-    apps = board.get("rfp", [])
-    if not apps:
-        return "", None
-    scored = sum(1 for a in apps if a.get("final_score") is not None)
-    confirmed = sum(1 for a in apps
-                    if a.get("status") in ("Eligible", "Returned", "Awarded"))
-    rows = []
-    for a in apps:
-        st = a.get("status") or "(ungated)"
-        gate = a.get("gate_proposal")
-        pill = "wait"
-        if st in ("Eligible", "Awarded"):
-            pill = "ok"
-        elif st == "Returned":
-            pill = "out"
-        req = a.get("requested_usd")
-        rows.append(
-            '<li class="app app--{pill}">'
-            '<span class="app__name">{name}</span>'
-            '<span class="app__req">{req}</span>'
-            '<span class="app__gate">{gate}</span>'
-            '<span class="app__state">{state}</span>'
-            '<span class="app__score">{score}</span>'
-            '</li>'.format(
-                pill=pill, name=_esc(a["name"]),
-                req=("$" + _money(req)) if req else "&mdash;",
-                gate=_esc(gate or "&mdash;") if gate else "&mdash;",
-                state=_esc(st),
-                score=("%.2f" % a["final_score"]) if a.get("final_score") is not None
-                      else "&mdash;"))
-    return (
-        '<section id="rfp">'
-        '<h2>Marketplace RFP &middot; decision clock</h2>'
-        '<div class="tally">'
-        '<div class="tally__item"><b>{n}</b><span>applications</span></div>'
-        '<div class="tally__item {ck}"><b>{c}/{n}</b><span>gate confirmed</span></div>'
-        '<div class="tally__item {sk}"><b>{s}/{n}</b><span>scored</span></div>'
-        '</div>'
-        '<ul class="apps">'
-        '<li class="app app--head"><span>Applicant</span><span>Requested</span>'
-        '<span>Gate</span><span>State</span><span>Score</span></li>'
-        '{rows}</ul>'
-        '<p class="colnote">Gate verdicts marked &ldquo;Proposed&rdquo; are produced by the '
-        'screening harness and are not committee decisions until a member confirms them. '
-        'Individual member scores stay internal per EP&nbsp;6.49; only the final aggregate '
-        'is published here.</p>'
-        '</section>'
-    ).format(n=len(apps), c=confirmed, s=scored,
-             ck="tally--warn" if confirmed < len(apps) else "",
-             sk="tally--warn" if scored < len(apps) else "",
-             rows="\n".join(rows)), None
-
-
-def _cohort_section(board, providers):
-    """Ratified cohort, with the chain as the authority.
-
-    The committee Pipeline DB is a working record and drifts: it still lists
-    EthID as "Cohort selected" although they declined publicly on 2026-07-03.
-    Rendering that list directly published a provider as funded who is not.
-    So rows come from providers.json, whose addresses and rates are verified
-    on-chain, and any provider the board claims but the chain does not fund is
-    surfaced as a data-quality finding rather than silently shown or silently
-    dropped. A watchtower that hides a discrepancy in its own sources is worth
-    less than one that names it.
-    """
-    funded = [p for p in providers.get("providers", []) if p.get("cohort") == "spp3"]
-    if not funded:
-        return ""
-    by_name = {r["name"]: r for r in board.get("pipeline", [])}
-    claimed = [r["name"] for r in board.get("pipeline", [])
-               if r.get("status") == "Cohort selected"]
-    names = {p["name"] for p in funded}
-    ghosts = [n for n in claimed if n not in names]
-
-    out = []
-    for f in funded:
-        rec = by_name.get(f["name"], {})
-        out.append(
-            '<li class="app app--ok">'
-            '<span class="app__name">{name}</span>'
-            '<span class="app__req">${aw}</span>'
-            '<span class="app__gate">{team}</span>'
-            '<span class="app__state">{terms}</span>'
-            '<span class="app__score">{notice}</span>'
-            '</li>'.format(
-                name=_esc(f["name"]), aw=_money(f["award_usd"]),
-                team=_esc(rec.get("team_status") or "&mdash;"),
-                terms="signed" if rec.get("terms_agreed") else "stream live",
-                notice="signed" if rec.get("notice_agreed") else "stream live"))
-
-    note = ""
-    if ghosts:
-        note = ('<p class="drift"><b>Board drift:</b> the committee pipeline still '
-                'lists {names} as cohort-selected, but {verb} no funded stream. '
-                'EthID declined publicly on 3 July 2026. The chain is authoritative '
-                'here; the board record needs updating.</p>').format(
-                    names=_esc(", ".join(ghosts)),
-                    verb="they have" if len(ghosts) > 1 else "there is")
-
-    return (
-        '<section id="cohort">'
-        '<h2>Ratified cohort &middot; obligations</h2>'
-        '{note}'
-        '<ul class="apps">'
-        '<li class="app app--head"><span>Provider</span><span>Award</span>'
-        '<span>Team</span><span>Terms</span><span>Award notice</span></li>'
-        '{rows}</ul>'
-        '<p class="colnote">Streams gate on Foundation KYC and an executed Award '
-        'Notice. All four streams are live on-chain, so both cleared regardless of '
-        'what the committee board records. First Quarterly Reports are due '
-        '30 October 2026, and the public forum version is contractual, not a '
-        'courtesy (Program Terms clause 6.3).</p>'
-        '</section>'
-    ).format(note=note, rows="\n".join(out))
-
-
-def _calendar_section(cal, now):
-    items = []
-    nxt = None
-    for m in cal.get("milestones", []):
-        d = _days_to(m["date"], now)
-        past = m.get("done") or (d is not None and d < 0)
-        if not past and nxt is None:
-            nxt = m
-        when = ""
-        if d is not None and not past:
-            when = "in %d days" % round(d) if d >= 1 else "today"
-        items.append(
-            '<li class="mile mile--{k}{n}"><span class="mile__date">{date}</span>'
-            '<span class="mile__label">{label}</span>'
-            '<span class="mile__when">{when}</span></li>'.format(
-                k="past" if past else m.get("track", ""),
-                n=" mile--next" if (nxt is m) else "",
-                date=_esc(m["date"]), label=_esc(m["label"]), when=when))
-    return ('<section id="calendar"><h2>Program calendar</h2>'
-            '<ul class="miles">%s</ul></section>' % "\n".join(items)), nxt
-
-
-def render(status, providers, now, board=None, calendar=None):
-    board = board or {}
-    calendar = calendar or {}
-    epoch = providers["spp3_stream_start"]
-    cohort = [s for s in status["streams"] if s["cohort"] == "spp3"]
-    continuing = [s for s in status["streams"] if s["cohort"] == "spp2-continuing"]
-    committee = [s for s in status["streams"] if s["cohort"] == "committee"]
-
-    cohort_rate = sum(s["actual_wei_s"] for s in cohort)
-    delivered = cohort_rate * max(0, now - epoch) / 10**18
-    days = max(0.0, (now - epoch) / 86400)
-
-    verdict = status["overall"]
-    runway = status["runway"]
-    net = status["net_flow"]
-    retired_ok = sum(1 for r in status["retired"] if r["ok"])
-    age_min = max(0, int((now - _parse_iso(status["checked_at"])) / 60))
-
-    max_rate = max([s["actual_wei_s"] for s in status["streams"]] or [1])
-
-    checks = [
-        ("Retired SPP2 streams stopped",
-         "%d of %d" % (retired_ok, len(status["retired"])),
-         retired_ok == len(status["retired"])),
-        ("Unaccounted flow on the pod",
-         "%d wei/s" % net["unaccounted_wei_s"], net["ok"]),
-        ("Funding runway",
-         "%s days" % _money(runway["combined_days"]), runway["ok"]),
-    ]
-    check_html = "\n".join(
-        '<li class="check check--{k}"><span class="check__label">{l}</span>'
-        '<span class="check__val">{v}</span></li>'.format(
-            k="ok" if ok else "fault", l=_esc(label), v=_esc(val))
-        for label, val, ok in checks)
-
-    faults = ""
-    if verdict != "healthy":
-        items = "".join(
-            "<li><b>%s</b> %s</li>" % (_esc(f["subject"]), _esc(f["detail"]))
-            for f in status.get("findings", []))
-        if items:
-            faults = '<ul class="faults">%s</ul>' % items
-
-    rfp_html, _ = _rfp_section(board, now)
-    cohort_html = _cohort_section(board, providers)
-    cal_html, nxt = _calendar_section(calendar, now)
-    if nxt:
-        d = _days_to(nxt["date"], now)
-        next_up = "Next: %s &middot; %s" % (
-            _esc(nxt["label"]),
-            ("in %d days" % round(d)) if d and d >= 1 else "today")
-    else:
-        next_up = ""
-
-    return PAGE.format(
-        verdict=verdict,
-        verdict_copy=_esc(VERDICT_COPY.get(verdict, verdict)),
-        block="{:,}".format(status["block_number"]),
-        age=age_min,
-        delivered_whole=_money(int(delivered)),
-        delivered_frac="%02d" % int(round((delivered % 1) * 100)),
-        cohort_rate=cohort_rate,
-        epoch=epoch,
-        epoch_h=_fmt_utc(epoch),
-        days="%.1f" % days,
-        cohort_yr=_money(_usd(cohort_rate)),
-        n_cohort=len(cohort),
-        cohort_rows=_rows(cohort, max_rate, epoch),
-        continuing_rows=_rows(continuing, max_rate, epoch),
-        committee_rows=_rows(committee, max_rate, epoch),
-        checks=check_html,
-        faults=faults,
-        rfp=rfp_html,
-        cohort=cohort_html,
-        calendar=cal_html,
-        next_up=next_up,
-        now=now,
-    )
+def _fmt_utc(ts):
+    return _time.strftime("%d %b %Y %H:%M UTC", _time.gmtime(ts))
 
 
 def _parse_iso(s):
-    import calendar
-    import time as _t
     try:
-        return calendar.timegm(_t.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
+        return _cal.timegm(_time.strptime(s, "%Y-%m-%dT%H:%M:%SZ"))
     except (ValueError, TypeError):
         return 0
 
 
-def _fmt_short(ts):
-    import time as _t
-    return _t.strftime("%d %b %Y", _t.gmtime(ts))
+def _days_to(datestr, now):
+    try:
+        return (_cal.timegm(_time.strptime(datestr, "%Y-%m-%d")) - now) / 86400.0
+    except (ValueError, TypeError):
+        return None
 
 
-def _fmt_utc(ts):
-    import time as _t
-    return _t.strftime("%d %b %Y %H:%M UTC", _t.gmtime(ts))
+def _when(days):
+    if days is None:
+        return ""
+    if days < 0:
+        return "overdue by %d days" % abs(round(days))
+    return "in %d days" % round(days) if days >= 1 else "today"
 
 
-PAGE = """<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ENS SPP3 &middot; program watchtower</title>
-<meta name="description" content="Live status of the ENS SPP3 program: payment streams verified on-chain, Marketplace RFP progress, cohort obligations and the program calendar.">
-<style>
-:root {{
-  --ground:#EDF0F3; --ink:#0E141A; --flow:#1B5CF0;
-  --ok:#0E8A5F; --warn:#B87503; --fault:#C2331B;
-  --rule:rgba(14,20,26,.14); --mute:rgba(14,20,26,.58);
-  --mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
-  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-}}
-@media (prefers-color-scheme:dark) {{
-  :root {{ --ground:#0B0F14; --ink:#E6ECF2; --flow:#5B8DFF;
-    --ok:#3FCF97; --warn:#E0A233; --fault:#FF6A4D;
-    --rule:rgba(230,236,242,.16); --mute:rgba(230,236,242,.6); }}
-}}
-*{{box-sizing:border-box}}
-body{{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
-  -webkit-font-smoothing:antialiased;line-height:1.5}}
-.wrap{{max-width:940px;margin:0 auto;padding:0 20px}}
+def _ticker(rate, since, cls="tick"):
+    return ('<span class="%s" data-rate="%d" data-since="%d">'
+            '<span class="acc__whole">0</span><span class="acc__frac">.00</span>'
+            '</span>' % (cls, rate, since))
 
-.verdict{{border-bottom:1px solid var(--rule);padding:14px 0}}
-.verdict .wrap{{display:flex;align-items:center;gap:12px;flex-wrap:wrap}}
-.dot{{width:9px;height:9px;border-radius:50%;background:var(--ok);flex:none;
-  box-shadow:0 0 0 0 currentColor;color:var(--ok);animation:pulse 2.6s ease-out infinite}}
-.v-warning .dot{{background:var(--warn);color:var(--warn)}}
-.v-critical .dot{{background:var(--fault);color:var(--fault);animation:none}}
-@keyframes pulse{{0%{{box-shadow:0 0 0 0 currentColor;opacity:1}}
-  70%{{box-shadow:0 0 0 9px transparent;opacity:.75}}100%{{box-shadow:0 0 0 0 transparent;opacity:1}}}}
-.verdict__copy{{font-weight:640;letter-spacing:-.01em}}
-.verdict__meta{{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--mute)}}
 
-.hero{{padding:56px 0 44px;border-bottom:1px solid var(--rule)}}
-.eyebrow{{margin:0 0 14px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--mute)}}
-.ticker{{margin:0;font-family:var(--mono);font-weight:600;letter-spacing:-.03em;
-  font-size:clamp(40px,9vw,86px);line-height:1;font-variant-numeric:tabular-nums}}
-.ticker .cur{{color:var(--flow);margin-right:.08em}}
-.ticker .acc__frac{{font-size:.44em;color:var(--mute);letter-spacing:-.01em}}
-.hero__sub{{margin:18px 0 0;font-size:14.5px;color:var(--mute);max-width:60ch}}
-.hero__sub b{{color:var(--ink);font-weight:600}}
+def _funded(ctx):
+    """The cohort, per the chain. The committee board still lists EthID as
+    cohort-selected although they declined on 2026-07-03; rendering that list
+    published a provider as funded who is not."""
+    return [p for p in ctx["providers"].get("providers", [])
+            if p.get("cohort") == "spp3"]
 
-section{{padding:36px 0;border-bottom:1px solid var(--rule)}}
-h2{{margin:0 0 20px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--mute);font-weight:500}}
-h2 + h2{{margin-top:34px}}
 
-ul{{list-style:none;margin:0;padding:0}}
-.stream{{display:grid;grid-template-columns:minmax(140px,1.3fr) minmax(60px,1.5fr) auto auto;
-  gap:16px;align-items:center;padding:11px 0;border-top:1px solid var(--rule)}}
-.stream:first-child{{border-top:0}}
-.stream__id{{display:flex;flex-direction:column;gap:1px;min-width:0}}
-.stream__name{{font-weight:580;font-size:15px}}
-.stream__meta{{font-family:var(--mono);font-size:11px;color:var(--mute)}}
-.stream__meta a{{color:inherit;text-decoration:none}}
-.stream__meta a:hover{{color:var(--flow);text-decoration:underline}}
-.colnote{{margin:-8px 0 22px;font-size:13px;color:var(--mute);max-width:64ch}}
-.stream__bar{{height:5px;background:var(--rule);border-radius:3px;overflow:hidden}}
-.stream__bar span{{display:block;height:100%;background:var(--flow);border-radius:3px}}
-.stream--fault .stream__bar span{{background:var(--fault)}}
-.stream__rate{{font-family:var(--mono);font-size:12.5px;color:var(--mute);text-align:right;white-space:nowrap}}
-.stream__rate b{{color:var(--ink);font-weight:600}}
-.stream__acc{{font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;
-  text-align:right;min-width:104px;white-space:nowrap}}
-.stream__acc::before{{content:"$";color:var(--flow)}}
-.stream__acc .acc__frac{{font-size:.76em;color:var(--mute)}}
-.stream--fault .stream__acc{{color:var(--fault)}}
-.stream--fault .stream__acc::before{{color:var(--fault)}}
+def _stream_for(ctx, slug):
+    for s in ctx["status"]["streams"]:
+        if s["slug"] == slug:
+            return s
+    return None
 
-.check{{display:flex;gap:16px;align-items:baseline;padding:10px 0;border-top:1px solid var(--rule)}}
-.check:first-child{{border-top:0}}
-.check__label{{font-size:14.5px}}
-.check__val{{margin-left:auto;font-family:var(--mono);font-size:13px}}
-.check--ok .check__val{{color:var(--ok)}}
-.check--fault .check__val{{color:var(--fault);font-weight:600}}
-.faults{{margin:0 0 22px;padding:14px 16px;border-left:3px solid var(--fault);
-  background:rgba(194,51,27,.07);font-size:14px}}
-.faults li{{margin:3px 0}}
 
-.verdict__next{{font-size:13px;color:var(--mute);border-left:1px solid var(--rule);
-  padding-left:12px}}
-.tally{{display:flex;gap:34px;flex-wrap:wrap;margin:0 0 22px}}
-.tally__item b{{display:block;font-family:var(--mono);font-size:27px;font-weight:600;
-  letter-spacing:-.02em;line-height:1.1}}
-.tally__item span{{font-size:12px;color:var(--mute)}}
-.tally--warn b{{color:var(--warn)}}
-.apps{{margin:0 0 6px}}
-.app{{display:grid;grid-template-columns:minmax(120px,2fr) 90px 120px 110px 60px;
-  gap:14px;align-items:baseline;padding:9px 0;border-top:1px solid var(--rule);font-size:14px}}
-.app--head{{border-top:0;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--mute)}}
-.app__name{{font-weight:560}}
-.app__req,.app__score{{font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}}
-.app__gate,.app__state{{font-size:12.5px;color:var(--mute)}}
-.app--wait .app__state{{color:var(--warn)}}
-.app--ok .app__state{{color:var(--ok)}}
-.app--out .app__state{{color:var(--fault)}}
-.app--head span{{color:var(--mute)!important}}
-.drift{{margin:0 0 18px;padding:12px 15px;border-left:3px solid var(--warn);
-  background:rgba(184,117,3,.09);font-size:13.5px;max-width:72ch}}
-.miles{{margin:0}}
-.mile{{display:grid;grid-template-columns:92px 1fr auto;gap:14px;align-items:baseline;
-  padding:8px 0;border-top:1px solid var(--rule);font-size:14px}}
-.mile:first-child{{border-top:0}}
-.mile__date{{font-family:var(--mono);font-size:12px;color:var(--mute)}}
-.mile__when{{font-family:var(--mono);font-size:11.5px;color:var(--mute)}}
-.mile--past{{opacity:.45}}
-.mile--past .mile__label{{text-decoration:line-through;text-decoration-thickness:1px}}
-.mile--next{{font-weight:600}}
-.mile--next .mile__date,.mile--next .mile__when{{color:var(--flow)}}
-.mile--next .mile__label::after{{content:" \2190 next";color:var(--flow);font-weight:500;
-  font-family:var(--mono);font-size:11px}}
-footer{{padding:30px 0 60px;font-family:var(--mono);font-size:11.5px;
-  color:var(--mute);line-height:1.85;border-bottom:0}}
-footer a{{color:var(--mute)}}
-footer p{{margin:0 0 8px;max-width:78ch}}
+def _commit(ctx, slug):
+    return ctx["commitments"].get("providers", {}).get(slug, {})
 
-@media (max-width:760px){{
-  .app{{grid-template-columns:1fr auto;gap:2px 12px}}
-  .app__gate,.app__state{{grid-column:1;font-size:11.5px}}
-  .app--head{{display:none}}
-  .mile{{grid-template-columns:80px 1fr;gap:4px 12px}}
-  .mile__when{{grid-column:2}}
-}}
-@media (max-width:660px){{
-  .stream{{grid-template-columns:1fr auto;gap:6px 12px}}
-  .stream__bar{{grid-column:1/-1;order:3}}
-  .stream__rate{{order:2}}
-  .stream__acc{{order:4;grid-column:1/-1;text-align:left;font-size:14px}}
-  .verdict__meta{{margin-left:0;width:100%}}
-}}
-@media (prefers-reduced-motion:reduce){{
-  .dot{{animation:none}}
-}}
-</style>
-</head>
-<body>
 
-<header class="verdict v-{verdict}">
-  <div class="wrap">
-    <span class="dot" aria-hidden="true"></span>
-    <span class="verdict__copy">{verdict_copy}</span>
-    <span class="verdict__next">{next_up}</span>
-    <span class="verdict__meta">block {block} &middot; checked {age} min ago</span>
-  </div>
-</header>
+def _next_quarter(ctx):
+    for q in ctx["commitments"].get("quarters", []):
+        d = _days_to(q["report_due"], ctx["now"])
+        if d is not None and d >= 0:
+            return q, d
+    return None, None
 
-<main class="wrap">
 
-  <div class="hero">
-    <p class="eyebrow">Delivered to the SPP3 cohort</p>
-    <p class="ticker" id="total" data-rate="{cohort_rate}" data-since="{epoch}">
-      <span class="cur">$</span><span class="acc__whole">{delivered_whole}</span><span
-        class="acc__frac">.{delivered_frac}</span>
-    </p>
-    <p class="hero__sub">Streaming continuously since <b>{epoch_h}</b>, {days} days ago, at
-      <b>${cohort_yr}/yr</b> across {n_cohort} providers. Every figure below is read
-      from Ethereum mainnet, not reported by the providers.</p>
-  </div>
+def _ghosts(ctx):
+    names = {p["name"] for p in _funded(ctx)}
+    return [r["name"] for r in ctx["board"].get("pipeline", [])
+            if r.get("status") == "Cohort selected" and r["name"] not in names]
 
-  {faults}
 
-  <section>
-    <p class="colnote">Amounts are delivered since the 1 Aug 2026 switch, so every
-      row is comparable. A provider whose rate was unchanged across cycles kept the
-      same uninterrupted stream, shown beside its address.</p>
-    <h2>SPP3 cohort</h2>
-    <ul>{cohort_rows}</ul>
-    <h2>Continuing SPP2 streams</h2>
-    <ul>{continuing_rows}</ul>
-    <h2>Committee</h2>
-    <ul>{committee_rows}</ul>
-  </section>
+# ---------------------------------------------------------------- pages
 
-  {rfp}
+def page_home(ctx):
+    epoch = ctx["providers"]["spp3_stream_start"]
+    funded = _funded(ctx)
+    rate = sum(s["actual_wei_s"] for s in ctx["status"]["streams"]
+               if s["cohort"] == "spp3")
+    q, qdays = _next_quarter(ctx)
 
-  <section id="streams">
-    <h2>Integrity checks</h2>
-    <ul>{checks}</ul>
-  </section>
+    cards = []
+    for p in funded:
+        s = _stream_for(ctx, p["slug"]) or {}
+        c = _commit(ctx, p["slug"])
+        ms = c.get("milestones", [])
+        state = "ok" if s.get("ok") else "fault"
+        cards.append(
+            '<a class="card card--%s" href="/provider/%s">'
+            '<span class="card__label">%s</span>'
+            '<span class="card__headline">%s</span>'
+            '<span class="card__detail">$%s/yr &middot; %s</span>'
+            '<span class="card__detail card__detail--dim">%s</span></a>' % (
+                state, _esc(p["slug"]), _esc(p["name"]),
+                _ticker(s.get("actual_wei_s", 0), epoch, "tick tick--card"),
+                _money(p["award_usd"]),
+                "stream live" if s.get("ok") else "STREAM FAULT",
+                ("%d commitments recorded" % len(ms)) if ms
+                else "commitments not yet recorded"))
 
-  {cohort}
+    drift = ""
+    if _ghosts(ctx):
+        drift = ('<p class="drift"><b>Board drift:</b> the committee pipeline still '
+                 'lists %s as cohort-selected, but there is no funded stream. EthID '
+                 'declined publicly on 3 July 2026. The chain is authoritative here.</p>'
+                 % _esc(", ".join(_ghosts(ctx))))
 
-  {calendar}
+    obligation = ""
+    if q:
+        obligation = (
+            '<section><h2>Next obligation</h2>'
+            '<p class="big">Quarterly Reports for <b>%s</b> are due <b>%s</b>, %s.</p>'
+            '<p class="colnote">Due within 30 days of quarter end. A public version on '
+            'the ENS Forum is contractual, not a courtesy (Program Terms clause 6.3). '
+            'Nothing has been filed yet, which is expected: the window has not opened.'
+            '</p></section>' % (_esc(q["quarter"]), _esc(q["report_due"]), _when(qdays)))
 
-  <footer>
-    <p>Rates are compared as Superfluid <code>wei/s</code> integers against the rates
-      ratified in EP&nbsp;6.49, never as reconstructed dollar figures. Amounts shown in
-      dollars are a gloss on the integer rate.</p>
-    <p>Checked daily against the Stream Management Pod. Source and method:
-      <a href="https://github.com/SovereignSignal/spp3-accountability">spp3-accountability</a>.
-      Built and operated by sovereignsignal.eth for the ENS SPP3 committee.</p>
-  </footer>
+    return (
+        '<div class="hero"><p class="eyebrow">Delivered to the cohort so far</p>'
+        '<p class="ticker">%s</p>'
+        '<p class="hero__sub">Streaming continuously since <b>%s</b> at <b>$%s/yr</b> '
+        'across %d providers. Amounts are read from Ethereum mainnet; commitments and '
+        'reports are the committee\'s own record.</p></div>'
+        '%s<section><h2>The cohort</h2><div class="cards">%s</div></section>%s' % (
+            _ticker(rate, epoch, "tick tick--hero"), _fmt_utc(epoch),
+            _money(_usd(rate)), len(funded), drift, "\n".join(cards), obligation))
 
-</main>
 
-<script>
-(function () {{
-  var SERVER_NOW = {now};
-  var t0 = performance.now();
-  var nodes = [].slice.call(document.querySelectorAll('[data-rate][data-since]'));
-  if (!nodes.length) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+def page_providers(ctx):
+    rows = []
+    for p in _funded(ctx):
+        s = _stream_for(ctx, p["slug"]) or {}
+        c = _commit(ctx, p["slug"])
+        rows.append(
+            '<li class="app app--%s"><span class="app__name">'
+            '<a href="/provider/%s">%s</a></span>'
+            '<span class="app__req">$%s</span>'
+            '<span class="app__gate">%s</span>'
+            '<span class="app__state">%s</span>'
+            '<span class="app__score">%s</span></li>' % (
+                "ok" if s.get("ok") else "out", _esc(p["slug"]), _esc(p["name"]),
+                _money(p["award_usd"]),
+                "live" if s.get("ok") else "FAULT",
+                ("%d recorded" % len(c.get("milestones", [])))
+                if c.get("milestones") else "not recorded",
+                "30 Oct 2026"))
+    return ('<p class="lede">Four providers ratified by EP&nbsp;6.49 and funded '
+            'on-chain since 1 August 2026.</p>'
+            '<section><ul class="apps"><li class="app app--head">'
+            '<span>Provider</span><span>Award</span><span>Stream</span>'
+            '<span>Commitments</span><span>First report</span></li>%s</ul></section>'
+            % "\n".join(rows))
 
-  function paint() {{
-    var now = SERVER_NOW + (performance.now() - t0) / 1000;
-    for (var i = 0; i < nodes.length; i++) {{
-      var el = nodes[i];
-      var rate = Number(el.getAttribute('data-rate'));
-      var since = Number(el.getAttribute('data-since'));
-      if (!rate || !since) continue;
-      var v = rate * Math.max(0, now - since) / 1e18;
-      var whole = Math.floor(v);
-      el.querySelector('.acc__whole').textContent = whole.toLocaleString('en-US');
-      el.querySelector('.acc__frac').textContent =
-        '.' + String(Math.floor((v - whole) * 100)).padStart(2, '0');
-    }}
-  }}
 
-  paint();
-  if (reduce) {{ setInterval(paint, 1000); }}
-  else {{ (function loop() {{ paint(); requestAnimationFrame(loop); }})(); }}
-}})();
-</script>
-</body>
-</html>
+def page_provider(ctx, slug):
+    p = next((x for x in _funded(ctx) if x["slug"] == slug), None)
+    if not p:
+        return None
+    s = _stream_for(ctx, slug) or {}
+    c = _commit(ctx, slug)
+    epoch = ctx["providers"]["spp3_stream_start"]
+    rec = {r["name"]: r for r in ctx["board"].get("pipeline", [])}.get(p["name"], {})
+
+    facts = [
+        ("Award", "$%s / year" % _money(p["award_usd"])),
+        ("Categories", ", ".join(str(x) for x in p.get("categories", [])) or "&mdash;"),
+        ("Team status", _esc(rec.get("team_status") or "&mdash;")),
+        ("Approved wallet",
+         '<a href="https://etherscan.io/address/%s" target="_blank" rel="noopener">%s</a>'
+         % (_esc(p["approved_wallet"]), _esc(_short(p["approved_wallet"])))),
+        ("Stream", ("running at the ratified rate" if s.get("ok")
+                    else "<b>FAULT: %s</b>" % _esc(s.get("state", "unknown")))),
+        ("Flow opened", _fmt_short(s["since"]) if s.get("since") else "&mdash;"),
+    ]
+    if p.get("recusals"):
+        facts.append(("Recusals", _esc(", ".join(p["recusals"]))
+                      + " &mdash; another member signs off"))
+
+    ext = ""
+    if c.get("external_note"):
+        ext = ('<p class="drift drift--info"><b>External dependency:</b> %s</p>'
+               % _esc(c["external_note"]))
+
+    ms = c.get("milestones", [])
+    if ms:
+        mrows = "".join('<li class="app"><span class="app__name">%s</span>'
+                        '<span class="app__gate">%s</span>'
+                        '<span class="app__state">%s</span></li>'
+                        % (_esc(m.get("title", "")), _esc(m.get("target_quarter", "")),
+                           _esc(m.get("status", "not started")))
+                        for m in ms)
+        milestones = '<ul class="apps">%s</ul>' % mrows
+    else:
+        milestones = (
+            '<p class="empty">No commitments recorded yet.</p>'
+            '<p class="colnote">Milestones and KPIs come from Award Notice Item 5, '
+            'which is not yet in the committee workspace. Until they land, the 80% '
+            'milestone-completion rate the committee is bound to report has no '
+            'denominator. An empty list here is an accurate statement of what is '
+            'known, not a placeholder.</p>')
+
+    reports = c.get("reports", [])
+    if reports:
+        rrows = "".join('<li class="app"><span class="app__name">%s</span>'
+                        '<span class="app__gate">%s</span></li>'
+                        % (_esc(r.get("quarter", "")), _esc(r.get("url", "")))
+                        for r in reports)
+        reports_html = '<ul class="apps">%s</ul>' % rrows
+    else:
+        q, qdays = _next_quarter(ctx)
+        reports_html = ('<p class="empty">No reports filed.</p>'
+                        '<p class="colnote">First Quarterly Report covers %s and is due '
+                        '%s, %s. Not overdue.</p>' % (
+                            _esc(q["quarter"]), _esc(q["report_due"]), _when(qdays))
+                        if q else '<p class="empty">No reports filed.</p>')
+
+    return (
+        '<p class="lede">%s</p>'
+        '<div class="hero hero--sm"><p class="eyebrow">Delivered to %s</p>'
+        '<p class="ticker ticker--sm">%s</p></div>'
+        '<section><h2>Funding</h2><dl class="facts">%s</dl></section>'
+        '%s'
+        '<section><h2>Why the committee funded this</h2><p class="prose">%s</p>'
+        '<p class="prose prose--dim">%s</p></section>'
+        '<section><h2>Commitments</h2>%s</section>'
+        '<section><h2>Reports</h2>%s</section>' % (
+            _esc(c.get("scope", "")), _esc(p["name"]),
+            _ticker(s.get("actual_wei_s", 0), epoch, "tick tick--hero"),
+            "".join("<dt>%s</dt><dd>%s</dd>" % (k, v) for k, v in facts),
+            ext,
+            _esc(c.get("why_funded", "")), _esc(c.get("watch", "")),
+            milestones, reports_html))
+
+
+def page_streams(ctx):
+    st = ctx["status"]
+    epoch = ctx["providers"]["spp3_stream_start"]
+    max_rate = max([s["actual_wei_s"] for s in st["streams"]] or [1])
+    body = ['<p class="lede">Every stream the Stream Management Pod runs, compared '
+            'against the rates ratified in EP&nbsp;6.49. Amounts are delivered since '
+            'the 1 Aug 2026 switch so rows stay comparable; a provider whose rate was '
+            'unchanged across cycles kept the same uninterrupted stream, noted beside '
+            'its address.</p>']
+
+    for label, key in [("Cohort", "spp3"), ("Continuing SPP2", "spp2-continuing"),
+                       ("Committee", "committee")]:
+        rows = [s for s in st["streams"] if s["cohort"] == key]
+        if not rows:
+            continue
+        out = []
+        for s in rows:
+            pct = s["actual_wei_s"] / max_rate * 100 if max_rate else 0
+            fs = s.get("since", 0)
+            out.append(
+                '<li class="stream stream--%s"><div class="stream__id">'
+                '<span class="stream__name">%s</span><span class="stream__meta">'
+                '<a href="https://etherscan.io/address/%s" target="_blank" '
+                'rel="noopener">%s</a>%s</span></div>'
+                '<div class="stream__bar"><span style="width:%.2f%%"></span></div>'
+                '<div class="stream__rate"><b>$%s</b><span>/yr</span></div>'
+                '<div class="stream__acc">%s</div></li>' % (
+                    "ok" if s["ok"] else "fault", _esc(s["name"]),
+                    _esc(s["address"]), _esc(_short(s["address"])),
+                    (" &middot; flowing since " + _fmt_short(fs)) if fs else "",
+                    pct, _money(_usd(s["expected_wei_s"])),
+                    _ticker(s["actual_wei_s"], max(fs, epoch), "tick tick--row")))
+        body.append('<section><h2>%s</h2><ul>%s</ul></section>'
+                    % (_esc(label), "\n".join(out)))
+
+    retired = st.get("retired", [])
+    if retired:
+        body.append('<section><h2>Retired SPP2 streams</h2><ul>%s</ul>'
+                    '<p class="colnote">A retired stream still running would mean the '
+                    'DAO is paying someone it stopped funding.</p></section>' % "".join(
+                        '<li class="check check--%s"><span class="check__label">%s</span>'
+                        '<span class="check__val">%s</span></li>' % (
+                            "ok" if r["ok"] else "fault", _esc(r["name"]),
+                            "stopped" if r["ok"]
+                            else "STILL STREAMING %d wei/s" % r["actual_wei_s"])
+                        for r in retired))
+
+    net, run = st["net_flow"], st["runway"]
+    checks = [
+        ("Unaccounted flow on the pod", "%d wei/s" % net["unaccounted_wei_s"], net["ok"],
+         "The pod's net flowrate must equal master inflow minus known outflows. "
+         "Checking only known receivers is blind to a receiver nobody recorded."),
+        ("Funding runway", "%s days" % _money(run["combined_days"]), run["ok"],
+         "Timelock USDCx plus the USDC autowrap converts, against the master stream's "
+         "daily draw. SPP2's streams once ran dead for 33.7 days before anyone noticed."),
+    ]
+    body.append('<section><h2>Integrity checks</h2><ul>%s</ul></section>' % "".join(
+        '<li class="check check--%s"><span class="check__label">%s'
+        '<span class="check__why">%s</span></span><span class="check__val">%s</span>'
+        '</li>' % ("ok" if ok else "fault", _esc(l), _esc(why), _esc(v))
+        for l, v, ok, why in checks))
+    return "\n".join(body)
+
+
+def page_reports(ctx):
+    funded = _funded(ctx)
+    rows = []
+    for q in ctx["commitments"].get("quarters", []):
+        d = _days_to(q["report_due"], ctx["now"])
+        filed = sum(1 for p in funded
+                    if any(r.get("quarter") == q["quarter"]
+                           for r in _commit(ctx, p["slug"]).get("reports", [])))
+        if d is not None and d < 0 and filed < len(funded):
+            state, val = "fault", "%d of %d filed &middot; OVERDUE" % (filed, len(funded))
+        elif filed == len(funded):
+            state, val = "ok", "%d of %d filed" % (filed, len(funded))
+        else:
+            state, val = "wait", "%d of %d filed &middot; %s" % (filed, len(funded), _when(d))
+        rows.append(
+            '<li class="check check--%s"><span class="check__label">%s'
+            '<span class="check__why">quarter ends %s, report due %s</span></span>'
+            '<span class="check__val">%s</span></li>' % (
+                state, _esc(q["quarter"]), _esc(q["ends"]), _esc(q["report_due"]), val))
+    return (
+        '<p class="lede">Each provider owes a Quarterly Report within 30 days of each '
+        'calendar quarter end, covering progress against the KPIs in their Award '
+        'Notice, fees received, and how those fees were applied. A public version on '
+        'the ENS Forum is required by <b>Program Terms clause 6.3</b>, not offered as '
+        'a courtesy.</p>'
+        '<section><h2>Reporting calendar</h2><ul>%s</ul>'
+        '<p class="colnote">Calendar quarters, matching the ensdao/spp convention. '
+        'SPP2 counted quarters from program start in places and from the calendar in '
+        'others, and the resulting due-date confusion played out in public. Nothing is '
+        'overdue: the first window opens 30 September 2026.</p></section>'
+        % "\n".join(rows))
+
+
+def page_calendar(ctx):
+    nxt = None
+    for m in ctx["calendar"].get("milestones", []):
+        d = _days_to(m["date"], ctx["now"])
+        if not (m.get("done") or (d is not None and d < 0)):
+            nxt = m
+            break
+    items = []
+    for m in ctx["calendar"].get("milestones", []):
+        if m.get("track") == "rfp":
+            continue
+        d = _days_to(m["date"], ctx["now"])
+        past = m.get("done") or (d is not None and d < 0)
+        items.append(
+            '<li class="mile mile--%s%s"><span class="mile__date">%s</span>'
+            '<span class="mile__label">%s</span><span class="mile__track">%s</span>'
+            '<span class="mile__when">%s</span></li>' % (
+                "past" if past else m.get("track", ""),
+                " mile--next" if (nxt is m) else "", _esc(m["date"]),
+                _esc(m["label"]), _esc(m.get("track", "")),
+                "" if past else _when(d)))
+    return ('<p class="lede">Cohort obligations through the end of term, fixed by '
+            'EP&nbsp;6.49 and Program Terms clauses 4.4 and 6.1&ndash;6.5. '
+            'Marketplace RFP dates are tracked separately and are not shown here.</p>'
+            '<section><ul class="miles">%s</ul></section>' % "\n".join(items))
+
+
+ROUTES = {
+    "/": ("Overview", page_home),
+    "/providers": ("Providers", page_providers),
+    "/streams": ("Streams", page_streams),
+    "/reports": ("Reports", page_reports),
+    "/calendar": ("Calendar", page_calendar),
+}
+
+
+# ---------------------------------------------------------------- shell
+
+def _nav(active):
+    return ('<nav class="nav"><div class="wrap">'
+            '<a class="nav__mark" href="/">ENS SPP3 <span>accountability</span></a>'
+            '<div class="nav__links">%s</div></div></nav>' % "".join(
+                '<a class="nav__link%s" href="%s">%s</a>' % (
+                    " is-active" if h == active else "", h, _esc(l))
+                for h, l in NAV))
+
+
+def _verdict(ctx):
+    st = ctx["status"]
+    age = max(0, int((ctx["now"] - _parse_iso(st["checked_at"])) / 60))
+    return ('<header class="verdict v-%s"><div class="wrap">'
+            '<span class="dot" aria-hidden="true"></span>'
+            '<span class="verdict__copy">%s</span>'
+            '<span class="verdict__meta">block %s &middot; checked %d min ago</span>'
+            '</div></header>' % (
+                st["overall"], _esc(VERDICT_COPY.get(st["overall"], st["overall"])),
+                "{:,}".format(st["block_number"]), age))
+
+
+def render(ctx, path="/"):
+    """Dispatch. Returns None for an unknown path so the server can 404."""
+    if path.startswith("/provider/"):
+        slug = path[len("/provider/"):].strip("/")
+        body = page_provider(ctx, slug)
+        if body is None:
+            return None
+        p = next(x for x in _funded(ctx) if x["slug"] == slug)
+        title, active = p["name"], "/providers"
+    elif path in ROUTES:
+        title, builder = ROUTES[path]
+        body, active = builder(ctx), path
+    else:
+        return None
+
+    return ("<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
+            "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n"
+            "<title>" + _esc(title) + " · ENS SPP3 accountability</title>\n"
+            "<meta name=\"description\" content=\"Accountability tracker for the ENS "
+            "SPP3 service provider cohort: funding verified on-chain, commitments, and "
+            "quarterly reporting.\">\n<style>" + CSS + "</style>\n</head>\n<body>\n"
+            + _nav(active) + _verdict(ctx)
+            + '<main class="wrap"><h1 class="title">' + _esc(title) + "</h1>\n"
+            + body + FOOTER + "</main>\n<script>"
+            + JS.replace("%SERVER_NOW%", repr(ctx["now"])) + "</script>\n</body>\n</html>\n")
+
+
+CSS = """
+:root{--ground:#EDF0F3;--ink:#0E141A;--flow:#1B5CF0;--ok:#0E8A5F;--warn:#B87503;
+--fault:#C2331B;--rule:rgba(14,20,26,.14);--mute:rgba(14,20,26,.58);--panel:#fff;
+--mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
+--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme:dark){:root{--ground:#0B0F14;--ink:#E6ECF2;--flow:#5B8DFF;
+--ok:#3FCF97;--warn:#E0A233;--fault:#FF6A4D;--rule:rgba(230,236,242,.16);
+--mute:rgba(230,236,242,.6);--panel:#121820}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+-webkit-font-smoothing:antialiased;line-height:1.5}
+a{color:inherit}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+
+.nav{border-bottom:1px solid var(--rule)}
+.nav .wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding:15px 20px}
+.nav__mark{font-family:var(--mono);font-size:13px;font-weight:600;text-decoration:none}
+.nav__mark span{color:var(--mute);font-weight:400}
+.nav__links{display:flex;gap:20px;margin-left:auto;flex-wrap:wrap}
+.nav__link{font-size:13.5px;text-decoration:none;color:var(--mute);padding-bottom:2px;
+border-bottom:2px solid transparent}
+.nav__link:hover{color:var(--ink)}
+.nav__link.is-active{color:var(--ink);border-bottom-color:var(--flow);font-weight:560}
+
+.verdict{border-bottom:1px solid var(--rule);padding:12px 0;background:var(--panel)}
+.verdict .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);flex:none;color:var(--ok);
+animation:pulse 2.6s ease-out infinite}
+.v-warning .dot{background:var(--warn);color:var(--warn)}
+.v-critical .dot{background:var(--fault);color:var(--fault);animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 currentColor;opacity:1}
+70%{box-shadow:0 0 0 9px transparent;opacity:.75}100%{box-shadow:0 0 0 0 transparent;opacity:1}}
+.verdict__copy{font-weight:620;font-size:14.5px}
+.verdict__meta{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--mute)}
+
+.title{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.12em;
+text-transform:uppercase;color:var(--mute);margin:34px 0 0}
+.lede{margin:14px 0 28px;font-size:15px;color:var(--mute);max-width:70ch}
+.lede b{color:var(--ink)}
+.prose{margin:0 0 12px;font-size:14.5px;max-width:72ch}
+.prose--dim{color:var(--mute);font-size:13.5px}
+.empty{margin:0;font-size:14.5px;color:var(--mute);font-style:italic}
+.big{margin:0;font-size:19px;letter-spacing:-.01em}
+
+.hero{padding:32px 0 38px;border-bottom:1px solid var(--rule)}
+.hero--sm{padding:20px 0 24px}
+.eyebrow{margin:0 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+text-transform:uppercase;color:var(--mute)}
+.ticker{margin:0;font-family:var(--mono);font-weight:600;letter-spacing:-.03em;
+font-size:clamp(38px,8.5vw,78px);line-height:1;font-variant-numeric:tabular-nums}
+.ticker--sm{font-size:clamp(30px,6vw,50px)}
+.tick--hero::before{content:"$";color:var(--flow);margin-right:.06em}
+.tick--hero .acc__frac{font-size:.44em;color:var(--mute)}
+.hero__sub{margin:18px 0 0;font-size:14.5px;color:var(--mute);max-width:64ch}
+.hero__sub b{color:var(--ink);font-weight:600}
+
+section{padding:28px 0;border-bottom:1px solid var(--rule)}
+h2{margin:0 0 18px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+text-transform:uppercase;color:var(--mute);font-weight:500}
+ul{list-style:none;margin:0;padding:0}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px}
+.card{display:flex;flex-direction:column;gap:4px;padding:17px 17px 15px;
+background:var(--panel);border:1px solid var(--rule);border-radius:9px;
+text-decoration:none;border-left-width:3px;transition:transform .12s ease}
+.card:hover{transform:translateY(-2px)}
+.card--ok{border-left-color:var(--ok)}
+.card--fault{border-left-color:var(--fault)}
+.card__label{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+text-transform:uppercase;color:var(--mute)}
+.card__headline{font-size:17px;font-weight:600}
+.tick--card{font-family:var(--mono);font-size:23px;font-weight:600;letter-spacing:-.02em;
+font-variant-numeric:tabular-nums;display:block;margin:2px 0}
+.tick--card::before{content:"$";color:var(--flow)}
+.tick--card .acc__frac{font-size:.62em;color:var(--mute)}
+.card__detail{font-size:12.5px;color:var(--mute)}
+.card__detail--dim{font-size:11.5px;opacity:.8}
+
+.facts{display:grid;grid-template-columns:auto 1fr;gap:8px 22px;margin:0;font-size:14px}
+.facts dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+text-transform:uppercase;color:var(--mute);padding-top:2px}
+.facts dd{margin:0}
+
+.stream{display:grid;grid-template-columns:minmax(140px,1.3fr) minmax(60px,1.4fr) auto auto;
+gap:16px;align-items:center;padding:11px 0;border-top:1px solid var(--rule)}
+.stream:first-child{border-top:0}
+.stream__id{display:flex;flex-direction:column;gap:1px;min-width:0}
+.stream__name{font-weight:580;font-size:15px}
+.stream__meta{font-family:var(--mono);font-size:11px;color:var(--mute)}
+.stream__meta a{color:inherit;text-decoration:none}
+.stream__meta a:hover{color:var(--flow);text-decoration:underline}
+.stream__bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden}
+.stream__bar span{display:block;height:100%;background:var(--flow);border-radius:3px}
+.stream--fault .stream__bar span{background:var(--fault)}
+.stream__rate{font-family:var(--mono);font-size:12.5px;color:var(--mute);text-align:right;
+white-space:nowrap}
+.stream__rate b{color:var(--ink);font-weight:600}
+.stream__acc{text-align:right;min-width:104px}
+.tick--row{font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;
+white-space:nowrap}
+.tick--row::before{content:"$";color:var(--flow)}
+.tick--row .acc__frac{font-size:.76em;color:var(--mute)}
+.stream--fault .tick--row,.stream--fault .tick--row::before{color:var(--fault)}
+
+.app{display:grid;grid-template-columns:minmax(120px,2fr) 96px 108px 132px 104px;gap:14px;
+align-items:baseline;padding:9px 0;border-top:1px solid var(--rule);font-size:14px}
+.app--head{border-top:0;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+text-transform:uppercase}
+.app--head span{color:var(--mute)}
+.app__name{font-weight:560}
+.app__name a{text-decoration:none;border-bottom:1px solid var(--rule)}
+.app__name a:hover{color:var(--flow);border-bottom-color:var(--flow)}
+.app__req,.app__score{font-family:var(--mono);font-size:12.5px;
+font-variant-numeric:tabular-nums}
+.app__gate,.app__state{font-size:12.5px;color:var(--mute)}
+.app--ok .app__gate{color:var(--ok)}
+.app--out .app__gate{color:var(--fault);font-weight:600}
+
+.check{display:flex;gap:16px;align-items:baseline;padding:11px 0;
+border-top:1px solid var(--rule)}
+.check:first-child{border-top:0}
+.check__label{font-size:14.5px;display:flex;flex-direction:column;gap:2px}
+.check__why{font-size:12.5px;color:var(--mute);max-width:64ch}
+.check__val{margin-left:auto;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.check--ok .check__val{color:var(--ok)}
+.check--wait .check__val{color:var(--mute)}
+.check--fault .check__val{color:var(--fault);font-weight:600}
+
+.colnote{margin:16px 0 0;font-size:13px;color:var(--mute);max-width:72ch}
+.drift{margin:0 0 22px;padding:13px 16px;border-left:3px solid var(--warn);
+background:rgba(184,117,3,.09);font-size:13.5px;max-width:76ch}
+.drift--info{border-left-color:var(--flow);background:rgba(27,92,240,.07)}
+
+.mile{display:grid;grid-template-columns:92px 1fr 92px auto;gap:14px;align-items:baseline;
+padding:9px 0;border-top:1px solid var(--rule);font-size:14px}
+.mile:first-child{border-top:0}
+.mile__date,.mile__when{font-family:var(--mono);font-size:11.5px;color:var(--mute)}
+.mile__track{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
+text-transform:uppercase;color:var(--mute)}
+.mile--past{opacity:.45}
+.mile--past .mile__label{text-decoration:line-through;text-decoration-thickness:1px}
+.mile--next{font-weight:600}
+.mile--next .mile__date,.mile--next .mile__when{color:var(--flow)}
+
+footer{padding:26px 0 60px;font-family:var(--mono);font-size:11.5px;color:var(--mute);
+line-height:1.85;border-bottom:0}
+footer p{margin:0 0 8px;max-width:80ch}
+
+@media (max-width:780px){
+.app{grid-template-columns:1fr auto;gap:2px 12px}
+.app__gate,.app__state{grid-column:1;font-size:11.5px}
+.app--head{display:none}
+.mile{grid-template-columns:78px 1fr;gap:3px 12px}
+.mile__track,.mile__when{grid-column:2}
+.stream{grid-template-columns:1fr auto;gap:5px 12px}
+.stream__bar{grid-column:1/-1;order:3}
+.stream__rate{order:2}
+.stream__acc{order:4;grid-column:1/-1;text-align:left}
+.facts{grid-template-columns:1fr;gap:2px}
+.facts dd{margin-bottom:10px}
+.verdict__meta{margin-left:0;width:100%}
+.nav__links{margin-left:0;width:100%;gap:16px}
+}
+@media (prefers-reduced-motion:reduce){.dot{animation:none}.card{transition:none}}
+"""
+
+FOOTER = """
+<footer>
+<p>Funding figures are read from Ethereum mainnet and compared as Superfluid
+<code>wei/s</code> integers against the rates ratified in EP&nbsp;6.49, never as
+reconstructed dollar amounts. Commitments and reports are the committee's own record.</p>
+<p>Streams checked daily against the Stream Management Pod. Source and method:
+<a href="https://github.com/SovereignSignal/spp3-accountability">spp3-accountability</a>.
+Built and operated by sovereignsignal.eth for the ENS SPP3 committee.</p>
+</footer>
+"""
+
+JS = """
+(function(){
+var SERVER_NOW=%SERVER_NOW%;
+var t0=performance.now();
+var nodes=[].slice.call(document.querySelectorAll('[data-rate][data-since]'));
+if(!nodes.length)return;
+var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function paint(){
+  var now=SERVER_NOW+(performance.now()-t0)/1000;
+  for(var i=0;i<nodes.length;i++){
+    var el=nodes[i];
+    var rate=Number(el.getAttribute('data-rate'));
+    var since=Number(el.getAttribute('data-since'));
+    if(!rate||!since)continue;
+    var v=rate*Math.max(0,now-since)/1e18;
+    var whole=Math.floor(v);
+    el.querySelector('.acc__whole').textContent=whole.toLocaleString('en-US');
+    el.querySelector('.acc__frac').textContent='.'+String(Math.floor((v-whole)*100)).padStart(2,'0');
+  }
+}
+paint();
+if(reduce){setInterval(paint,1000);}else{(function loop(){paint();requestAnimationFrame(loop);})();}
+})();
 """

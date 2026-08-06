@@ -1,0 +1,50 @@
+{
+  "_generated": false,
+  "_source": "Scope text quoted from EP 6.49 (the ratified cohort recommendation, discuss.ens.domains/t/22237). Milestones are NOT yet recorded: they come from Award Notice Item 5 (KPIs and reporting metrics), which is not yet in the committee workspace. Empty milestone lists are honest, not placeholder — the 80% completion metric is undefined until they land.",
+  "_epoch_note": "Reports are due within 30 days of each calendar quarter end (Program Terms clause 6.3). The public ENS Forum version is contractual, not a courtesy.",
+  "schema_version": 1,
+  "quarters": [
+    {"quarter": "2026Q3", "ends": "2026-09-30", "report_due": "2026-10-30"},
+    {"quarter": "2026Q4", "ends": "2026-12-31", "report_due": "2027-01-30"},
+    {"quarter": "2027Q1", "ends": "2027-03-31", "report_due": "2027-04-30"},
+    {"quarter": "2027Q2", "ends": "2027-06-30", "report_due": "2027-07-30"}
+  ],
+  "providers": {
+    "namespace": {
+      "scope": "ENSv2 migration of their on-chain subname stack, continued maintenance of existing tooling, and business development.",
+      "why_funded": "One of the ecosystem's primary subname infrastructure teams: SDKs, APIs, CCIP gateways, and custom deployments including Celo, Filecoin and Rootstock. The award reflects the counterfactual: no comparable subname infrastructure exists at this scale, and the ENSv2 transition makes that work time-critical.",
+      "watch": "SPP2 subname issuance exceeded target by more than an order of magnitude, but the committee noted that figure is concentrated in a small number of large deployments.",
+      "depends_on_external": "ensv2-mainnet",
+      "external_note": "EP 6.49: key milestones depend on ENSv2 shipping to mainnet, and the committee accounted for this in the negotiated milestone structure. A slip here is not a delivery failure.",
+      "milestones": [],
+      "reports": []
+    },
+    "goldsky": {
+      "scope": "Operate ENS indexing as a dedicated public service, at the expanded scope presented as Option B in their application.",
+      "why_funded": "Indexing is a shared dependency consumed across the ecosystem and had previously been funded inside larger provider scopes. The committee's judgment is that a dependency of this weight is best held as a standalone mandate: one accountable owner, priced on its own merits.",
+      "watch": "New to the SPP and evaluated accordingly. Selection was conditioned on explicit commitment to the full Option B scope.",
+      "depends_on_external": null,
+      "external_note": null,
+      "milestones": [],
+      "reports": []
+    },
+    "unruggable": {
+      "scope": "Continued gateway operation, extending into developer tooling and interoperability R&D.",
+      "why_funded": "Gateway infrastructure powering cross-chain resolution in production, including base.eth and ENSIP-19 reverse resolution. Funded at the full ask on the strength of shipped, verifiable protocol infrastructure that ENS depends on today, and a delivery record with no abandoned commitments.",
+      "watch": "Award unchanged from SPP2 at $400,000, so the stream was never modified at the cohort switch and has run continuously since 12 September 2025.",
+      "depends_on_external": null,
+      "external_note": null,
+      "milestones": [],
+      "reports": []
+    },
+    "fluidkey": {
+      "scope": "Privacy-preserving ENS infrastructure: an ENSIP, wallet-agnostic contracts, and a resolver kit designed to be maintained independently of Fluidkey's own product.",
+      "why_funded": "The smallest award in the cohort, treated by the committee as a deliberate position on an underdeveloped capability. The proposal cleanly separates the public-goods layer from the company's commercial product, budgets an audit, and self-funds its own reference integration.",
+      "watch": "Registration upside is less proven than elsewhere in the cohort; the cost is priced accordingly.",
+      "depends_on_external": null,
+      "external_note": null,
+      "milestones": [],
+      "reports": []
+    }
+  }
+}
