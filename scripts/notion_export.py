@@ -110,6 +110,13 @@ def main():
     if changed:
         out.write_text(new)
     print("pipeline=%d changed=%s" % (len(pipeline), changed))
+
+    # Writing the file is not the job: the site serves what is committed, so an
+    # export that never commits leaves the feed dead-ended. Publish on change,
+    # which the connected Railway service then deploys on its own.
+    if changed:
+        import stream_monitor
+        stream_monitor.publish(out, "chore(board): committee pipeline export")
     return 0
 
 
