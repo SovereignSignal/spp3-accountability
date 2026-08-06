@@ -28,6 +28,22 @@ SECONDS_PER_YEAR = 31_536_000
 NAV = [("/", "Overview"), ("/providers", "Providers"), ("/streams", "Streams"),
        ("/reports", "Reports"), ("/calendar", "Calendar")]
 
+# Each provider gets an identity hue, used on its card, its flow edge and its
+# page. Deliberately jewel-toned and cool so none of them collides with the
+# semantic colours (green ok / amber warning / vermilion fault).
+ACCENT = {
+    "namespace": "#6B4FE8",
+    "goldsky": "#0E8A7E",
+    "unruggable": "#1B5CF0",
+    "fluidkey": "#A8399B",
+}
+ACCENT_FALLBACK = "#1B5CF0"
+
+
+def accent(slug):
+    return ACCENT.get(slug, ACCENT_FALLBACK)
+
+
 VERDICT_COPY = {
     "healthy": "All streams flowing",
     "warning": "Streams flowing, funding needs attention",
@@ -89,6 +105,72 @@ def _ticker(rate, since, cls="tick"):
             '</span>' % (cls, rate, since))
 
 
+def _flow_diagram(ctx):
+    """The pod topology, drawn.
+
+    Timelock funds the pod; the pod funds each provider. Edge thickness is the
+    flowrate and the dash animation runs faster on a bigger stream, so the
+    picture carries the same information as the table instead of decorating it.
+    A stopped stream loses its motion, which is the failure mode made visible.
+    """
+    funded = _funded(ctx)
+    if not funded:
+        return ""
+    by_slug = {s["slug"]: s for s in ctx["status"]["streams"]}
+    master = ctx["providers"]["master_stream_wei_s"]
+    rates = [by_slug.get(p["slug"], {}).get("actual_wei_s", 0) for p in funded]
+    top = max(rates + [1])
+
+    W, H = 920, 300
+    x_tl, x_pod, x_pr = 74, 340, 726
+    y_mid = H / 2
+    step = (H - 96) / max(len(funded) - 1, 1)
+
+    edges, nodes, defs = [], [], []
+    # timelock -> pod
+    edges.append(
+        '<path class="fl fl--master" d="M %d %d C %d %d, %d %d, %d %d" '
+        'stroke-width="9"/>' % (x_tl + 46, y_mid, x_tl + 150, y_mid,
+                                x_pod - 150, y_mid, x_pod - 52, y_mid))
+    for i, p in enumerate(funded):
+        y = 48 + i * step
+        s_ = by_slug.get(p["slug"], {})
+        r = s_.get("actual_wei_s", 0)
+        w = 2.5 + (r / top) * 9.5
+        dur = 5.5 - (r / top) * 3.0          # bigger stream, faster dashes
+        stalled = "" if s_.get("ok") else " fl--stalled"
+        edges.append(
+            '<path class="fl%s" d="M %d %d C %d %d, %d %d, %d %d" '
+            'stroke="%s" stroke-width="%.1f" style="--dur:%.2fs"/>' % (
+                stalled, x_pod + 52, y_mid, x_pod + 190, y_mid,
+                x_pr - 190, y, x_pr - 34, y, accent(p["slug"]), w, dur))
+        nodes.append(
+            '<g class="node node--pr"><circle cx="%d" cy="%.1f" r="7" fill="%s"/>'
+            '<text x="%d" y="%.1f" class="lbl">%s</text>'
+            '<text x="%d" y="%.1f" class="sub">$%s/yr</text></g>' % (
+                x_pr, y, accent(p["slug"]),
+                x_pr + 18, y - 1, _esc(p["name"]),
+                x_pr + 18, y + 14, _money(_usd(r))))
+
+    nodes.insert(0,
+                 '<g class="node"><rect x="%d" y="%d" width="92" height="46" rx="9" '
+                 'class="box"/><text x="%d" y="%.1f" class="lbl lbl--c">Timelock</text>'
+                 '<text x="%d" y="%.1f" class="sub sub--c">DAO treasury</text></g>'
+                 % (x_tl - 46, y_mid - 23, x_tl, y_mid - 2, x_tl, y_mid + 14))
+    nodes.insert(1,
+                 '<g class="node"><rect x="%d" y="%d" width="104" height="52" rx="10" '
+                 'class="box box--pod"/><text x="%d" y="%.1f" class="lbl lbl--c">Stream Pod</text>'
+                 '<text x="%d" y="%.1f" class="sub sub--c">$%s/yr in</text></g>'
+                 % (x_pod - 52, y_mid - 26, x_pod, y_mid - 2, x_pod, y_mid + 15,
+                    _money(_usd(master))))
+
+    return ('<div class="flowwrap"><svg class="flow" viewBox="0 0 %d %d" '
+            'preserveAspectRatio="xMidYMid meet" role="img" '
+            'aria-label="Funding flows from the DAO timelock through the Stream '
+            'Management Pod to each funded provider.">%s%s%s</svg></div>' % (
+                W, H, "".join(defs), "".join(edges), "".join(nodes)))
+
+
 def _funded(ctx):
     """The cohort, per the chain. The committee board still lists EthID as
     cohort-selected although they declined on 2026-07-03; rendering that list
@@ -138,12 +220,12 @@ def page_home(ctx):
         ms = c.get("milestones", [])
         state = "ok" if s.get("ok") else "fault"
         cards.append(
-            '<a class="card card--%s" href="/provider/%s">'
+            '<a class="card card--%s" href="/provider/%s" style="--accent:%s">'
             '<span class="card__label">%s</span>'
             '<span class="card__headline">%s</span>'
             '<span class="card__detail">$%s/yr &middot; %s</span>'
             '<span class="card__detail card__detail--dim">%s</span></a>' % (
-                state, _esc(p["slug"]), _esc(p["name"]),
+                state, _esc(p["slug"]), accent(p["slug"]), _esc(p["name"]),
                 _ticker(s.get("actual_wei_s", 0), epoch, "tick tick--card"),
                 _money(p["award_usd"]),
                 "stream live" if s.get("ok") else "STREAM FAULT",
@@ -173,9 +255,11 @@ def page_home(ctx):
         '<p class="hero__sub">Streaming continuously since <b>%s</b> at <b>$%s/yr</b> '
         'across %d providers. Amounts are read from Ethereum mainnet; commitments and '
         'reports are the committee\'s own record.</p></div>'
-        '%s<section><h2>The cohort</h2><div class="cards">%s</div></section>%s' % (
+        '%s<section><h2>Where the money goes</h2>%s</section>'
+        '<section><h2>The cohort</h2><div class="cards">%s</div></section>%s' % (
             _ticker(rate, epoch, "tick tick--hero"), _fmt_utc(epoch),
-            _money(_usd(rate)), len(funded), drift, "\n".join(cards), obligation))
+            _money(_usd(rate)), len(funded), drift, _flow_diagram(ctx),
+            "\n".join(cards), obligation))
 
 
 def page_providers(ctx):
@@ -470,8 +554,10 @@ def render(ctx, path="/"):
 CSS = """
 :root{--ground:#EDF0F3;--ink:#0E141A;--flow:#1B5CF0;--ok:#0E8A5F;--warn:#B87503;
 --fault:#C2331B;--rule:rgba(14,20,26,.14);--mute:rgba(14,20,26,.58);--panel:#fff;
---mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
---sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+--mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+--display:"Instrument Serif",Georgia,"Times New Roman",serif;
+--accent:#1B5CF0}
 @media (prefers-color-scheme:dark){:root{--ground:#0B0F14;--ink:#E6ECF2;--flow:#5B8DFF;
 --ok:#3FCF97;--warn:#E0A233;--fault:#FF6A4D;--rule:rgba(230,236,242,.16);
 --mute:rgba(230,236,242,.6);--panel:#121820}}
@@ -502,8 +588,8 @@ animation:pulse 2.6s ease-out infinite}
 .verdict__copy{font-weight:620;font-size:14.5px}
 .verdict__meta{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--mute)}
 
-.title{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.12em;
-text-transform:uppercase;color:var(--mute);margin:34px 0 0}
+.title{font-family:var(--display);font-size:clamp(34px,5vw,52px);font-weight:400;
+letter-spacing:-.015em;color:var(--ink);margin:36px 0 0;line-height:1.05}
 .lede{margin:14px 0 28px;font-size:15px;color:var(--mute);max-width:70ch}
 .lede b{color:var(--ink)}
 .prose{margin:0 0 12px;font-size:14.5px;max-width:72ch}
@@ -511,10 +597,15 @@ text-transform:uppercase;color:var(--mute);margin:34px 0 0}
 .empty{margin:0;font-size:14.5px;color:var(--mute);font-style:italic}
 .big{margin:0;font-size:19px;letter-spacing:-.01em}
 
-.hero{padding:32px 0 38px;border-bottom:1px solid var(--rule)}
+.hero{padding:32px 0 38px;border-bottom:1px solid var(--rule);position:relative}
+.hero::before{content:"";position:absolute;left:-8%;top:-10%;width:62%;height:150%;
+background:radial-gradient(ellipse at 30% 45%,color-mix(in srgb,var(--flow) 15%,transparent),
+transparent 68%);pointer-events:none;z-index:0}
+.hero>*{position:relative;z-index:1}
 .hero--sm{padding:20px 0 24px}
-.eyebrow{margin:0 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+.eyebrow{margin:0 0 12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
 text-transform:uppercase;color:var(--mute)}
+.lede em,.hero__sub em{font-family:var(--display);font-style:italic;font-size:1.14em}
 .ticker{margin:0;font-family:var(--mono);font-weight:600;letter-spacing:-.03em;
 font-size:clamp(38px,8.5vw,78px);line-height:1;font-variant-numeric:tabular-nums}
 .ticker--sm{font-size:clamp(30px,6vw,50px)}
@@ -524,17 +615,35 @@ font-size:clamp(38px,8.5vw,78px);line-height:1;font-variant-numeric:tabular-nums
 .hero__sub b{color:var(--ink);font-weight:600}
 
 section{padding:28px 0;border-bottom:1px solid var(--rule)}
-h2{margin:0 0 18px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
-text-transform:uppercase;color:var(--mute);font-weight:500}
+h2{margin:0 0 18px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+text-transform:uppercase;color:var(--mute);font-weight:500;display:flex;
+align-items:center;gap:12px}
+h2::after{content:"";flex:1;height:1px;background:var(--rule)}
 ul{list-style:none;margin:0;padding:0}
+
+.flowwrap{overflow-x:auto;margin:0 -4px;padding:0 4px}
+.flow{width:100%;min-width:640px;height:auto;display:block}
+.flow .fl{fill:none;stroke-linecap:round;opacity:.85;
+stroke-dasharray:1 13;animation:drift var(--dur,4s) linear infinite}
+.flow .fl--master{stroke:var(--mute);stroke-dasharray:1 15;--dur:5s}
+.flow .fl--stalled{animation:none;stroke-dasharray:5 5;opacity:.35}
+@keyframes drift{to{stroke-dashoffset:-140}}
+.flow .box{fill:var(--panel);stroke:var(--rule);stroke-width:1}
+.flow .box--pod{stroke:var(--flow);stroke-width:1.5}
+.flow .lbl{font-family:var(--sans);font-size:12.5px;font-weight:600;fill:var(--ink)}
+.flow .sub{font-family:var(--mono);font-size:10.5px;fill:var(--mute)}
+.flow .lbl--c,.flow .sub--c{text-anchor:middle}
 
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px}
 .card{display:flex;flex-direction:column;gap:4px;padding:17px 17px 15px;
 background:var(--panel);border:1px solid var(--rule);border-radius:9px;
 text-decoration:none;border-left-width:3px;transition:transform .12s ease}
 .card:hover{transform:translateY(-2px)}
-.card--ok{border-left-color:var(--ok)}
+.card--ok{border-left-color:var(--accent)}
 .card--fault{border-left-color:var(--fault)}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--rule));
+box-shadow:0 6px 22px -14px var(--accent)}
+.card .tick--card::before{color:var(--accent)}
 .card__label{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
 text-transform:uppercase;color:var(--mute)}
 .card__headline{font-size:17px;font-weight:600}
@@ -630,7 +739,8 @@ footer p{margin:0 0 8px;max-width:80ch}
 .verdict__meta{margin-left:0;width:100%}
 .nav__links{margin-left:0;width:100%;gap:16px}
 }
-@media (prefers-reduced-motion:reduce){.dot{animation:none}.card{transition:none}}
+@media (prefers-reduced-motion:reduce){
+.dot{animation:none}.card{transition:none}.flow .fl{animation:none}}
 """
 
 FOOTER = """
