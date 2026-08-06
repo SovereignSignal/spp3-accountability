@@ -1,13 +1,29 @@
 {
   "_generated": false,
-  "_source": "Scope text quoted from EP 6.49 (the ratified cohort recommendation, discuss.ens.domains/t/22237). Milestones are NOT yet recorded: they come from Award Notice Item 5 (KPIs and reporting metrics), which is not yet in the committee workspace. Empty milestone lists are honest, not placeholder — the 80% completion metric is undefined until they land.",
+  "_source": "Scope text quoted from EP 6.49 (discuss.ens.domains/t/22237). Milestones are PROVISIONAL: extracted from each provider's own SPP3 application, which is what they proposed, NOT the negotiated set in Award Notice Item 5. Every milestone carries a verbatim quote from its source document, and all 60 were verified as exact substrings of the fetched applications on 2026-08-06. They are unconfirmed by the committee and must be reconciled against Item 5 when the executed Award Notices reach the workspace.",
   "_epoch_note": "Reports are due within 30 days of each calendar quarter end (Program Terms clause 6.3). The public ENS Forum version is contractual, not a courtesy.",
   "schema_version": 1,
   "quarters": [
-    {"quarter": "2026Q3", "ends": "2026-09-30", "report_due": "2026-10-30"},
-    {"quarter": "2026Q4", "ends": "2026-12-31", "report_due": "2027-01-30"},
-    {"quarter": "2027Q1", "ends": "2027-03-31", "report_due": "2027-04-30"},
-    {"quarter": "2027Q2", "ends": "2027-06-30", "report_due": "2027-07-30"}
+    {
+      "quarter": "2026Q3",
+      "ends": "2026-09-30",
+      "report_due": "2026-10-30"
+    },
+    {
+      "quarter": "2026Q4",
+      "ends": "2026-12-31",
+      "report_due": "2027-01-30"
+    },
+    {
+      "quarter": "2027Q1",
+      "ends": "2027-03-31",
+      "report_due": "2027-04-30"
+    },
+    {
+      "quarter": "2027Q2",
+      "ends": "2027-06-30",
+      "report_due": "2027-07-30"
+    }
   ],
   "providers": {
     "namespace": {
@@ -16,8 +32,282 @@
       "watch": "SPP2 subname issuance exceeded target by more than an order of magnitude, but the committee noted that figure is concentrated in a small number of large deployments.",
       "depends_on_external": "ensv2-mainnet",
       "external_note": "EP 6.49: key milestones depend on ENSv2 shipping to mainnet, and the committee accounted for this in the negotiated milestone structure. A slip here is not a delivery failure.",
-      "milestones": [],
-      "reports": []
+      "milestones": [
+        {
+          "title": "ENSv2 Onchain Subnames Infrastructure Development",
+          "target_quarter": "2026Q3",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "ENSv2-compatible smart contracts for activation and minting of subnames deployed on Sepolia.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ENSv2 Onchain Subnames Indexing Infrastructure Available",
+          "target_quarter": "2026Q3",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Public API endpoint available for querying indexed activation and subname data.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Mainnet Launch & Integrations (ENSv2 subname contracts)",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": "ensv2-mainnet",
+          "quote": "We can\u2019t launch this without ENSv2 official contracts on mainnet.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Web Application Support for ENSv2 Subnames",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": "ensv2-mainnet",
+          "quote": "Existing application updated to support ENSv2 activation, minting, and renewal workflows.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "New version of Mint Manager SDK Release",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": "ensv2-mainnet",
+          "quote": "SDK updated to support ENSv2 activation, minting, and management workflows.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ENS component support for new subname issuing functionality",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": "ensv2-mainnet",
+          "quote": "Support for new functionality added into ENS components",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "subname.dev: Core Protocol Infrastructure released on Sepolia",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "ENSv2-compatible registry contracts supporting permissions, subregistries, and delegated management functionality deployed on Sepolia.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "subname.dev: Shared Indexing Infrastructure Available",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Production-ready indexer for contracts deployed through subname.dev.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "subname.dev: Managed CCIP Gateway Released",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Shared CCIP gateway service developed and hosted for projects using subname.dev.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "subname.dev: L2 Support Released",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "subname.dev infrastructure deployed and operational on major Ethereum L2 networks.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "subname.dev: Self-Service Platform & SDK Release",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Web application released allowing users to deploy and configure a complete naming system without manual contract deployment.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ens.fun: Core Protocol Development & ENS Integration on Testnet",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Smart contracts for ENS-linked token creation",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ens.fun: Token Launch Platform (Frontend + Backend) on Testnet",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "ens.fun web application.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ens.fun: Mainnet Launch & Ecosystem Adoption",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Mainnet deployment.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Monthly outreach to 50-75 organizations",
+          "target_quarter": null,
+          "kpis": [
+            "50\u201375 organizations contacted per month"
+          ],
+          "depends_on_external": null,
+          "quote": "Identify and reach out to 50\u201375 organizations every month across Web2 and Web3",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "High-value partnerships with key industry players",
+          "target_quarter": null,
+          "kpis": [
+            "10 high-value partnerships"
+          ],
+          "depends_on_external": null,
+          "quote": "10 high-value partnerships with key industry players",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Custom subname minting services deployed for clients",
+          "target_quarter": null,
+          "kpis": [
+            "5 custom subname minting services deployed"
+          ],
+          "depends_on_external": null,
+          "quote": "5 custom subname minting services deployed for clients",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Subname registrations live with a major wallet",
+          "target_quarter": null,
+          "kpis": [
+            "1 major wallet integration live"
+          ],
+          "depends_on_external": null,
+          "quote": "Subname registrations live with 1 major wallets",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Subnames enabled for new rollups/L2s",
+          "target_quarter": null,
+          "kpis": [
+            "Subnames enabled for 2 new rollups/L2s"
+          ],
+          "depends_on_external": null,
+          "quote": "Subnames enabled for 2 new rollups/L2s",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Subname registrations live with a payment-related app",
+          "target_quarter": null,
+          "kpis": [
+            "1 payment-related app integration live"
+          ],
+          "depends_on_external": null,
+          "quote": "Subname registrations live with 1 payment-related apps",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Subname-as-a-service launched with a RaaS provider",
+          "target_quarter": null,
+          "kpis": [
+            "1 RaaS provider launch"
+          ],
+          "depends_on_external": null,
+          "quote": "Subname-as-a-service launched with 1 RaaS provider",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Subname-as-a-service launched with a WaaS provider",
+          "target_quarter": null,
+          "kpis": [
+            "1 WaaS provider launch"
+          ],
+          "depends_on_external": null,
+          "quote": "Subname-as-a-service launched with 1 WaaS provider",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Agents named through Namera",
+          "target_quarter": null,
+          "kpis": [
+            "10k agents (sub)named through Namera"
+          ],
+          "depends_on_external": null,
+          "quote": "10k agents (sub)named through Namera.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Web3 Enterprise client qualified and closed with ENS BD team",
+          "target_quarter": null,
+          "kpis": [
+            "1 Web3 Enterprise client qualified and closed"
+          ],
+          "depends_on_external": null,
+          "quote": "1 Web3 Enterprise clients qualified and closed alongside the ENS BD team",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Web2 FinTech Enterprise client qualified and closed with ENS BD team",
+          "target_quarter": null,
+          "kpis": [
+            "1 Web2 FinTech Enterprise client qualified and closed"
+          ],
+          "depends_on_external": null,
+          "quote": "1 Web2 FinTech Enterprise clients qualified and closed alongside the ENS BD team",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        }
+      ],
+      "reports": [],
+      "milestones_source_url": "https://www.notion.so/Namespace-SPP3-Application-366f49dc3e268063ac9fec782837dbfc"
     },
     "goldsky": {
       "scope": "Operate ENS indexing as a dedicated public service, at the expanded scope presented as Option B in their application.",
@@ -25,8 +315,84 @@
       "watch": "New to the SPP and evaluated accordingly. Selection was conditioned on explicit commitment to the full Option B scope.",
       "depends_on_external": null,
       "external_note": null,
-      "milestones": [],
-      "reports": []
+      "milestones": [
+        {
+          "title": "Pipeline ingests all v1 events and writes to any sink",
+          "target_quarter": "2026Q3",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "pipeline ingests all v1 events and writes to any sink",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Pipeline indexes ENS v2 on Sepolia with dynamic registry expansion verified",
+          "target_quarter": "2026Q3",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Pipeline also correctly indexes ENS v2 on Sepolia with dynamic registry expansion verified.",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Full unified API live on Sepolia and/or Mainnet, GraphQL and REST endpoints",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "full unified API on Sepolia and/or Mainnet if available, GraphQL and REST endpoints live",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Hosted public endpoint with SLA commitment",
+          "target_quarter": null,
+          "kpis": [
+            "99.5% uptime"
+          ],
+          "depends_on_external": null,
+          "quote": "Hosted public endpoint with SLA commitment (99.5% uptime, with defined incident response)",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Mainnet launch support: BatchRegistrar burst processing, post-launch debugging, ABI updates",
+          "target_quarter": null,
+          "kpis": [
+            "ENS contract ABI updates handled within 72 hours of notice"
+          ],
+          "depends_on_external": "ensv2-mainnet",
+          "quote": "Mainnet launch support: BatchRegistrar burst processing, post-launch debugging, any ENS contract ABI updates handled within 72 hours of notice",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Multi-chain deployment (Base, Linea, Optimism, Arbitrum, Scroll)",
+          "target_quarter": null,
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Multi-chain deployment (Base, Linea, Optimism, Arbitrum, Scroll)",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Open-source release of @goldsky/ens-plugin crate with documentation",
+          "target_quarter": null,
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Open-source release of the @goldsky/ens-plugin crate with documentation",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        }
+      ],
+      "reports": [],
+      "milestones_source_url": "https://doc.golds.ky/spp3-application-pt2"
     },
     "unruggable": {
       "scope": "Continued gateway operation, extending into developer tooling and interoperability R&D.",
@@ -34,8 +400,140 @@
       "watch": "Award unchanged from SPP2 at $400,000, so the stream was never modified at the cohort switch and has run continuously since 12 September 2025.",
       "depends_on_external": null,
       "external_note": null,
-      "milestones": [],
-      "reports": []
+      "milestones": [
+        {
+          "title": "Launch of ENS8004.xyz enabling ENS names to function as ERC-8004 agent identities",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Launch of ENS8004.xyz enabling ENS names to function as ERC-8004 agent identities",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Continued development of ERC-8217 and supporting infrastructure for ENS-controlled agent records",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Continued development of ERC-8217 and supporting infrastructure enabling ENS-controlled agent records",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ENS Agent identity tooling expanded across supported chains and ecosystems",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "ENS Agent identity tooling expanded across supported chains and ecosystems",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Advancement of ERC-8121 and trust infrastructure for ENS-based agents and context data",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Advancement of ERC-8121 and trust infrastructure for ENS-based agents and context data",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ENS Package Standard and DataURL infrastructure advanced with ETH.limo",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "ENS Package Standard and DataURL infrastructure advanced in collaboration with ETH.limo",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Demonstration of verifiable agent identity, reputation, and data infrastructure on ENS",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Demonstration of verifiable agent identity, reputation, and data infrastructure built on ENS",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "EICC established with founding governance framework, charter, bylaws, and board structure",
+          "target_quarter": "2026Q3",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "EICC established with founding governance framework, charter, bylaws, and board structure",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "on.eth governance framework operational, with public procedures and transparency mechanisms",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "on.eth governance framework operational, including public procedures and transparency mechanisms",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Assignment & Disputes Policy v1.0 published following community review",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Assignment & Disputes Policy v1.0 published following community review",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Migration framework for existing chain metadata completed and executed in staged batches",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Migration framework for existing chain metadata completed and executed in staged batches",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Expanded registry coverage and onboarding processes established for new chains",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Expanded registry coverage and onboarding processes established for new chains",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Independent security audit of on.eth resolver infrastructure completed and published",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Independent security audit of on.eth resolver infrastructure completed and published",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Long-term governance and sustainability framework for EICC and on.eth published",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Long-term governance and sustainability framework for EICC and on.eth published",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        }
+      ],
+      "reports": [],
+      "milestones_source_url": "https://hackmd.io/@clowes/unruggable-spp3-application"
     },
     "fluidkey": {
       "scope": "Privacy-preserving ENS infrastructure: an ENSIP, wallet-agnostic contracts, and a resolver kit designed to be maintained independently of Fluidkey's own product.",
@@ -43,8 +541,163 @@
       "watch": "Registration upside is less proven than elsewhere in the cohort; the cost is priced accordingly.",
       "depends_on_external": null,
       "external_note": null,
-      "milestones": [],
-      "reports": []
+      "milestones": [
+        {
+          "title": "Public RFC posted to the ENS forum for community feedback",
+          "target_quarter": "2026Q3",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Public RFC posted to the ENS forum for community feedback",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ENSIP for stealth address resolution submitted to ensdomains/ensips",
+          "target_quarter": "2026Q3",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "ENSIP for stealth address resolution submitted to ensdomains/ensips and opened for community discussion",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ERC-6538 bridge smart contract architecture specification published",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "ERC-6538 bridge smart contract architecture specification published",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Verifier contract architecture specification published",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Verifier contract architecture specification published",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ENSIP advanced to Last Call (or beyond)",
+          "target_quarter": "2026Q4",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "ENSIP advanced to Last Call (or beyond), subject to community process",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Resolver kit beta published to npm",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Resolver kit beta published to npm (extends fluidkey-stealth-account-kit with the ENSIP-compliant resolver interface)",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ERC-6538 bridge smart contract deployed to testnet",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "ERC-6538 bridge smart contract deployed to testnet",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Onchain verifier deployed to testnet",
+          "target_quarter": "2027Q1",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Onchain verifier deployed to testnet",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Audits complete, public report released",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Audits complete, public report released",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "ERC-6538 contract deployed to mainnet and L2s",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "ERC-6538 contract deployed to mainnet and L2s",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Verifier deployed to mainnet",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Verifier deployed to mainnet",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Fluidkey reference integration live across subname and BYO .eth flows",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Fluidkey reference integration live across both flows - subname issuance and bring-your-own .eth domain",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Integration guide published",
+          "target_quarter": "2027Q2",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Integration guide published",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "Adoption report published (subnames, BYO names, transactions, installs/forks)",
+          "target_quarter": "2027Q3",
+          "kpis": [],
+          "depends_on_external": null,
+          "quote": "Adoption report published: subnames issued, BYO .eth names connected, stealth-resolved transactions, kit installs and forks",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        },
+        {
+          "title": "30,000+ ENS names using the stealth address verification module",
+          "target_quarter": "2027Q3",
+          "kpis": [
+            "+30,000 ENS names use the stealth address verification module, verifiable onchain"
+          ],
+          "depends_on_external": null,
+          "quote": "+30,000 ENS names use the stealth address verification module, verifiable onchain, by month 12",
+          "source": "application",
+          "confirmed": false,
+          "status": "not started"
+        }
+      ],
+      "reports": [],
+      "milestones_source_url": "https://docs.google.com/document/d/1wm1cBroNRv1jEnzE-nbrW4G_8ERUYNBBoE86xFkiyp4/edit"
     }
-  }
+  },
+  "milestones_provisional": true
 }

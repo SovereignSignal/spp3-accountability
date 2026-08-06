@@ -229,7 +229,7 @@ def page_home(ctx):
                 _ticker(s.get("actual_wei_s", 0), epoch, "tick tick--card"),
                 _money(p["award_usd"]),
                 "stream live" if s.get("ok") else "STREAM FAULT",
-                ("%d commitments recorded" % len(ms)) if ms
+                ("%d commitments proposed, none confirmed" % len(ms)) if ms
                 else "commitments not yet recorded"))
 
     drift = ""
@@ -277,7 +277,7 @@ def page_providers(ctx):
                 "ok" if s.get("ok") else "out", _esc(p["slug"]), _esc(p["name"]),
                 _money(p["award_usd"]),
                 "live" if s.get("ok") else "FAULT",
-                ("%d recorded" % len(c.get("milestones", [])))
+                ("%d proposed" % len(c.get("milestones", [])))
                 if c.get("milestones") else "not recorded",
                 "30 Oct 2026"))
     return ('<p class="lede">Four providers ratified by EP&nbsp;6.49 and funded '
@@ -319,13 +319,32 @@ def page_provider(ctx, slug):
 
     ms = c.get("milestones", [])
     if ms:
-        mrows = "".join('<li class="app"><span class="app__name">%s</span>'
-                        '<span class="app__gate">%s</span>'
-                        '<span class="app__state">%s</span></li>'
-                        % (_esc(m.get("title", "")), _esc(m.get("target_quarter", "")),
-                           _esc(m.get("status", "not started")))
-                        for m in ms)
-        milestones = '<ul class="apps">%s</ul>' % mrows
+        by_q = {}
+        for m in ms:
+            by_q.setdefault(m.get("target_quarter") or "No date stated", []).append(m)
+        blocks = []
+        for q in sorted(by_q, key=lambda k: (k == "No date stated", k)):
+            rows = "".join(
+                '<li class="ms"><span class="ms__title">%s</span>'
+                '<span class="ms__kpi">%s</span>'
+                '<span class="ms__state">%s</span></li>' % (
+                    _esc(m.get("title", "")),
+                    _esc(" &middot; ".join(m.get("kpis") or [])) or "&mdash;",
+                    _esc(m.get("status", "not started")))
+                for m in by_q[q])
+            blocks.append('<div class="qgroup"><h3 class="qgroup__h">%s '
+                          '<span>%d</span></h3><ul>%s</ul></div>'
+                          % (_esc(q), len(by_q[q]), rows))
+        src = c.get("milestones_source_url")
+        milestones = (
+            '<p class="drift"><b>Provisional, not confirmed.</b> These %d milestones '
+            'were extracted from the provider\'s own SPP3 <a href="%s" target="_blank" '
+            'rel="noopener">application</a> and are what they <em>proposed</em>. The '
+            'binding set is Award Notice Item 5, which is not yet in the committee '
+            'workspace. Every entry was checked against a verbatim quote from the '
+            'source document; none is committee-confirmed, and none counts toward the '
+            '80%% completion metric until reconciled.</p>%s' % (
+                len(ms), _esc(src or "#"), "".join(blocks)))
     else:
         milestones = (
             '<p class="empty">No commitments recorded yet.</p>'
@@ -705,6 +724,16 @@ border-top:1px solid var(--rule)}
 .check--wait .check__val{color:var(--mute)}
 .check--fault .check__val{color:var(--fault);font-weight:600}
 
+.qgroup{margin:0 0 22px}
+.qgroup__h{margin:0 0 8px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+text-transform:uppercase;color:var(--mute);font-weight:500}
+.qgroup__h span{color:var(--accent);margin-left:6px}
+.ms{display:grid;grid-template-columns:minmax(160px,2fr) 1.4fr auto;gap:14px;
+align-items:baseline;padding:8px 0;border-top:1px solid var(--rule);font-size:14px}
+.ms__title{font-weight:500}
+.ms__kpi{font-family:var(--mono);font-size:11.5px;color:var(--mute)}
+.ms__state{font-family:var(--mono);font-size:11px;color:var(--mute);white-space:nowrap}
+@media (max-width:780px){.ms{grid-template-columns:1fr;gap:2px}}
 .colnote{margin:16px 0 0;font-size:13px;color:var(--mute);max-width:72ch}
 .drift{margin:0 0 22px;padding:13px 16px;border-left:3px solid var(--warn);
 background:rgba(184,117,3,.09);font-size:13.5px;max-width:76ch}
