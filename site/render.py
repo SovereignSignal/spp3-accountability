@@ -130,13 +130,13 @@ def _flow_diagram(ctx):
     # timelock -> pod
     edges.append(
         '<path class="fl fl--master" d="M %d %d C %d %d, %d %d, %d %d" '
-        'stroke-width="9"/>' % (x_tl + 46, y_mid, x_tl + 150, y_mid,
+        'stroke-width="14"/>' % (x_tl + 46, y_mid, x_tl + 150, y_mid,
                                 x_pod - 150, y_mid, x_pod - 52, y_mid))
     for i, p in enumerate(funded):
         y = 48 + i * step
         s_ = by_slug.get(p["slug"], {})
         r = s_.get("actual_wei_s", 0)
-        w = 2.5 + (r / top) * 9.5
+        w = 2.5 + (r / top) * 8.0
         dur = 5.5 - (r / top) * 3.0          # bigger stream, faster dashes
         stalled = "" if s_.get("ok") else " fl--stalled"
         edges.append(
@@ -533,9 +533,11 @@ def render(ctx, path="/"):
             return None
         p = next(x for x in _funded(ctx) if x["slug"] == slug)
         title, active = p["name"], "/providers"
+        main_style = ' style="--accent:%s;--flow:%s"' % (accent(slug), accent(slug))
     elif path in ROUTES:
         title, builder = ROUTES[path]
         body, active = builder(ctx), path
+        main_style = ""
     else:
         return None
 
@@ -546,7 +548,8 @@ def render(ctx, path="/"):
             "SPP3 service provider cohort: funding verified on-chain, commitments, and "
             "quarterly reporting.\">\n<style>" + CSS + "</style>\n</head>\n<body>\n"
             + _nav(active) + _verdict(ctx)
-            + '<main class="wrap"><h1 class="title">' + _esc(title) + "</h1>\n"
+            + '<main class="wrap"' + main_style + '><h1 class="title">'
+            + _esc(title) + "</h1>\n"
             + body + FOOTER + "</main>\n<script>"
             + JS.replace("%SERVER_NOW%", repr(ctx["now"])) + "</script>\n</body>\n</html>\n")
 
@@ -597,11 +600,7 @@ letter-spacing:-.015em;color:var(--ink);margin:36px 0 0;line-height:1.05}
 .empty{margin:0;font-size:14.5px;color:var(--mute);font-style:italic}
 .big{margin:0;font-size:19px;letter-spacing:-.01em}
 
-.hero{padding:32px 0 38px;border-bottom:1px solid var(--rule);position:relative}
-.hero::before{content:"";position:absolute;left:-8%;top:-10%;width:62%;height:150%;
-background:radial-gradient(ellipse at 30% 45%,color-mix(in srgb,var(--flow) 15%,transparent),
-transparent 68%);pointer-events:none;z-index:0}
-.hero>*{position:relative;z-index:1}
+.hero{padding:32px 0 38px;border-bottom:1px solid var(--rule)}
 .hero--sm{padding:20px 0 24px}
 .eyebrow{margin:0 0 12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
 text-transform:uppercase;color:var(--mute)}
@@ -609,7 +608,8 @@ text-transform:uppercase;color:var(--mute)}
 .ticker{margin:0;font-family:var(--mono);font-weight:600;letter-spacing:-.03em;
 font-size:clamp(38px,8.5vw,78px);line-height:1;font-variant-numeric:tabular-nums}
 .ticker--sm{font-size:clamp(30px,6vw,50px)}
-.tick--hero::before{content:"$";color:var(--flow);margin-right:.06em}
+.tick--hero::before{content:"$";color:var(--accent);margin-right:.1em;font-size:.52em;
+font-weight:400;vertical-align:.16em;opacity:.85}
 .tick--hero .acc__frac{font-size:.44em;color:var(--mute)}
 .hero__sub{margin:18px 0 0;font-size:14.5px;color:var(--mute);max-width:64ch}
 .hero__sub b{color:var(--ink);font-weight:600}
@@ -649,7 +649,8 @@ text-transform:uppercase;color:var(--mute)}
 .card__headline{font-size:17px;font-weight:600}
 .tick--card{font-family:var(--mono);font-size:23px;font-weight:600;letter-spacing:-.02em;
 font-variant-numeric:tabular-nums;display:block;margin:2px 0}
-.tick--card::before{content:"$";color:var(--flow)}
+.tick--card::before{content:"$";color:var(--accent);font-size:.68em;font-weight:400;
+vertical-align:.1em;opacity:.85}
 .tick--card .acc__frac{font-size:.62em;color:var(--mute)}
 .card__detail{font-size:12.5px;color:var(--mute)}
 .card__detail--dim{font-size:11.5px;opacity:.8}
@@ -676,7 +677,7 @@ white-space:nowrap}
 .stream__acc{text-align:right;min-width:104px}
 .tick--row{font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;
 white-space:nowrap}
-.tick--row::before{content:"$";color:var(--flow)}
+.tick--row::before{content:"$";color:var(--flow);font-size:.8em;opacity:.75}
 .tick--row .acc__frac{font-size:.76em;color:var(--mute)}
 .stream--fault .tick--row,.stream--fault .tick--row::before{color:var(--fault)}
 
