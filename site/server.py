@@ -22,6 +22,17 @@ import render as R  # noqa: E402
 
 PROVIDERS = ROOT / "data" / "providers.json"
 STATUS = ROOT / "data" / "streams" / "status.json"
+BOARD = ROOT / "data" / "notion" / "board.json"
+CALENDAR = ROOT / "data" / "calendar.json"
+
+
+def _optional(path):
+    """Missing or malformed feeds degrade to an empty section rather than a
+    500. One stale exporter must not take the whole watchtower down."""
+    try:
+        return json.loads(path.read_text())
+    except (OSError, ValueError):
+        return {}
 
 
 def _load():
@@ -32,7 +43,7 @@ def _load():
         status["findings"] = M.findings(status)
     except Exception:            # noqa: BLE001 - page must render regardless
         status.setdefault("findings", [])
-    return status, providers
+    return status, providers, _optional(BOARD), _optional(CALENDAR)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -57,10 +68,13 @@ class Handler(BaseHTTPRequestHandler):
         path = self.path.split("?", 1)[0].rstrip("/") or "/"
         try:
             if path == "/":
-                status, providers = _load()
-                self._send(200, R.render(status, providers, time.time()))
+                status, providers, board, cal = _load()
+                self._send(200, R.render(status, providers, time.time(),
+                                         board=board, calendar=cal))
             elif path == "/status.json":
                 self._send(200, STATUS.read_text(), "application/json")
+            elif path == "/board.json":
+                self._send(200, json.dumps(_optional(BOARD)), "application/json")
             elif path == "/healthz":
                 self._send(200, "ok\n", "text/plain; charset=utf-8")
             else:

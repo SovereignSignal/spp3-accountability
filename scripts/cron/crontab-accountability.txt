@@ -23,3 +23,7 @@ MAILTO=""
 # Weekly heartbeat Mondays 15:05 UTC. Silence from a dead monitor and silence
 # from a healthy system are otherwise indistinguishable.
 5 15 * * 1 /home/ubuntu/Accountability-Workspace/scripts/stream_monitor.py --heartbeat >> /home/ubuntu/Accountability-Workspace/.cron-logs/streams.log 2>&1
+
+# Notion board export (RFP applications + cohort pipeline) every 30 min at :20/:50.
+# Field whitelist; individual scores and contact details never leave Notion.
+20,50 * * * * /home/ubuntu/Accountability-Workspace/scripts/notion_export.py >> /home/ubuntu/Accountability-Workspace/.cron-logs/notion.log 2>&1

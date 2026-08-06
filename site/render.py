@@ -76,7 +76,132 @@ def _rows(streams, max_rate, epoch):
     return "\n".join(out)
 
 
-def render(status, providers, now):
+RFP_STATE_ORDER = ["(ungated)", "Gate Review", "Eligible", "Returned", "Awarded"]
+
+
+def _days_to(datestr, now):
+    import calendar as _c
+    import time as _t
+    try:
+        ts = _c.timegm(_t.strptime(datestr, "%Y-%m-%d"))
+    except ValueError:
+        return None
+    return (ts - now) / 86400.0
+
+
+def _rfp_section(board, now):
+    """The decision clock. This is the part of SPP3 that is actually moving."""
+    apps = board.get("rfp", [])
+    if not apps:
+        return "", None
+    scored = sum(1 for a in apps if a.get("final_score") is not None)
+    confirmed = sum(1 for a in apps
+                    if a.get("status") in ("Eligible", "Returned", "Awarded"))
+    rows = []
+    for a in apps:
+        st = a.get("status") or "(ungated)"
+        gate = a.get("gate_proposal")
+        pill = "wait"
+        if st in ("Eligible", "Awarded"):
+            pill = "ok"
+        elif st == "Returned":
+            pill = "out"
+        req = a.get("requested_usd")
+        rows.append(
+            '<li class="app app--{pill}">'
+            '<span class="app__name">{name}</span>'
+            '<span class="app__req">{req}</span>'
+            '<span class="app__gate">{gate}</span>'
+            '<span class="app__state">{state}</span>'
+            '<span class="app__score">{score}</span>'
+            '</li>'.format(
+                pill=pill, name=_esc(a["name"]),
+                req=("$" + _money(req)) if req else "&mdash;",
+                gate=_esc(gate or "&mdash;") if gate else "&mdash;",
+                state=_esc(st),
+                score=("%.2f" % a["final_score"]) if a.get("final_score") is not None
+                      else "&mdash;"))
+    return (
+        '<section id="rfp">'
+        '<h2>Marketplace RFP &middot; decision clock</h2>'
+        '<div class="tally">'
+        '<div class="tally__item"><b>{n}</b><span>applications</span></div>'
+        '<div class="tally__item {ck}"><b>{c}/{n}</b><span>gate confirmed</span></div>'
+        '<div class="tally__item {sk}"><b>{s}/{n}</b><span>scored</span></div>'
+        '</div>'
+        '<ul class="apps">'
+        '<li class="app app--head"><span>Applicant</span><span>Requested</span>'
+        '<span>Gate</span><span>State</span><span>Score</span></li>'
+        '{rows}</ul>'
+        '<p class="colnote">Gate verdicts marked &ldquo;Proposed&rdquo; are produced by the '
+        'screening harness and are not committee decisions until a member confirms them. '
+        'Individual member scores stay internal per EP&nbsp;6.49; only the final aggregate '
+        'is published here.</p>'
+        '</section>'
+    ).format(n=len(apps), c=confirmed, s=scored,
+             ck="tally--warn" if confirmed < len(apps) else "",
+             sk="tally--warn" if scored < len(apps) else "",
+             rows="\n".join(rows)), None
+
+
+def _cohort_section(board):
+    rows = [r for r in board.get("pipeline", []) if r.get("status") == "Cohort selected"]
+    if not rows:
+        return ""
+    out = []
+    for r in rows:
+        out.append(
+            '<li class="app app--ok">'
+            '<span class="app__name">{name}</span>'
+            '<span class="app__req">${aw}</span>'
+            '<span class="app__gate">{team}</span>'
+            '<span class="app__state">{terms}</span>'
+            '<span class="app__score">{notice}</span>'
+            '</li>'.format(
+                name=_esc(r["name"]),
+                aw=_money(r.get("awarded_usd") or r.get("requested_usd") or 0),
+                team=_esc(r.get("team_status") or "&mdash;"),
+                terms="signed" if r.get("terms_agreed") else "&mdash;",
+                notice="signed" if r.get("notice_agreed") else "&mdash;"))
+    return (
+        '<section id="cohort">'
+        '<h2>Ratified cohort &middot; obligations</h2>'
+        '<ul class="apps">'
+        '<li class="app app--head"><span>Provider</span><span>Award</span>'
+        '<span>Team</span><span>Terms</span><span>Award notice</span></li>'
+        '%s</ul>'
+        '<p class="colnote">Streams gate on Foundation KYC and an executed Award Notice. '
+        'All four streams are live on-chain, so both cleared regardless of what the '
+        'committee board records. First Quarterly Reports are due 30 October 2026 and '
+        'the public forum version is contractual, not a courtesy.</p>'
+        '</section>' % "\n".join(out))
+
+
+def _calendar_section(cal, now):
+    items = []
+    nxt = None
+    for m in cal.get("milestones", []):
+        d = _days_to(m["date"], now)
+        past = m.get("done") or (d is not None and d < 0)
+        if not past and nxt is None:
+            nxt = m
+        when = ""
+        if d is not None and not past:
+            when = "in %d days" % round(d) if d >= 1 else "today"
+        items.append(
+            '<li class="mile mile--{k}{n}"><span class="mile__date">{date}</span>'
+            '<span class="mile__label">{label}</span>'
+            '<span class="mile__when">{when}</span></li>'.format(
+                k="past" if past else m.get("track", ""),
+                n=" mile--next" if (nxt is m) else "",
+                date=_esc(m["date"]), label=_esc(m["label"]), when=when))
+    return ('<section id="calendar"><h2>Program calendar</h2>'
+            '<ul class="miles">%s</ul></section>' % "\n".join(items)), nxt
+
+
+def render(status, providers, now, board=None, calendar=None):
+    board = board or {}
+    calendar = calendar or {}
     epoch = providers["spp3_stream_start"]
     cohort = [s for s in status["streams"] if s["cohort"] == "spp3"]
     continuing = [s for s in status["streams"] if s["cohort"] == "spp2-continuing"]
@@ -117,6 +242,17 @@ def render(status, providers, now):
         if items:
             faults = '<ul class="faults">%s</ul>' % items
 
+    rfp_html, _ = _rfp_section(board, now)
+    cohort_html = _cohort_section(board)
+    cal_html, nxt = _calendar_section(calendar, now)
+    if nxt:
+        d = _days_to(nxt["date"], now)
+        next_up = "Next: %s &middot; %s" % (
+            _esc(nxt["label"]),
+            ("in %d days" % round(d)) if d and d >= 1 else "today")
+    else:
+        next_up = ""
+
     return PAGE.format(
         verdict=verdict,
         verdict_copy=_esc(VERDICT_COPY.get(verdict, verdict)),
@@ -135,7 +271,10 @@ def render(status, providers, now):
         committee_rows=_rows(committee, max_rate, epoch),
         checks=check_html,
         faults=faults,
-        pod=_esc(status.get("_pod", "")),
+        rfp=rfp_html,
+        cohort=cohort_html,
+        calendar=cal_html,
+        next_up=next_up,
         now=now,
     )
 
@@ -164,8 +303,8 @@ PAGE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SPP3 stream health</title>
-<meta name="description" content="Live on-chain verification of ENS SPP3 service provider payment streams.">
+<title>ENS SPP3 &middot; program watchtower</title>
+<meta name="description" content="Live status of the ENS SPP3 program: payment streams verified on-chain, Marketplace RFP progress, cohort obligations and the program calendar.">
 <style>
 :root {{
   --ground:#EDF0F3; --ink:#0E141A; --flow:#1B5CF0;
@@ -242,11 +381,49 @@ ul{{list-style:none;margin:0;padding:0}}
   background:rgba(194,51,27,.07);font-size:14px}}
 .faults li{{margin:3px 0}}
 
+.verdict__next{{font-size:13px;color:var(--mute);border-left:1px solid var(--rule);
+  padding-left:12px}}
+.tally{{display:flex;gap:34px;flex-wrap:wrap;margin:0 0 22px}}
+.tally__item b{{display:block;font-family:var(--mono);font-size:27px;font-weight:600;
+  letter-spacing:-.02em;line-height:1.1}}
+.tally__item span{{font-size:12px;color:var(--mute)}}
+.tally--warn b{{color:var(--warn)}}
+.apps{{margin:0 0 6px}}
+.app{{display:grid;grid-template-columns:minmax(120px,2fr) 90px 120px 110px 60px;
+  gap:14px;align-items:baseline;padding:9px 0;border-top:1px solid var(--rule);font-size:14px}}
+.app--head{{border-top:0;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mute)}}
+.app__name{{font-weight:560}}
+.app__req,.app__score{{font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}}
+.app__gate,.app__state{{font-size:12.5px;color:var(--mute)}}
+.app--wait .app__state{{color:var(--warn)}}
+.app--ok .app__state{{color:var(--ok)}}
+.app--out .app__state{{color:var(--fault)}}
+.app--head span{{color:var(--mute)!important}}
+.miles{{margin:0}}
+.mile{{display:grid;grid-template-columns:92px 1fr auto;gap:14px;align-items:baseline;
+  padding:8px 0;border-top:1px solid var(--rule);font-size:14px}}
+.mile:first-child{{border-top:0}}
+.mile__date{{font-family:var(--mono);font-size:12px;color:var(--mute)}}
+.mile__when{{font-family:var(--mono);font-size:11.5px;color:var(--mute)}}
+.mile--past{{opacity:.45}}
+.mile--past .mile__label{{text-decoration:line-through;text-decoration-thickness:1px}}
+.mile--next{{font-weight:600}}
+.mile--next .mile__date,.mile--next .mile__when{{color:var(--flow)}}
+.mile--next .mile__label::after{{content:" \2190 next";color:var(--flow);font-weight:500;
+  font-family:var(--mono);font-size:11px}}
 footer{{padding:30px 0 60px;font-family:var(--mono);font-size:11.5px;
   color:var(--mute);line-height:1.85;border-bottom:0}}
 footer a{{color:var(--mute)}}
 footer p{{margin:0 0 8px;max-width:78ch}}
 
+@media (max-width:760px){{
+  .app{{grid-template-columns:1fr auto;gap:2px 12px}}
+  .app__gate,.app__state{{grid-column:1;font-size:11.5px}}
+  .app--head{{display:none}}
+  .mile{{grid-template-columns:80px 1fr;gap:4px 12px}}
+  .mile__when{{grid-column:2}}
+}}
 @media (max-width:660px){{
   .stream{{grid-template-columns:1fr auto;gap:6px 12px}}
   .stream__bar{{grid-column:1/-1;order:3}}
@@ -265,6 +442,7 @@ footer p{{margin:0 0 8px;max-width:78ch}}
   <div class="wrap">
     <span class="dot" aria-hidden="true"></span>
     <span class="verdict__copy">{verdict_copy}</span>
+    <span class="verdict__next">{next_up}</span>
     <span class="verdict__meta">block {block} &middot; checked {age} min ago</span>
   </div>
 </header>
@@ -296,10 +474,16 @@ footer p{{margin:0 0 8px;max-width:78ch}}
     <ul>{committee_rows}</ul>
   </section>
 
-  <section>
+  {rfp}
+
+  <section id="streams">
     <h2>Integrity checks</h2>
     <ul>{checks}</ul>
   </section>
+
+  {cohort}
+
+  {calendar}
 
   <footer>
     <p>Rates are compared as Superfluid <code>wei/s</code> integers against the rates
