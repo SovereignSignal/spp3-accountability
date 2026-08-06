@@ -144,12 +144,30 @@ def _rfp_section(board, now):
              rows="\n".join(rows)), None
 
 
-def _cohort_section(board):
-    rows = [r for r in board.get("pipeline", []) if r.get("status") == "Cohort selected"]
-    if not rows:
+def _cohort_section(board, providers):
+    """Ratified cohort, with the chain as the authority.
+
+    The committee Pipeline DB is a working record and drifts: it still lists
+    EthID as "Cohort selected" although they declined publicly on 2026-07-03.
+    Rendering that list directly published a provider as funded who is not.
+    So rows come from providers.json, whose addresses and rates are verified
+    on-chain, and any provider the board claims but the chain does not fund is
+    surfaced as a data-quality finding rather than silently shown or silently
+    dropped. A watchtower that hides a discrepancy in its own sources is worth
+    less than one that names it.
+    """
+    funded = [p for p in providers.get("providers", []) if p.get("cohort") == "spp3"]
+    if not funded:
         return ""
+    by_name = {r["name"]: r for r in board.get("pipeline", [])}
+    claimed = [r["name"] for r in board.get("pipeline", [])
+               if r.get("status") == "Cohort selected"]
+    names = {p["name"] for p in funded}
+    ghosts = [n for n in claimed if n not in names]
+
     out = []
-    for r in rows:
+    for f in funded:
+        rec = by_name.get(f["name"], {})
         out.append(
             '<li class="app app--ok">'
             '<span class="app__name">{name}</span>'
@@ -158,23 +176,35 @@ def _cohort_section(board):
             '<span class="app__state">{terms}</span>'
             '<span class="app__score">{notice}</span>'
             '</li>'.format(
-                name=_esc(r["name"]),
-                aw=_money(r.get("awarded_usd") or r.get("requested_usd") or 0),
-                team=_esc(r.get("team_status") or "&mdash;"),
-                terms="signed" if r.get("terms_agreed") else "&mdash;",
-                notice="signed" if r.get("notice_agreed") else "&mdash;"))
+                name=_esc(f["name"]), aw=_money(f["award_usd"]),
+                team=_esc(rec.get("team_status") or "&mdash;"),
+                terms="signed" if rec.get("terms_agreed") else "stream live",
+                notice="signed" if rec.get("notice_agreed") else "stream live"))
+
+    note = ""
+    if ghosts:
+        note = ('<p class="drift"><b>Board drift:</b> the committee pipeline still '
+                'lists {names} as cohort-selected, but {verb} no funded stream. '
+                'EthID declined publicly on 3 July 2026. The chain is authoritative '
+                'here; the board record needs updating.</p>').format(
+                    names=_esc(", ".join(ghosts)),
+                    verb="they have" if len(ghosts) > 1 else "there is")
+
     return (
         '<section id="cohort">'
         '<h2>Ratified cohort &middot; obligations</h2>'
+        '{note}'
         '<ul class="apps">'
         '<li class="app app--head"><span>Provider</span><span>Award</span>'
         '<span>Team</span><span>Terms</span><span>Award notice</span></li>'
-        '%s</ul>'
-        '<p class="colnote">Streams gate on Foundation KYC and an executed Award Notice. '
-        'All four streams are live on-chain, so both cleared regardless of what the '
-        'committee board records. First Quarterly Reports are due 30 October 2026 and '
-        'the public forum version is contractual, not a courtesy.</p>'
-        '</section>' % "\n".join(out))
+        '{rows}</ul>'
+        '<p class="colnote">Streams gate on Foundation KYC and an executed Award '
+        'Notice. All four streams are live on-chain, so both cleared regardless of '
+        'what the committee board records. First Quarterly Reports are due '
+        '30 October 2026, and the public forum version is contractual, not a '
+        'courtesy (Program Terms clause 6.3).</p>'
+        '</section>'
+    ).format(note=note, rows="\n".join(out))
 
 
 def _calendar_section(cal, now):
@@ -243,7 +273,7 @@ def render(status, providers, now, board=None, calendar=None):
             faults = '<ul class="faults">%s</ul>' % items
 
     rfp_html, _ = _rfp_section(board, now)
-    cohort_html = _cohort_section(board)
+    cohort_html = _cohort_section(board, providers)
     cal_html, nxt = _calendar_section(calendar, now)
     if nxt:
         d = _days_to(nxt["date"], now)
@@ -400,6 +430,8 @@ ul{{list-style:none;margin:0;padding:0}}
 .app--ok .app__state{{color:var(--ok)}}
 .app--out .app__state{{color:var(--fault)}}
 .app--head span{{color:var(--mute)!important}}
+.drift{{margin:0 0 18px;padding:12px 15px;border-left:3px solid var(--warn);
+  background:rgba(184,117,3,.09);font-size:13.5px;max-width:72ch}}
 .miles{{margin:0}}
 .mile{{display:grid;grid-template-columns:92px 1fr auto;gap:14px;align-items:baseline;
   padding:8px 0;border-top:1px solid var(--rule);font-size:14px}}
