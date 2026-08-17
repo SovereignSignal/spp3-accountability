@@ -531,16 +531,53 @@ def _nav(active):
                 for h, l in NAV))
 
 
+# The check runs daily at 15:00 UTC, so a healthy page is under ~24h old.
+# Past STALE_HOURS either the run or the deploy that carries it has failed, and
+# the verdict on screen has stopped being a statement about now.
+STALE_HOURS = 30
+
+
+def _age_hours(ctx):
+    return max(0.0, (ctx["now"] - _parse_iso(ctx["status"]["checked_at"])) / 3600.0)
+
+
+def _age_text(hours):
+    if hours < 2:
+        return "%d min ago" % round(hours * 60)
+    if hours < 48:
+        return "%d hours ago" % round(hours)
+    return "%.1f days ago" % (hours / 24)
+
+
 def _verdict(ctx):
+    """The verdict bar, which must never assert a live state from dead data.
+
+    A failed deploy or a dead cron leaves the last good page serving, and
+    "All streams flowing" then reads as current when it is a day old. Past
+    STALE_HOURS the bar says that instead: the age becomes the headline and the
+    stream verdict is demoted to what it actually is, a past observation.
+    """
     st = ctx["status"]
-    age = max(0, int((ctx["now"] - _parse_iso(st["checked_at"])) / 60))
+    hours = _age_hours(ctx)
+    age_txt = _age_text(hours)
+
+    if hours > STALE_HOURS:
+        copy = "Data is %s and may not reflect the chain" % age_txt
+        cls = "stale"
+        meta = "last verdict: %s &middot; block %s" % (
+            _esc(VERDICT_COPY.get(st["overall"], st["overall"])).lower(),
+            "{:,}".format(st["block_number"]))
+    else:
+        copy = _esc(VERDICT_COPY.get(st["overall"], st["overall"]))
+        cls = st["overall"]
+        meta = "block %s &middot; checked %s" % (
+            "{:,}".format(st["block_number"]), age_txt)
+
     return ('<header class="verdict v-%s"><div class="wrap">'
             '<span class="dot" aria-hidden="true"></span>'
             '<span class="verdict__copy">%s</span>'
-            '<span class="verdict__meta">block %s &middot; checked %d min ago</span>'
-            '</div></header>' % (
-                st["overall"], _esc(VERDICT_COPY.get(st["overall"], st["overall"])),
-                "{:,}".format(st["block_number"]), age))
+            '<span class="verdict__meta">%s</span>'
+            '</div></header>' % (cls, copy, meta))
 
 
 def render(ctx, path="/"):
@@ -605,6 +642,9 @@ border-bottom:2px solid transparent}
 animation:pulse 2.6s ease-out infinite}
 .v-warning .dot{background:var(--warn);color:var(--warn)}
 .v-critical .dot{background:var(--fault);color:var(--fault);animation:none}
+.v-stale{background:rgba(184,117,3,.12);border-bottom-color:var(--warn)}
+.v-stale .dot{background:var(--warn);color:var(--warn);animation:none}
+.v-stale .verdict__copy{color:var(--warn);font-weight:640}
 @keyframes pulse{0%{box-shadow:0 0 0 0 currentColor;opacity:1}
 70%{box-shadow:0 0 0 9px transparent;opacity:.75}100%{box-shadow:0 0 0 0 transparent;opacity:1}}
 .verdict__copy{font-weight:620;font-size:14.5px}
