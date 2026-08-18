@@ -232,6 +232,11 @@ def page_home(ctx):
                 ("%d commitments proposed, none confirmed" % len(ms)) if ms
                 else "commitments not yet recorded"))
 
+    names = ", ".join(p["name"] for p in funded[:-1]) + " and " + funded[-1]["name"] \
+        if len(funded) > 1 else (funded[0]["name"] if funded else "no providers")
+    next_line = ("Quarterly Reports for %s, due %s" % (q["quarter"], q["report_due"])
+                 if q else "term reconciliation")
+
     drift = ""
     if _ghosts(ctx):
         drift = ('<p class="drift"><b>Board drift:</b> the committee pipeline still '
@@ -242,7 +247,7 @@ def page_home(ctx):
     obligation = ""
     if q:
         obligation = (
-            '<section><h2>Next obligation</h2>'
+            '<section><h2>Reporting</h2>'
             '<p class="big">Quarterly Reports for <b>%s</b> are due <b>%s</b>, %s.</p>'
             '<p class="colnote">Due within 30 days of quarter end. A public version on '
             'the ENS Forum is contractual, not a courtesy (Program Terms clause 6.3). '
@@ -250,16 +255,25 @@ def page_home(ctx):
             '</p></section>' % (_esc(q["quarter"]), _esc(q["report_due"]), _when(qdays)))
 
     return (
-        '<div class="hero"><p class="eyebrow">Delivered to the cohort so far</p>'
-        '<p class="ticker">%s</p>'
-        '<p class="hero__sub">Streaming continuously since <b>%s</b> at <b>$%s/yr</b> '
-        'across %d providers. Amounts are read from Ethereum mainnet; commitments and '
-        'reports are the committee\'s own record.</p></div>'
+        '<div class="hero">'
+        '<p class="eyebrow">ENS Service Provider Program &middot; Season 3</p>'
+        '<h2 class="lead">Four providers were funded to deliver defined work. '
+        'This tracks whether they do.</h2>'
+        '<p class="hero__sub">The DAO committed <b>$%s</b> a year to '
+        '%s over a twelve-month term. Funding is checked against Ethereum '
+        'mainnet every day, commitments come from what each provider proposed, '
+        'and quarterly reports are due publicly on the ENS Forum. Nothing here '
+        'is self-reported by the providers.</p>'
+        '<dl class="facts facts--hero">'
+        '<dt>Term</dt><dd>1 Aug 2026 to 31 Jul 2027</dd>'
+        '<dt>Next obligation</dt><dd>%s</dd>'
+        '<dt>Delivered so far</dt><dd class="facts__tick">%s</dd>'
+        '</dl></div>'
         '%s<section><h2>Where the money goes</h2>%s</section>'
         '<section><h2>The cohort</h2><div class="cards">%s</div></section>%s' % (
-            _ticker(rate, epoch, "tick tick--hero"), _fmt_utc(epoch),
-            _money(_usd(rate)), len(funded), drift, _flow_diagram(ctx),
-            "\n".join(cards), obligation))
+            _money(_usd(rate)), names, next_line,
+            _ticker(rate, epoch, "tick tick--inline"),
+            drift, _flow_diagram(ctx), "\n".join(cards), obligation))
 
 
 def page_providers(ctx):
@@ -670,6 +684,12 @@ font-size:clamp(38px,8.5vw,78px);line-height:1;font-variant-numeric:tabular-nums
 .tick--hero::before{content:"$";color:var(--accent);margin-right:.1em;font-size:.52em;
 font-weight:400;vertical-align:.16em;opacity:.85}
 .tick--hero .acc__frac{font-size:.44em;color:var(--mute)}
+.lead{font-family:var(--display);font-weight:400;font-size:clamp(28px,4.4vw,44px);
+line-height:1.12;letter-spacing:-.015em;margin:0 0 18px;max-width:19ch;color:var(--ink)}
+.facts--hero{margin:26px 0 0;grid-template-columns:auto 1fr;gap:7px 24px}
+.facts__tick{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tick--inline::before{content:"$";color:var(--accent);opacity:.85}
+.tick--inline .acc__frac{color:var(--mute);font-size:.85em}
 .hero__sub{margin:18px 0 0;font-size:14.5px;color:var(--mute);max-width:64ch}
 .hero__sub b{color:var(--ink);font-weight:600}
 

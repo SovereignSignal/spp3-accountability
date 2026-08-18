@@ -27,3 +27,16 @@ MAILTO=""
 # Notion board export (RFP applications + cohort pipeline) every 30 min at :20/:50.
 # Field whitelist; individual scores and contact details never leave Notion.
 20,50 * * * * /home/ubuntu/Accountability-Workspace/scripts/notion_export.py >> /home/ubuntu/Accountability-Workspace/.cron-logs/notion.log 2>&1
+
+# Quarterly report watcher — daily 15:10 UTC, after the stream check.
+# Polls each provider's public forum thread (no credentials; Discourse serves
+# topic JSON openly), records reports that have landed, and nudges the
+# committee privately before a due date passes. Never posts anywhere public.
+10 15 * * * /home/ubuntu/Accountability-Workspace/scripts/report_watcher.py >> /home/ubuntu/Accountability-Workspace/.cron-logs/reports.log 2>&1
+
+# --- Not owned by this workspace, preserved here so it survives installs ---
+# The SPP3 brain-lane producer (added 2026-08-12, ~/bin/spp3-brain-daily) feeds
+# Sov's vault. It is not part of this system, but `crontab <file>` replaces the
+# WHOLE user crontab, so anything missing from this file gets deleted. Always
+# diff against `crontab -l` before installing, and add whatever you find.
+40 12 * * * /home/ubuntu/bin/spp3-brain-daily >/dev/null 2>>/home/ubuntu/.brain-capture-cron.err

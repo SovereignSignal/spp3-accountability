@@ -307,7 +307,8 @@
         }
       ],
       "reports": [],
-      "milestones_source_url": "https://www.notion.so/Namespace-SPP3-Application-366f49dc3e268063ac9fec782837dbfc"
+      "milestones_source_url": "https://www.notion.so/Namespace-SPP3-Application-366f49dc3e268063ac9fec782837dbfc",
+      "report_thread": ""
     },
     "goldsky": {
       "scope": "Operate ENS indexing as a dedicated public service, at the expanded scope presented as Option B in their application.",
@@ -392,7 +393,8 @@
         }
       ],
       "reports": [],
-      "milestones_source_url": "https://doc.golds.ky/spp3-application-pt2"
+      "milestones_source_url": "https://doc.golds.ky/spp3-application-pt2",
+      "report_thread": ""
     },
     "unruggable": {
       "scope": "Continued gateway operation, extending into developer tooling and interoperability R&D.",
@@ -533,7 +535,8 @@
         }
       ],
       "reports": [],
-      "milestones_source_url": "https://hackmd.io/@clowes/unruggable-spp3-application"
+      "milestones_source_url": "https://hackmd.io/@clowes/unruggable-spp3-application",
+      "report_thread": ""
     },
     "fluidkey": {
       "scope": "Privacy-preserving ENS infrastructure: an ENSIP, wallet-agnostic contracts, and a resolver kit designed to be maintained independently of Fluidkey's own product.",
@@ -696,8 +699,10 @@
         }
       ],
       "reports": [],
-      "milestones_source_url": "https://docs.google.com/document/d/1wm1cBroNRv1jEnzE-nbrW4G_8ERUYNBBoE86xFkiyp4/edit"
+      "milestones_source_url": "https://docs.google.com/document/d/1wm1cBroNRv1jEnzE-nbrW4G_8ERUYNBBoE86xFkiyp4/edit",
+      "report_thread": ""
     }
   },
-  "milestones_provisional": true
+  "milestones_provisional": true,
+  "_report_thread_note": "Per-provider ENS forum thread listing that provider quarterly reports. Empty until the Chair creates them; the watcher skips a provider with no thread rather than guessing."
 }
