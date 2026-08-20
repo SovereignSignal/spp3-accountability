@@ -246,8 +246,7 @@ def page_home(ctx):
     return (
         '<div class="hero">'
         '<p class="eyebrow">ENS Service Provider Program &middot; Season 3</p>'
-        '<h2 class="lead">Four providers were funded to deliver defined work. '
-        'This tracks whether they do.</h2>'
+        '<h2 class="lead">The public record of the SPP3 cohort.</h2>'
         '<p class="hero__sub">SPP3 was authorized by <a href="https://discuss.ens.'
         'domains/t/22086" target="_blank" rel="noopener">EP&nbsp;6.42</a> and its '
         'cohort ratified on-chain by <a href="https://discuss.ens.domains/t/22237" '
