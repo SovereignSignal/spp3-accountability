@@ -207,76 +207,77 @@ def _ghosts(ctx):
 # ---------------------------------------------------------------- pages
 
 def page_home(ctx):
-    epoch = ctx["providers"]["spp3_stream_start"]
+    """A plain introduction to the program.
+
+    Deliberately static: no tickers, no diagram, no live stream state. Each
+    page carries its own data; the overview says what the program is and where
+    everything lives. Sov's direction 2026-08-19, after two heroes that led
+    with money made an accountability tracker read as a spending tracker.
+    """
     funded = _funded(ctx)
-    rate = sum(s["actual_wei_s"] for s in ctx["status"]["streams"]
-               if s["cohort"] == "spp3")
-    q, qdays = _next_quarter(ctx)
+    total = sum(p["award_usd"] for p in funded)
+    q, _qd = _next_quarter(ctx)
 
-    cards = []
-    for p in funded:
-        s = _stream_for(ctx, p["slug"]) or {}
-        c = _commit(ctx, p["slug"])
-        ms = c.get("milestones", [])
-        state = "ok" if s.get("ok") else "fault"
-        cards.append(
-            '<a class="card card--%s" href="/provider/%s" style="--accent:%s">'
-            '<span class="card__label">%s</span>'
-            '<span class="card__headline">%s</span>'
-            '<span class="card__detail">$%s/yr &middot; %s</span>'
-            '<span class="card__detail card__detail--dim">%s</span></a>' % (
-                state, _esc(p["slug"]), accent(p["slug"]), _esc(p["name"]),
-                _ticker(s.get("actual_wei_s", 0), epoch, "tick tick--card"),
-                _money(p["award_usd"]),
-                "stream live" if s.get("ok") else "STREAM FAULT",
-                ("%d commitments proposed, none confirmed" % len(ms)) if ms
-                else "commitments not yet recorded"))
+    rows = "\n".join(
+        '<li class="app"><span class="app__name">'
+        '<a href="/provider/%s">%s</a></span>'
+        '<span class="app__req">$%s/yr</span>'
+        '<span class="app__gate">%s</span></li>' % (
+            _esc(p["slug"]), _esc(p["name"]), _money(p["award_usd"]),
+            _esc((_commit(ctx, p["slug"]).get("scope") or "")[:96]))
+        for p in funded)
 
-    names = ", ".join(p["name"] for p in funded[:-1]) + " and " + funded[-1]["name"] \
-        if len(funded) > 1 else (funded[0]["name"] if funded else "no providers")
-    next_line = ("Quarterly Reports for %s, due %s" % (q["quarter"], q["report_due"])
-                 if q else "term reconciliation")
-
-    drift = ""
-    if _ghosts(ctx):
-        drift = ('<p class="drift"><b>Board drift:</b> the committee pipeline still '
-                 'lists %s as cohort-selected, but there is no funded stream. EthID '
-                 'declined publicly on 3 July 2026. The chain is authoritative here.</p>'
-                 % _esc(", ".join(_ghosts(ctx))))
-
-    obligation = ""
-    if q:
-        obligation = (
-            '<section><h2>Reporting</h2>'
-            '<p class="big">Quarterly Reports for <b>%s</b> are due <b>%s</b>, %s.</p>'
-            '<p class="colnote">Due within 30 days of quarter end. A public version on '
-            'the ENS Forum is contractual, not a courtesy (Program Terms clause 6.3). '
-            'Nothing has been filed yet, which is expected: the window has not opened.'
-            '</p></section>' % (_esc(q["quarter"]), _esc(q["report_due"]), _when(qdays)))
+    sections = [
+        ("/streams", "Streams", "Every payment stream, checked daily against "
+         "Ethereum mainnet at the rates ratified in EP 6.49."),
+        ("/providers", "Providers", "Each provider's scope, funding, and "
+         "proposed commitments."),
+        ("/reports", "Reports", "The quarterly reporting calendar and what has "
+         "actually been filed on the ENS Forum."),
+        ("/calendar", "Calendar", "Cohort obligations through the end of the "
+         "term, 31 July 2027."),
+    ]
+    site_cards = "\n".join(
+        '<a class="card card--ok" href="%s">'
+        '<span class="card__label">%s</span>'
+        '<span class="card__detail">%s</span></a>' % (href, _esc(t), _esc(d))
+        for href, t, d in sections)
 
     return (
         '<div class="hero">'
         '<p class="eyebrow">ENS Service Provider Program &middot; Season 3</p>'
         '<h2 class="lead">Four providers were funded to deliver defined work. '
         'This tracks whether they do.</h2>'
-        '<p class="hero__sub">The DAO committed <b>$%s</b> a year to '
-        '%s over a twelve-month term. Funding is checked against Ethereum '
-        'mainnet every day, commitments come from what each provider proposed, '
-        'and quarterly reports are due publicly on the ENS Forum. Nothing here '
-        'is self-reported by the providers.</p>'
+        '<p class="hero__sub">SPP3 was authorized by <a href="https://discuss.ens.'
+        'domains/t/22086" target="_blank" rel="noopener">EP&nbsp;6.42</a> and its '
+        'cohort ratified on-chain by <a href="https://discuss.ens.domains/t/22237" '
+        'target="_blank" rel="noopener">EP&nbsp;6.49</a>: <b>$%s a year</b> across '
+        'four providers on a twelve-month term. Providers owe public quarterly '
+        'reports on the ENS Forum; funding flows as continuous streams the DAO '
+        'can verify on-chain. This site is the committee\'s accountability '
+        'record: nothing on it is self-reported by the providers.</p>'
         '<dl class="facts facts--hero">'
         '<dt>Term</dt><dd>1 Aug 2026 to 31 Jul 2027</dd>'
+        '<dt>Committee</dt><dd>coltron.eth (Chair), sovereignsignal.eth, '
+        'austingriffith.eth, abdullahumar.eth, gregskril.eth</dd>'
         '<dt>Next obligation</dt><dd>%s</dd>'
-        '<dt>Delivered so far</dt><dd class="facts__tick">%s</dd>'
         '</dl></div>'
-        '%s<section><h2>Where the money goes</h2>%s</section>'
-        '<section><h2>The cohort</h2><div class="cards">%s</div></section>%s' % (
-            _money(_usd(rate)), names, next_line,
-            _ticker(rate, epoch, "tick tick--inline"),
-            drift, _flow_diagram(ctx), "\n".join(cards), obligation))
+        '<section><h2>The cohort</h2><ul class="apps">%s</ul></section>'
+        '<section><h2>On this site</h2><div class="cards">%s</div></section>' % (
+            _money(total),
+            _esc("Quarterly Reports for %s, due %s" % (q["quarter"], q["report_due"]))
+            if q else "term reconciliation",
+            rows, site_cards))
 
 
 def page_providers(ctx):
+    ghosts = _ghosts(ctx)
+    drift = ""
+    if ghosts:
+        drift = ('<p class="drift"><b>Board drift:</b> the committee pipeline still '
+                 'lists %s as cohort-selected, but there is no funded stream. EthID '
+                 'declined publicly on 3 July 2026. The chain is authoritative here.</p>'
+                 % _esc(", ".join(ghosts)))
     rows = []
     for p in _funded(ctx):
         s = _stream_for(ctx, p["slug"]) or {}
@@ -295,7 +296,7 @@ def page_providers(ctx):
                 if c.get("milestones") else "not recorded",
                 "30 Oct 2026"))
     return ('<p class="lede">Four providers ratified by EP&nbsp;6.49 and funded '
-            'on-chain since 1 August 2026.</p>'
+            'on-chain since 1 August 2026.</p>' + drift +
             '<section><ul class="apps"><li class="app app--head">'
             '<span>Provider</span><span>Award</span><span>Stream</span>'
             '<span>Commitments</span><span>First report</span></li>%s</ul></section>'
@@ -410,6 +411,8 @@ def page_streams(ctx):
             'the 1 Aug 2026 switch so rows stay comparable; a provider whose rate was '
             'unchanged across cycles kept the same uninterrupted stream, noted beside '
             'its address.</p>']
+    body.append('<section><h2>Where the money goes</h2>%s</section>'
+                % _flow_diagram(ctx))
 
     for label, key in [("Cohort", "spp3"), ("Continuing SPP2", "spp2-continuing"),
                        ("Committee", "committee")]:
