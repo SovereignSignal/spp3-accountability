@@ -206,6 +206,14 @@ def _ghosts(ctx):
 
 # ---------------------------------------------------------------- pages
 
+def _clip(text, limit):
+    """Truncate at a word boundary with an ellipsis, never mid-word."""
+    if len(text) <= limit:
+        return text
+    cut = text[:limit].rsplit(" ", 1)[0].rstrip(",;:")
+    return cut + "\u2026"
+
+
 def _term_timeline(ctx):
     """The twelve-month term as a line: quarter ends below, report due dates
     above, today marked. Static and money-free by design; the class is `term`,
@@ -272,7 +280,7 @@ def page_home(ctx):
         '<span class="card__detail">%s</span></a>' % (
             _esc(p["slug"]), accent(p["slug"]), _esc(p["name"]),
             _money(p["award_usd"]),
-            _esc((_commit(ctx, p["slug"]).get("scope") or "")[:150]))
+            _esc(_clip(_commit(ctx, p["slug"]).get("scope") or "", 130)))
         for p in funded)
 
     sections = [
