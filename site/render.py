@@ -231,7 +231,7 @@ def _term_timeline(ctx):
         x = X(ts(d))
         parts.append('<line class="tl-tick" x1="%.1f" y1="%d" x2="%.1f" y2="%d"/>'
                      % (x, y - 5, x, y + 9))
-        parts.append('<text class="tl-lbl" x="%.1f" y="%d">%s ends</text>'
+        parts.append('<text class="tl-lbl" x="%.1f" y="%d">%s</text>'
                      % (x, y + 27, lbl))
     for d in ("2026-10-30", "2027-01-30", "2027-04-30", "2027-07-30"):
         t = ts(d)
