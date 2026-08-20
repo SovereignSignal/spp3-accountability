@@ -206,25 +206,73 @@ def _ghosts(ctx):
 
 # ---------------------------------------------------------------- pages
 
-def page_home(ctx):
-    """A plain introduction to the program.
+def _term_timeline(ctx):
+    """The twelve-month term as a line: quarter ends below, report due dates
+    above, today marked. Static and money-free by design; the class is `term`,
+    never `flow`, so the overview-is-static tests can tell them apart.
+    """
+    def ts(d):
+        return _cal.timegm(_time.strptime(d, "%Y-%m-%d"))
 
-    Deliberately static: no tickers, no diagram, no live stream state. Each
-    page carries its own data; the overview says what the program is and where
-    everything lives. Sov's direction 2026-08-19, after two heroes that led
-    with money made an accountability tracker read as a spending tracker.
+    t0, t1 = ts("2026-08-01"), ts("2027-07-31")
+    W, H, x0, x1, y = 920, 138, 34, 886, 78
+
+    def X(t):
+        f = (t - t0) / (t1 - t0)
+        return x0 + max(0.0, min(1.0, f)) * (x1 - x0)
+
+    xn = X(ctx["now"])
+    parts = [
+        '<line class="tl-base" x1="%d" y1="%d" x2="%d" y2="%d"/>' % (x0, y, x1, y),
+        '<line class="tl-done" x1="%d" y1="%d" x2="%.1f" y2="%d"/>' % (x0, y, xn, y),
+    ]
+    for d, lbl in [("2026-09-30", "Q3"), ("2026-12-31", "Q4"),
+                   ("2027-03-31", "Q1"), ("2027-06-30", "Q2")]:
+        x = X(ts(d))
+        parts.append('<line class="tl-tick" x1="%.1f" y1="%d" x2="%.1f" y2="%d"/>'
+                     % (x, y - 5, x, y + 9))
+        parts.append('<text class="tl-lbl" x="%.1f" y="%d">%s ends</text>'
+                     % (x, y + 27, lbl))
+    for d in ("2026-10-30", "2027-01-30", "2027-04-30", "2027-07-30"):
+        t = ts(d)
+        x = X(t)
+        parts.append('<path class="tl-due" d="M %.1f %d l 5 6 l -5 6 l -5 -6 z"/>'
+                     % (x, y - 28))
+        parts.append('<text class="tl-lbl tl-lbl--due" x="%.1f" y="%d">%s</text>'
+                     % (x, y - 35, _time.strftime("%d %b", _time.gmtime(t))))
+    parts.append('<text class="tl-cap" x="%d" y="%d">Aug 2026</text>' % (x0, y + 27))
+    parts.append('<text class="tl-cap tl-cap--end" x="%d" y="%d">Jul 2027</text>'
+                 % (x1, y + 27))
+    parts.append('<line class="tl-now" x1="%.1f" y1="%d" x2="%.1f" y2="%d"/>'
+                 % (xn, y - 14, xn, y + 14))
+    parts.append('<circle class="tl-nowdot" cx="%.1f" cy="%d" r="4"/>' % (xn, y))
+    parts.append('<text class="tl-nowlbl" x="%.1f" y="%d">today</text>'
+                 % (xn, y + 44))
+    return ('<div class="termwrap"><svg class="term" viewBox="0 0 %d %d" '
+            'preserveAspectRatio="xMidYMid meet" role="img" aria-label="The '
+            'SPP3 term from August 2026 to July 2027, with quarterly report '
+            'due dates and today marked.">%s</svg>'
+            '<p class="colnote">Amber diamonds are quarterly report due dates, '
+            '30 days after each quarter ends.</p></div>' % (W, H, "".join(parts)))
+
+
+def page_home(ctx):
+    """A plain program introduction, but not a gray one: the term timeline is
+    the hero graphic (program detail, no money), and the cohort wears its
+    provider hues. No tickers, no stream state; each page owns its own data.
     """
     funded = _funded(ctx)
     total = sum(p["award_usd"] for p in funded)
     q, _qd = _next_quarter(ctx)
 
-    rows = "\n".join(
-        '<li class="app"><span class="app__name">'
-        '<a href="/provider/%s">%s</a></span>'
-        '<span class="app__req">$%s/yr</span>'
-        '<span class="app__gate">%s</span></li>' % (
-            _esc(p["slug"]), _esc(p["name"]), _money(p["award_usd"]),
-            _esc((_commit(ctx, p["slug"]).get("scope") or "")[:96]))
+    cohort_cards = "\n".join(
+        '<a class="card card--ok" href="/provider/%s" style="--accent:%s">'
+        '<span class="card__label">%s</span>'
+        '<span class="card__amt">$%s<i>/yr</i></span>'
+        '<span class="card__detail">%s</span></a>' % (
+            _esc(p["slug"]), accent(p["slug"]), _esc(p["name"]),
+            _money(p["award_usd"]),
+            _esc((_commit(ctx, p["slug"]).get("scope") or "")[:150]))
         for p in funded)
 
     sections = [
@@ -244,7 +292,7 @@ def page_home(ctx):
         for href, t, d in sections)
 
     return (
-        '<div class="hero">'
+        '<div class="hero hero--home">'
         '<p class="eyebrow">ENS Service Provider Program &middot; Season 3</p>'
         '<h2 class="lead">The public record of the SPP3 cohort.</h2>'
         '<p class="hero__sub">SPP3 was authorized by <a href="https://discuss.ens.'
@@ -253,20 +301,23 @@ def page_home(ctx):
         'target="_blank" rel="noopener">EP&nbsp;6.49</a>: <b>$%s a year</b> across '
         'four providers on a twelve-month term. Providers owe public quarterly '
         'reports on the ENS Forum; funding flows as continuous streams the DAO '
-        'can verify on-chain. This site is the committee\'s accountability '
-        'record: nothing on it is self-reported by the providers.</p>'
-        '<dl class="facts facts--hero">'
-        '<dt>Term</dt><dd>1 Aug 2026 to 31 Jul 2027</dd>'
-        '<dt>Committee</dt><dd>coltron.eth (Chair), sovereignsignal.eth, '
-        'austingriffith.eth, abdullahumar.eth, gregskril.eth</dd>'
-        '<dt>Next obligation</dt><dd>%s</dd>'
-        '</dl></div>'
-        '<section><h2>The cohort</h2><ul class="apps">%s</ul></section>'
+        'can verify on-chain. Nothing on this site is self-reported by the '
+        'providers.</p>'
+        '%s'
+        '<div class="factrow">'
+        '<div><i>Term</i><b>1 Aug 2026 &ndash; 31 Jul 2027</b></div>'
+        '<div><i>Next obligation</i><b>%s</b></div>'
+        '<div><i>Committee</i><b>coltron.eth (Chair), sovereignsignal.eth, '
+        'austingriffith.eth, abdullahumar.eth, gregskril.eth</b></div>'
+        '</div>'
+        '</div>'
+        '<section><h2>The cohort</h2><div class="cards cards--cohort">%s</div>'
+        '</section>'
         '<section><h2>On this site</h2><div class="cards">%s</div></section>' % (
-            _money(total),
-            _esc("Quarterly Reports for %s, due %s" % (q["quarter"], q["report_due"]))
+            _money(total), _term_timeline(ctx),
+            _esc("Quarterly Reports for %s, due 30 Oct 2026" % q["quarter"])
             if q else "term reconciliation",
-            rows, site_cards))
+            cohort_cards, site_cards))
 
 
 def page_providers(ctx):
@@ -620,8 +671,8 @@ def render(ctx, path="/"):
             "SPP3 service provider cohort: funding verified on-chain, commitments, and "
             "quarterly reporting.\">\n<style>" + CSS + "</style>\n</head>\n<body>\n"
             + _nav(active) + _verdict(ctx)
-            + '<main class="wrap"' + main_style + '><h1 class="title">'
-            + _esc(title) + "</h1>\n"
+            + '<main class="wrap"' + main_style + '>'
+            + ("" if path == "/" else '<h1 class="title">' + _esc(title) + "</h1>\n")
             + body + FOOTER + "</main>\n<script>"
             + JS.replace("%SERVER_NOW%", repr(ctx["now"])) + "</script>\n</body>\n</html>\n")
 
@@ -686,8 +737,10 @@ font-size:clamp(38px,8.5vw,78px);line-height:1;font-variant-numeric:tabular-nums
 .tick--hero::before{content:"$";color:var(--accent);margin-right:.1em;font-size:.52em;
 font-weight:400;vertical-align:.16em;opacity:.85}
 .tick--hero .acc__frac{font-size:.44em;color:var(--mute)}
-.lead{font-family:var(--display);font-weight:400;font-size:clamp(28px,4.4vw,44px);
-line-height:1.12;letter-spacing:-.015em;margin:0 0 18px;max-width:19ch;color:var(--ink)}
+.lead{font-family:var(--display);font-weight:400;font-size:clamp(30px,4.6vw,46px);
+line-height:1.1;letter-spacing:-.012em;margin:0 0 18px;max-width:24ch;color:var(--ink);
+text-transform:none}
+.lead::after{content:"";display:none}
 .facts--hero{margin:26px 0 0;grid-template-columns:auto 1fr;gap:7px 24px}
 .facts__tick{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .tick--inline::before{content:"$";color:var(--accent);opacity:.85}
@@ -715,6 +768,30 @@ stroke-dasharray:1 13;animation:drift var(--dur,4s) linear infinite}
 .flow .sub{font-family:var(--mono);font-size:10.5px;fill:var(--mute)}
 .flow .lbl--c,.flow .sub--c{text-anchor:middle}
 
+.termwrap{overflow-x:auto;margin:30px -4px 0;padding:0 4px}
+.term{width:100%;min-width:640px;height:auto;display:block}
+.term .tl-base{stroke:var(--rule);stroke-width:3;stroke-linecap:round}
+.term .tl-done{stroke:var(--flow);stroke-width:3;stroke-linecap:round}
+.term .tl-tick{stroke:var(--mute);stroke-width:1.5}
+.term .tl-due{fill:var(--warn)}
+.term .tl-lbl{font-family:var(--mono);font-size:11px;fill:var(--mute);text-anchor:middle}
+.term .tl-lbl--due{fill:var(--warn)}
+.term .tl-cap{font-family:var(--mono);font-size:11px;fill:var(--mute);text-anchor:start}
+.term .tl-cap--end{text-anchor:end}
+.term .tl-now{stroke:var(--flow);stroke-width:2}
+.term .tl-nowdot{fill:var(--flow)}
+.term .tl-nowlbl{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--flow);
+text-anchor:middle}
+.termwrap .colnote{margin-top:2px}
+.factrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+gap:18px 26px;margin:28px 0 0;padding-top:22px;border-top:1px solid var(--rule)}
+.factrow i{display:block;font-style:normal;font-family:var(--mono);font-size:10.5px;
+letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
+.factrow b{font-weight:540;font-size:14px;line-height:1.45}
+.card__amt{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:-.02em;
+margin:2px 0;color:var(--ink)}
+.card__amt i{font-style:normal;font-size:12px;color:var(--mute);font-weight:400}
+.cards--cohort{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px}
 .card{display:flex;flex-direction:column;gap:4px;padding:17px 17px 15px;
 background:var(--panel);border:1px solid var(--rule);border-radius:9px;
