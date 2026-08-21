@@ -34,10 +34,11 @@ NAV = [("/", "Overview"), ("/providers", "Providers"), ("/streams", "Streams"),
 ACCENT = {
     "namespace": "#6B4FE8",
     "goldsky": "#0E8A7E",
-    "unruggable": "#1B5CF0",
+    "unruggable": "#093C52",   # brand Midnight Blue; old #1B5CF0 read as the
+                               # ENS-blue site accent after the retheme
     "fluidkey": "#A8399B",
 }
-ACCENT_FALLBACK = "#1B5CF0"
+ACCENT_FALLBACK = "#0080BC"
 
 # EP 6.42 top-level objective categories. providers.json stores the numbers
 # the EP 6.49 cohort table used; the public page prints the names.
@@ -740,8 +741,11 @@ def render(ctx, path="/"):
             "quarterly reporting.\">\n"
             "<meta property=\"og:type\" content=\"website\">\n"
             "<meta name=\"twitter:card\" content=\"summary\">\n"
-            "<meta name=\"theme-color\" content=\"#1B5CF0\">\n"
+            "<meta name=\"theme-color\" content=\"#0080BC\">\n"
             "<link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">\n"
+            "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n"
+            "<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n"
+            "<link href=\"https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap\" rel=\"stylesheet\">\n"
             "<style>" + CSS + "</style>\n</head>\n<body>\n"
             + _nav(active) + _verdict(ctx)
             + '<main class="wrap"' + main_style + '>'
@@ -751,15 +755,15 @@ def render(ctx, path="/"):
 
 
 CSS = """
-:root{--ground:#EDF0F3;--ink:#0E141A;--flow:#1B5CF0;--ok:#0E8A5F;--warn:#B87503;
---fault:#C2331B;--rule:rgba(14,20,26,.14);--mute:rgba(14,20,26,.58);--panel:#fff;
---mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
---sans:system-ui,-apple-system,"Segoe UI",sans-serif;
---display:Georgia,"Times New Roman",serif;
---accent:#1B5CF0}
-@media (prefers-color-scheme:dark){:root{--ground:#0B0F14;--ink:#E6ECF2;--flow:#5B8DFF;
---ok:#3FCF97;--warn:#E0A233;--fault:#FF6A4D;--rule:rgba(230,236,242,.16);
---mute:rgba(230,236,242,.6);--panel:#121820}}
+:root{--ground:#F6F6F6;--ink:#011A25;--flow:#0080BC;--ok:#007C23;--warn:#B87503;
+--fault:#C2331B;--rule:#E5E5E5;--mute:#4A5C63;--panel:#fff;
+--mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+--display:"Space Grotesk","IBM Plex Sans",system-ui,sans-serif;
+--accent:#0080BC}
+@media (prefers-color-scheme:dark){:root{--ground:#011A25;--ink:#F6F6F6;--flow:#4FA8D8;
+--ok:#58B26E;--warn:#E0A233;--fault:#FF6A4D;--rule:rgba(206,225,232,.18);
+--mute:#9DB4BD;--panel:#093C52}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
 -webkit-font-smoothing:antialiased;line-height:1.5}
@@ -790,8 +794,8 @@ animation:pulse 2.6s ease-out infinite}
 .verdict__copy{font-weight:620;font-size:14.5px}
 .verdict__meta{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--mute)}
 
-.title{font-family:var(--display);font-size:clamp(34px,5vw,52px);font-weight:400;
-letter-spacing:-.015em;color:var(--ink);margin:36px 0 0;line-height:1.05}
+.title{font-family:var(--display);font-size:clamp(30px,4.4vw,44px);font-weight:600;
+letter-spacing:-.02em;color:var(--ink);margin:36px 0 0;line-height:1.05}
 .lede{margin:14px 0 28px;font-size:15px;color:var(--mute);max-width:70ch}
 .lede b{color:var(--ink)}
 .prose{margin:0 0 12px;font-size:14.5px;max-width:72ch}
@@ -810,8 +814,8 @@ font-size:clamp(38px,8.5vw,78px);line-height:1;font-variant-numeric:tabular-nums
 .tick--hero::before{content:"$";color:var(--accent);margin-right:.1em;font-size:.52em;
 font-weight:400;vertical-align:.16em;opacity:.85}
 .tick--hero .acc__frac{font-size:.44em;color:var(--mute)}
-.lead{font-family:var(--display);font-weight:400;font-size:clamp(30px,4.6vw,46px);
-line-height:1.1;letter-spacing:-.012em;margin:0 0 18px;max-width:24ch;color:var(--ink);
+.lead{font-family:var(--display);font-weight:600;font-size:clamp(28px,4.3vw,42px);
+line-height:1.08;letter-spacing:-.02em;margin:0 0 18px;max-width:24ch;color:var(--ink);
 text-transform:none}
 .lead::after{content:"";display:none}
 .facts--hero{margin:26px 0 0;grid-template-columns:auto 1fr;gap:7px 24px}
