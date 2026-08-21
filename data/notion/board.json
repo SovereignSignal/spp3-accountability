@@ -1,0 +1,51 @@
+{
+  "_generated": true,
+  "_source": "notion_export.py (field whitelist; individual scores and contact details never leave the committee workspace)",
+  "pipeline": [
+    {
+      "awarded_usd": 500000,
+      "category": [
+        "1: Infrastructure",
+        "2: Outreach & Integrations"
+      ],
+      "name": "Namespace",
+      "recusals": [
+        "sovereignsignal.eth"
+      ],
+      "status": "Cohort selected",
+      "team_status": "SPP2 returning"
+    },
+    {
+      "awarded_usd": 450000,
+      "category": [
+        "1: Infrastructure"
+      ],
+      "name": "Goldsky",
+      "recusals": [],
+      "status": "Cohort selected",
+      "team_status": "New"
+    },
+    {
+      "awarded_usd": 400000,
+      "category": [
+        "1: Infrastructure",
+        "2: Outreach & Integrations"
+      ],
+      "name": "Unruggable",
+      "recusals": [],
+      "status": "Cohort selected",
+      "team_status": "SPP2 returning"
+    },
+    {
+      "awarded_usd": 340000,
+      "category": [
+        "1: Infrastructure",
+        "2: Outreach & Integrations"
+      ],
+      "name": "Fluidkey",
+      "recusals": [],
+      "status": "Cohort selected",
+      "team_status": "Prior ENS work"
+    }
+  ]
+}
