@@ -95,6 +95,14 @@ def main():
 
     pipeline = export_rows(L.notion, PIPELINE_DB_ID, PUBLIC_PIPELINE)
 
+    # Cohort rows only. The pipeline DB holds all 26 applications, and EP 6.49
+    # published scores and asks for the SELECTEES while keeping the other 21
+    # applicants aggregate-only. board.json is served verbatim at /board.json
+    # on the public site, so exporting every row published rejected applicants'
+    # names, requested amounts and final scores. The site only ever consumes
+    # cohort rows, so nothing else may leave Notion.
+    pipeline = [r for r in pipeline if r.get("status") == "Cohort selected"]
+
     doc = {
         "_generated": True,
         "_source": "notion_export.py (field whitelist; individual scores and "
