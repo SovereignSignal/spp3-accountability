@@ -39,6 +39,15 @@ ACCENT = {
 }
 ACCENT_FALLBACK = "#1B5CF0"
 
+# EP 6.42 top-level objective categories. providers.json stores the numbers
+# the EP 6.49 cohort table used; the public page prints the names.
+CATEGORY = {
+    1: "Infrastructure",
+    2: "Outreach & Integrations",
+    3: "DAO Infrastructure",
+    4: "General Ecosystem Benefit",
+}
+
 
 def accent(slug):
     return ACCENT.get(slug, ACCENT_FALLBACK)
@@ -75,6 +84,35 @@ def _fmt_short(ts):
 
 def _fmt_utc(ts):
     return _time.strftime("%d %b %Y %H:%M UTC", _time.gmtime(ts))
+
+
+def _fmt_iso_date(s):
+    try:
+        return _time.strftime("%d %b %Y", _time.strptime(s, "%Y-%m-%d"))
+    except (ValueError, TypeError):
+        return s or ""
+
+
+def _cats(p):
+    out = []
+    for x in p.get("categories") or []:
+        if x in CATEGORY:
+            out.append("%s: %s" % (x, CATEGORY[x]))
+        else:
+            out.append(str(x))
+    return ", ".join(out)
+
+
+def _flow_opened(s, epoch):
+    """True flow start, with an SPP2 carry-over called out so Unruggable's
+    12 Sep 2025 lastUpdated is not read as the SPP3 epoch."""
+    fs = s.get("since") or 0
+    if not fs:
+        return "&mdash;"
+    label = _fmt_short(fs)
+    if epoch and fs < epoch:
+        return "%s (uninterrupted from SPP2; rate unchanged at the switch)" % label
+    return label
 
 
 def _parse_iso(s):
@@ -309,21 +347,24 @@ def page_home(ctx):
         'target="_blank" rel="noopener">EP&nbsp;6.49</a>: <b>$%s a year</b> across '
         'four providers on a twelve-month term. Providers owe public quarterly '
         'reports on the ENS Forum; funding flows as continuous streams the DAO '
-        'can verify on-chain. Nothing on this site is self-reported by the '
-        'providers.</p>'
+        'can verify on-chain. Stream rates are read from Ethereum. Scopes are '
+        'quoted from EP&nbsp;6.49. Commitments are taken from each provider\'s '
+        'application until Award Notice Item 5 is confirmed.</p>'
         '%s'
         '<div class="factrow">'
         '<div><i>Term</i><b>1 Aug 2026 &ndash; 31 Jul 2027</b></div>'
         '<div><i>Next obligation</i><b>%s</b></div>'
         '<div><i>Committee</i><b>coltron.eth (Chair), sovereignsignal.eth, '
-        'austingriffith.eth, abdullahumar.eth, gregskril.eth</b></div>'
+        'austingriffith.eth, abdullahumar.eth; gregskril.eth (ENS Labs, '
+        'non-compensated)</b></div>'
         '</div>'
         '</div>'
         '<section><h2>The cohort</h2><div class="cards cards--cohort">%s</div>'
         '</section>'
         '<section><h2>On this site</h2><div class="cards">%s</div></section>' % (
             _money(total), _term_timeline(ctx),
-            _esc("Quarterly Reports for %s, due 30 Oct 2026" % q["quarter"])
+            _esc("Quarterly Reports for %s, due %s" % (
+                q["quarter"], _fmt_iso_date(q["report_due"])))
             if q else "term reconciliation",
             cohort_cards, site_cards))
 
@@ -336,6 +377,8 @@ def page_providers(ctx):
                  'lists %s as cohort-selected, but there is no funded stream. EthID '
                  'declined publicly on 3 July 2026. The chain is authoritative here.</p>'
                  % _esc(", ".join(ghosts)))
+    first_q = (ctx["commitments"].get("quarters") or [{}])[0]
+    first_due = _fmt_iso_date(first_q.get("report_due") or "") or "&mdash;"
     rows = []
     for p in _funded(ctx):
         s = _stream_for(ctx, p["slug"]) or {}
@@ -352,7 +395,7 @@ def page_providers(ctx):
                 "live" if s.get("ok") else "FAULT",
                 ("%d proposed" % len(c.get("milestones", [])))
                 if c.get("milestones") else "not recorded",
-                "30 Oct 2026"))
+                _esc(first_due)))
     return ('<p class="lede">Four providers ratified by EP&nbsp;6.49 and funded '
             'on-chain since 1 August 2026.</p>' + drift +
             '<section><ul class="apps"><li class="app app--head">'
@@ -372,14 +415,14 @@ def page_provider(ctx, slug):
 
     facts = [
         ("Award", "$%s / year" % _money(p["award_usd"])),
-        ("Categories", ", ".join(str(x) for x in p.get("categories", [])) or "&mdash;"),
+        ("Categories", _esc(_cats(p)) or "&mdash;"),
         ("Team status", _esc(rec.get("team_status") or "&mdash;")),
         ("Approved wallet",
          '<a href="https://etherscan.io/address/%s" target="_blank" rel="noopener">%s</a>'
          % (_esc(p["approved_wallet"]), _esc(_short(p["approved_wallet"])))),
         ("Stream", ("running at the ratified rate" if s.get("ok")
                     else "<b>FAULT: %s</b>" % _esc(s.get("state", "unknown")))),
-        ("Flow opened", _fmt_short(s["since"]) if s.get("since") else "&mdash;"),
+        ("Flow opened", _flow_opened(s, epoch)),
     ]
     if p.get("recusals"):
         facts.append(("Recusals", _esc(", ".join(p["recusals"]))
@@ -405,9 +448,12 @@ def page_provider(ctx, slug):
                     _esc(" &middot; ".join(m.get("kpis") or [])) or "&mdash;",
                     _esc(m.get("status", "not started")))
                 for m in by_q[q])
+            q_lbl = q
+            if q == "2027Q3":
+                q_lbl = "2027Q3 (after the 12-month term)"
             blocks.append('<div class="qgroup"><h3 class="qgroup__h">%s '
                           '<span>%d</span></h3><ul>%s</ul></div>'
-                          % (_esc(q), len(by_q[q]), rows))
+                          % (_esc(q_lbl), len(by_q[q]), rows))
         src = c.get("milestones_source_url")
         milestones = (
             '<p class="drift"><b>Provisional, not confirmed.</b> These %d milestones '
@@ -468,7 +514,11 @@ def page_streams(ctx):
             'against the rates ratified in EP&nbsp;6.49. Amounts are delivered since '
             'the 1 Aug 2026 switch so rows stay comparable; a provider whose rate was '
             'unchanged across cycles kept the same uninterrupted stream, noted beside '
-            'its address.</p>']
+            'its address. The master inflow renders as $%s/yr because Superfluid '
+            'stores an integer <code>wei/s</code> rate: the executable\'s nominal '
+            '$3.21M/yr is %d wei/s on-chain.</p>'
+            % (_money(_usd(ctx["providers"]["master_stream_wei_s"])),
+               ctx["providers"]["master_stream_wei_s"])]
     body.append('<section><h2>Where the money goes</h2>%s</section>'
                 % _flow_diagram(ctx))
 
@@ -494,8 +544,13 @@ def page_streams(ctx):
                     (" &middot; flowing since " + _fmt_short(fs)) if fs else "",
                     pct, _money(_usd(s["expected_wei_s"])),
                     _ticker(s["actual_wei_s"], max(fs, epoch), "tick tick--row")))
-        body.append('<section><h2>%s</h2><ul>%s</ul></section>'
-                    % (_esc(label), "\n".join(out)))
+        note = ""
+        if key == "committee":
+            note = ('<p class="colnote">gregskril.eth holds the ENS Labs technical '
+                    'seat, which EP&nbsp;6.42 made non-compensated, so there is no '
+                    'fifth committee stream.</p>')
+        body.append('<section><h2>%s</h2><ul>%s</ul>%s</section>'
+                    % (_esc(label), "\n".join(out), note))
 
     retired = st.get("retired", [])
     if retired:
@@ -675,9 +730,19 @@ def render(ctx, path="/"):
     return ("<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
             "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n"
             "<title>" + _esc(title) + " · ENS SPP3 accountability</title>\n"
-            "<meta name=\"description\" content=\"Accountability tracker for the ENS "
-            "SPP3 service provider cohort: funding verified on-chain, commitments, and "
-            "quarterly reporting.\">\n<style>" + CSS + "</style>\n</head>\n<body>\n"
+            "<meta name=\"description\" content=\"Public accountability record for "
+            "the ENS SPP3 cohort: four providers, $1,690,000 a year, streams verified "
+            "on Ethereum, quarterly reports on the ENS Forum.\">\n"
+            "<meta property=\"og:title\" content=\"" + _esc(title)
+            + " · ENS SPP3 accountability\">\n"
+            "<meta property=\"og:description\" content=\"The public record of the "
+            "SPP3 cohort: funding verified on-chain, proposed commitments, and "
+            "quarterly reporting.\">\n"
+            "<meta property=\"og:type\" content=\"website\">\n"
+            "<meta name=\"twitter:card\" content=\"summary\">\n"
+            "<meta name=\"theme-color\" content=\"#1B5CF0\">\n"
+            "<link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">\n"
+            "<style>" + CSS + "</style>\n</head>\n<body>\n"
             + _nav(active) + _verdict(ctx)
             + '<main class="wrap"' + main_style + '>'
             + ("" if path == "/" else '<h1 class="title">' + _esc(title) + "</h1>\n")
@@ -688,9 +753,9 @@ def render(ctx, path="/"):
 CSS = """
 :root{--ground:#EDF0F3;--ink:#0E141A;--flow:#1B5CF0;--ok:#0E8A5F;--warn:#B87503;
 --fault:#C2331B;--rule:rgba(14,20,26,.14);--mute:rgba(14,20,26,.58);--panel:#fff;
---mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
---sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
---display:"Instrument Serif",Georgia,"Times New Roman",serif;
+--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+--sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+--display:Georgia,"Times New Roman",serif;
 --accent:#1B5CF0}
 @media (prefers-color-scheme:dark){:root{--ground:#0B0F14;--ink:#E6ECF2;--flow:#5B8DFF;
 --ok:#3FCF97;--warn:#E0A233;--fault:#FF6A4D;--rule:rgba(230,236,242,.16);
@@ -924,9 +989,11 @@ FOOTER = """
 <footer>
 <p>Funding figures are read from Ethereum mainnet and compared as Superfluid
 <code>wei/s</code> integers against the rates ratified in EP&nbsp;6.49, never as
-reconstructed dollar amounts. Commitments and reports are the committee's own record.</p>
-<p>Streams checked daily against the Stream Management Pod. Source and method:
-<a href="https://github.com/SovereignSignal/spp3-accountability">spp3-accountability</a>.
+reconstructed dollar amounts. Scopes are quoted from that proposal. Commitments
+are extracted from the published applications and remain provisional until Award
+Notice Item 5 is confirmed. Reports, once filed, are read from the ENS Forum.</p>
+<p>Streams checked daily against the Stream Management Pod.
+<a href="https://github.com/SovereignSignal/spp3-accountability">Source</a>.
 Built and operated by sovereignsignal.eth for the ENS SPP3 committee.</p>
 </footer>
 """

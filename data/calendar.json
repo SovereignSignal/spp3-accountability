@@ -5,7 +5,7 @@
     {"date": "2026-07-16", "label": "EP 6.49 passed on-chain", "track": "cohort", "done": true},
     {"date": "2026-08-01", "label": "Cohort streams live at ratified rates", "track": "cohort", "done": true},
     {"date": "2026-08-05", "label": "Marketplace RFP submissions close", "track": "rfp", "done": true},
-    {"date": "2026-08-19", "label": "RFP evaluation complete", "track": "rfp", "done": false},
+    {"date": "2026-08-19", "label": "RFP evaluation complete", "track": "rfp", "done": true},
     {"date": "2026-08-28", "label": "RFP award announced, on or before", "track": "rfp", "done": false},
     {"date": "2026-09-09", "label": "RFP executable; awardee stream opens", "track": "rfp", "done": false},
     {"date": "2026-09-30", "label": "Q3 ends", "track": "reporting", "done": false},
@@ -17,6 +17,6 @@
     {"date": "2027-04-30", "label": "Q1 2027 reports due", "track": "reporting", "done": false},
     {"date": "2027-05-31", "label": "Committee cycle closes", "track": "committee", "done": false},
     {"date": "2027-06-30", "label": "End-of-cycle retrospective due, within 30 days of close", "track": "committee", "done": false},
-    {"date": "2027-08-01", "label": "12-month cohort streams end; final reports and term reconciliation", "track": "cohort", "done": false}
+    {"date": "2027-07-31", "label": "Twelve-month term ends; final reports and term reconciliation", "track": "cohort", "done": false}
   ]
 }

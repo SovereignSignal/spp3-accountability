@@ -15,10 +15,11 @@ Excluded on purpose:
   - Individual member scores. EP 6.49: "Individual scoring records remain
     internal working documents, available to the accountability body or ENS
     Foundation on request." They live in each row's page body, which this
-    export never reads. Only the aggregate Final Score is published.
+    export never reads.
   - Applicant contact details (email, Telegram, primary contact, payment
     address). Submitted to the committee, not to the DAO.
-  - Committee notes and rationale prose.
+  - Committee notes, Award Notice / Program Terms checkboxes, and requested
+    amounts. Process state, not a public accountability record.
 """
 import json
 import sys
@@ -31,17 +32,14 @@ import acct_config as C  # noqa: E402
 
 PIPELINE_DB_ID = "3571724b-64c7-8108-ada5-f8ef55c094a3"
 
-# (notion property, output key, kind)
+# Fields the public tracker actually renders. Award Notice / Program Terms
+# checkboxes, requested amounts and aggregate scores stay in Notion.
 PUBLIC_PIPELINE = [
     ("Applicant", "name", "title"),
-    ("Requested (USD)", "requested_usd", "number"),
     ("Awarded (USD)", "awarded_usd", "number"),
     ("Status", "status", "select"),
     ("Category", "category", "multi"),
     ("Team Status", "team_status", "select"),
-    ("Final Score", "final_score", "number"),
-    ("Program Terms Agreement", "terms_agreed", "checkbox"),
-    ("Award Notice Agreement", "notice_agreed", "checkbox"),
     ("Recusals", "recusals", "multi"),
 ]
 
@@ -97,10 +95,11 @@ def main():
 
     # Cohort rows only. The pipeline DB holds all 26 applications, and EP 6.49
     # published scores and asks for the SELECTEES while keeping the other 21
-    # applicants aggregate-only. board.json is served verbatim at /board.json
-    # on the public site, so exporting every row published rejected applicants'
-    # names, requested amounts and final scores. The site only ever consumes
-    # cohort rows, so nothing else may leave Notion.
+    # applicants aggregate-only. board.json is committed and rendered, so
+    # exporting every row would publish rejected applicants' names, asks and
+    # scores. The site only consumes cohort rows, so nothing else may leave
+    # Notion. Award Notice / Program Terms checkboxes stay in Notion: they are
+    # committee process, not a public record.
     pipeline = [r for r in pipeline if r.get("status") == "Cohort selected"]
 
     doc = {

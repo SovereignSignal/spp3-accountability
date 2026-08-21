@@ -53,6 +53,21 @@ def _load():
     }
 
 
+FAVICON_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
+    '<rect width="32" height="32" rx="7" fill="#1B5CF0"/>'
+    '<text x="16" y="22" text-anchor="middle" fill="#fff" '
+    'font-family="ui-monospace,SFMono-Regular,Menlo,monospace" '
+    'font-size="15" font-weight="700">3</text></svg>'
+)
+
+ROBOTS_TXT = (
+    "User-agent: *\n"
+    "Allow: /\n"
+    "Disallow: /healthz\n"
+)
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "spp3-streams"
 
@@ -63,7 +78,10 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Cache-Control", cache)
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
         self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Permissions-Policy",
+                         "camera=(), microphone=(), geolocation=()")
         self.end_headers()
         if self.command != "HEAD":
             self.wfile.write(payload)
@@ -76,10 +94,14 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if path == "/status.json":
                 self._send(200, STATUS.read_text(), "application/json")
-            elif path == "/board.json":
-                self._send(200, json.dumps(_optional(BOARD)), "application/json")
             elif path == "/healthz":
                 self._send(200, "ok\n", "text/plain; charset=utf-8")
+            elif path == "/robots.txt":
+                self._send(200, ROBOTS_TXT, "text/plain; charset=utf-8",
+                           cache="public, max-age=86400")
+            elif path in ("/favicon.svg", "/favicon.ico"):
+                self._send(200, FAVICON_SVG, "image/svg+xml",
+                           cache="public, max-age=86400")
             else:
                 ctx = _load()
                 ctx["now"] = time.time()

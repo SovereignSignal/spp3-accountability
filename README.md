@@ -4,8 +4,10 @@ Accountability infrastructure for the ENS SPP3 cohort, operated by
 sovereignsignal.eth on the committee VM. Runs **alongside** `~/SPP3-Workspace`
 and `~/RFP-Workspace` and reads or writes neither.
 
-Sub-project B (stream health monitor) is implemented. A, C, D and E are specced
-but not built. See the vault spec `accountability-registry-spec-2026-08-04.md`.
+The public tracker is the Railway service `spp3-streams`, which renders the
+committed JSON in this repo. Sub-project B (stream health monitor), C
+(quarterly report watcher), the Notion whitelist export, and the tracker
+site are implemented.
 
 ## What the monitor checks, daily at 15:00 UTC
 
@@ -36,7 +38,7 @@ SPP2's 33.7-day outage so an alert is still actionable when it fires.
 python3 scripts/stream_monitor.py --dry-run    # check and print, change nothing
 python3 scripts/stream_monitor.py              # write, commit, alert on change
 python3 scripts/stream_monitor.py --heartbeat  # weekly all-clear
-python3 -m unittest discover -s tests -v       # 50 tests, no network needed
+python3 -m unittest discover -s tests -v       # stdlib only, no network needed
 ```
 
 Alerts use the flag-file pattern: one message per distinct fault, one recovery
@@ -49,7 +51,10 @@ indistinguishable.
 | File | Written by | Hand-edit? |
 |---|---|---|
 | `data/providers.json` | humans (`_generated: false`) | yes, then run the tests |
+| `data/commitments.json` | humans (`_generated: false`) | yes; milestones stay provisional until Award Notice Item 5 |
+| `data/calendar.json` | humans (`_generated: false`) | yes |
 | `data/streams/status.json` | the monitor (`_generated: true`) | **never** |
+| `data/notion/board.json` | `notion_export.py` (`_generated: true`) | **never**; whitelist only |
 
 ## Operational warnings
 

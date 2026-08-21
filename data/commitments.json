@@ -307,11 +307,11 @@
         }
       ],
       "reports": [],
-      "milestones_source_url": "https://www.notion.so/Namespace-SPP3-Application-366f49dc3e268063ac9fec782837dbfc",
+      "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafybeiee73y2jwinefaszeng3frn47wmqini562qtcibzgnh42cnqiu2la",
       "report_thread": ""
     },
     "goldsky": {
-      "scope": "Operate ENS indexing as a dedicated public service, at the expanded scope presented as Option B in their application.",
+      "scope": "Operate ENS indexing as a dedicated public service (with eRPC), at the expanded scope presented as Option B in their application.",
       "why_funded": "Indexing is a shared dependency consumed across the ecosystem and had previously been funded inside larger provider scopes. The committee's judgment is that a dependency of this weight is best held as a standalone mandate: one accountable owner, priced on its own merits.",
       "watch": "New to the SPP and evaluated accordingly. Selection was conditioned on explicit commitment to the full Option B scope.",
       "depends_on_external": null,
@@ -393,7 +393,7 @@
         }
       ],
       "reports": [],
-      "milestones_source_url": "https://doc.golds.ky/spp3-application-pt2",
+      "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafybeidblcll7pt7s4jzlte6khv7twiqnckdoalanj2aoemd27afefhyou",
       "report_thread": ""
     },
     "unruggable": {
@@ -535,7 +535,7 @@
         }
       ],
       "reports": [],
-      "milestones_source_url": "https://hackmd.io/@clowes/unruggable-spp3-application",
+      "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafybeiedajocrvgfnj3y6ec2mrqyt62d46uiyfb6xyqraxyyosvto5tmyq",
       "report_thread": ""
     },
     "fluidkey": {
@@ -699,7 +699,7 @@
         }
       ],
       "reports": [],
-      "milestones_source_url": "https://docs.google.com/document/d/1wm1cBroNRv1jEnzE-nbrW4G_8ERUYNBBoE86xFkiyp4/edit",
+      "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafkreiaplckhk72bu3wuxofgkbdoky7jb3o24kk7olbb6urfaquz2os4sm",
       "report_thread": ""
     }
   },
