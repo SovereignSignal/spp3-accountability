@@ -58,7 +58,7 @@
           "target_quarter": "2026Q4",
           "kpis": [],
           "depends_on_external": "ensv2-mainnet",
-          "quote": "We can\u2019t launch this without ENSv2 official contracts on mainnet.",
+          "quote": "We can’t launch this without ENSv2 official contracts on mainnet.",
           "source": "application",
           "confirmed": false,
           "status": "not started"
@@ -177,10 +177,10 @@
           "title": "Monthly outreach to 50-75 organizations",
           "target_quarter": null,
           "kpis": [
-            "50\u201375 organizations contacted per month"
+            "50–75 organizations contacted per month"
           ],
           "depends_on_external": null,
-          "quote": "Identify and reach out to 50\u201375 organizations every month across Web2 and Web3",
+          "quote": "Identify and reach out to 50–75 organizations every month across Web2 and Web3",
           "source": "application",
           "confirmed": false,
           "status": "not started"
@@ -308,7 +308,7 @@
       ],
       "reports": [],
       "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafybeiee73y2jwinefaszeng3frn47wmqini562qtcibzgnh42cnqiu2la",
-      "report_thread": ""
+      "report_thread": "https://discuss.ens.domains/t/namespace-spp3-quarterly-reports/22360"
     },
     "goldsky": {
       "scope": "Operate ENS indexing as a dedicated public service (with eRPC), at the expanded scope presented as Option B in their application.",
@@ -394,7 +394,7 @@
       ],
       "reports": [],
       "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafybeidblcll7pt7s4jzlte6khv7twiqnckdoalanj2aoemd27afefhyou",
-      "report_thread": ""
+      "report_thread": "https://discuss.ens.domains/t/goldsky-spp3-quarterly-reports/22367"
     },
     "unruggable": {
       "scope": "Continued gateway operation, extending into developer tooling and interoperability R&D.",
@@ -536,7 +536,7 @@
       ],
       "reports": [],
       "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafybeiedajocrvgfnj3y6ec2mrqyt62d46uiyfb6xyqraxyyosvto5tmyq",
-      "report_thread": ""
+      "report_thread": "https://discuss.ens.domains/t/unruggable-spp3-quarterly-reports/22361"
     },
     "fluidkey": {
       "scope": "Privacy-preserving ENS infrastructure: an ENSIP, wallet-agnostic contracts, and a resolver kit designed to be maintained independently of Fluidkey's own product.",
@@ -700,9 +700,9 @@
       ],
       "reports": [],
       "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafkreiaplckhk72bu3wuxofgkbdoky7jb3o24kk7olbb6urfaquz2os4sm",
-      "report_thread": ""
+      "report_thread": "https://discuss.ens.domains/t/fluidkey-spp3-quarterly-reports/22362"
     }
   },
   "milestones_provisional": true,
-  "_report_thread_note": "Per-provider ENS forum thread listing that provider quarterly reports. Empty until the Chair creates them; the watcher skips a provider with no thread rather than guessing."
+  "_report_thread_note": "Per-provider ENS forum thread listing that provider quarterly reports. Wired 2026-08-27 from the Chair-created SPP3 threads in forum category 80; all four use the SPP3 template shape."
 }
