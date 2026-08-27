@@ -10,12 +10,19 @@ PATH=/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin
 HOME=/home/ubuntu
 MAILTO=""
 
-# --- Marketplace RFP intake (unchanged, copied from crontab-rfp.txt) ---
-5,35 * * * * /home/ubuntu/RFP-Workspace/scripts/gate.py --auto >> /home/ubuntu/RFP-Workspace/.cron-logs/gate.log 2>&1
-15 * * * * /home/ubuntu/RFP-Workspace/scripts/evaluator.py --auto >> /home/ubuntu/RFP-Workspace/.cron-logs/evaluator.log 2>&1
-0 14 * * * /home/ubuntu/RFP-Workspace/scripts/digest.py >> /home/ubuntu/RFP-Workspace/.cron-logs/digest.log 2>&1
-0 23 * * * /home/ubuntu/RFP-Workspace/scripts/digest.py >> /home/ubuntu/RFP-Workspace/.cron-logs/digest.log 2>&1
-0 16 * * * /home/ubuntu/RFP-Workspace/scripts/coverage.py --auto --notify >> /home/ubuntu/RFP-Workspace/.cron-logs/coverage.log 2>&1
+# --- Marketplace RFP intake: RETIRED 2026-08-27 ---
+# The round is over: Nomentum Labs selected, all nine applications resolved.
+# gate/evaluator queues have read 0 rows since the Aug 5 close; digest and
+# coverage were still paging Telegram about a finished round. Lines are kept
+# commented rather than deleted so the harness can be restored verbatim if a
+# second RFP is ever run. Restore: uncomment, `crontab <this file>`.
+# The @SPP3_1_bot poller (rfp-bot.service, user unit) was stopped and disabled
+# the same day. Prior live crontab: .cron-logs/crontab.backup-20260827-220058.txt
+# 5,35 * * * * /home/ubuntu/RFP-Workspace/scripts/gate.py --auto >> /home/ubuntu/RFP-Workspace/.cron-logs/gate.log 2>&1
+# 15 * * * * /home/ubuntu/RFP-Workspace/scripts/evaluator.py --auto >> /home/ubuntu/RFP-Workspace/.cron-logs/evaluator.log 2>&1
+# 0 14 * * * /home/ubuntu/RFP-Workspace/scripts/digest.py >> /home/ubuntu/RFP-Workspace/.cron-logs/digest.log 2>&1
+# 0 23 * * * /home/ubuntu/RFP-Workspace/scripts/digest.py >> /home/ubuntu/RFP-Workspace/.cron-logs/digest.log 2>&1
+# 0 16 * * * /home/ubuntu/RFP-Workspace/scripts/coverage.py --auto --notify >> /home/ubuntu/RFP-Workspace/.cron-logs/coverage.log 2>&1
 
 # --- SPP3 accountability ---
 # Daily stream health at 15:00 UTC (8am PT). Alerts only on change.
