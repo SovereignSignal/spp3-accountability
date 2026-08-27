@@ -483,11 +483,17 @@ def page_provider(ctx, slug):
         reports_html = '<ul class="apps">%s</ul>' % rrows
     else:
         q, qdays = _next_quarter(ctx)
+        thread = c.get("report_thread", "")
+        watched = ('<p class="colnote">Its <a href="%s" target="_blank" '
+                   'rel="noopener">forum thread</a> is polled daily.</p>' % _esc(thread)
+                   if thread else
+                   '<p class="colnote">No forum thread is recorded, so nothing is being '
+                   'polled for this provider.</p>')
         reports_html = ('<p class="empty">No reports filed.</p>'
                         '<p class="colnote">First Quarterly Report covers %s and is due '
                         '%s, %s. Not overdue.</p>' % (
                             _esc(q["quarter"]), _esc(q["report_due"]), _when(qdays))
-                        if q else '<p class="empty">No reports filed.</p>')
+                        if q else '<p class="empty">No reports filed.</p>') + watched
 
     return (
         '<p class="lede">%s</p>'
@@ -582,6 +588,29 @@ def page_streams(ctx):
     return "\n".join(body)
 
 
+def _thread_rows(ctx, funded):
+    """One row per provider: the forum thread report_watcher polls, or a plain
+    statement that none is recorded. An unwatched provider has to be visible.
+    The watcher skips it silently, and that is exactly how a missed report hides:
+    every run from 18 to 27 August logged watched=0 and nobody saw it."""
+    out = []
+    for p in funded:
+        url = _commit(ctx, p["slug"]).get("report_thread", "")
+        if url:
+            state = "ok"
+            why = "polled daily for filed reports"
+            val = ('<a href="%s" target="_blank" rel="noopener">forum thread</a>'
+                   % _esc(url))
+        else:
+            state, why, val = "wait", "no thread recorded", "not watched"
+        out.append(
+            '<li class="check check--%s"><span class="check__label">%s'
+            '<span class="check__why">%s</span></span>'
+            '<span class="check__val">%s</span></li>' % (
+                state, _esc(p["name"]), _esc(why), val))
+    return out
+
+
 def page_reports(ctx):
     funded = _funded(ctx)
     rows = []
@@ -612,7 +641,13 @@ def page_reports(ctx):
         'SPP2 counted quarters from program start in places and from the calendar in '
         'others, and the resulting due-date confusion played out in public. Nothing is '
         'overdue: the first window opens 30 September 2026.</p></section>'
-        % "\n".join(rows))
+        '<section><h2>Provider threads</h2><ul>%s</ul>'
+        '<p class="colnote">Each provider keeps one forum thread listing its reports. '
+        'These are polled daily and a report counts as filed only when its entry points '
+        'at a real topic rather than a placeholder. A provider with no thread recorded '
+        'is not watched, and says so here rather than being skipped in silence.</p>'
+        '</section>'
+        % ("\n".join(rows), "\n".join(_thread_rows(ctx, funded))))
 
 
 def page_calendar(ctx):

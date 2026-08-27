@@ -31,9 +31,11 @@ MAILTO=""
 # from a healthy system are otherwise indistinguishable.
 5 15 * * 1 /home/ubuntu/Accountability-Workspace/scripts/stream_monitor.py --heartbeat >> /home/ubuntu/Accountability-Workspace/.cron-logs/streams.log 2>&1
 
-# Notion board export (RFP applications + cohort pipeline) every 30 min at :20/:50.
+# Notion board export (RFP applications + cohort pipeline), daily at 15:20 UTC.
+# Was every 30 min at :20/:50 for the intake round; the board stopped moving when
+# the RFP closed 2026-08-27, so a half-hourly poll of static data was pure noise.
 # Field whitelist; individual scores and contact details never leave Notion.
-20,50 * * * * /home/ubuntu/Accountability-Workspace/scripts/notion_export.py >> /home/ubuntu/Accountability-Workspace/.cron-logs/notion.log 2>&1
+20 15 * * * /home/ubuntu/Accountability-Workspace/scripts/notion_export.py >> /home/ubuntu/Accountability-Workspace/.cron-logs/notion.log 2>&1
 
 # Quarterly report watcher — daily 15:10 UTC, after the stream check.
 # Polls each provider's public forum thread (no credentials; Discourse serves
