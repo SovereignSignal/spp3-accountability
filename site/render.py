@@ -651,16 +651,20 @@ def page_reports(ctx):
 
 
 def page_calendar(ctx):
+    # RFP milestones are excluded from this page, so they must be excluded from
+    # the next-milestone search too. Selecting nxt over every track pointed it at
+    # a row that never rendered, and the highlight silently vanished: from the
+    # moment the first RFP date came due, all twelve rows drew unmarked.
+    shown = [m for m in ctx["calendar"].get("milestones", [])
+             if m.get("track") != "rfp"]
     nxt = None
-    for m in ctx["calendar"].get("milestones", []):
+    for m in shown:
         d = _days_to(m["date"], ctx["now"])
         if not (m.get("done") or (d is not None and d < 0)):
             nxt = m
             break
     items = []
-    for m in ctx["calendar"].get("milestones", []):
-        if m.get("track") == "rfp":
-            continue
+    for m in shown:
         d = _days_to(m["date"], ctx["now"])
         past = m.get("done") or (d is not None and d < 0)
         items.append(

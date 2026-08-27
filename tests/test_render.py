@@ -77,6 +77,34 @@ class TestScope(unittest.TestCase):
         self.assertNotIn("RFP evaluation complete", html)
         self.assertIn("Quarterly Reports", html)
 
+    def test_next_milestone_marks_a_row_that_actually_renders(self):
+        # The page hides rfp-track milestones. Searching for "next" across every
+        # track selected a row that was then filtered out, so no rendered row
+        # carried the class and the highlight disappeared from the live page.
+        html = R.render(ctx(), "/calendar")
+        rows = re.findall(r'<li class="(mile[^"]*)"', html)
+        self.assertTrue(rows, "no milestone rows rendered at all")
+        marked = [c for c in rows if "mile--next" in c]
+        self.assertEqual(len(marked), 1,
+                         "expected exactly one rendered row to carry mile--next, "
+                         "got %d of %d rows" % (len(marked), len(rows)))
+
+    def test_next_milestone_survives_an_undone_rfp_date(self):
+        # The failing shape, pinned: an open rfp milestone earlier than every
+        # open cohort one must not steal the highlight.
+        c = ctx()
+        c["calendar"] = {"milestones": [
+            {"date": "2026-09-09", "label": "RFP executable", "track": "rfp",
+             "done": False},
+            {"date": "2026-09-30", "label": "Q3 ends", "track": "reporting",
+             "done": False},
+        ]}
+        html = R.render(c, "/calendar")
+        self.assertNotIn("RFP executable", html)
+        rows = re.findall(r'<li class="(mile[^"]*)"', html)
+        self.assertEqual(len(rows), 1)
+        self.assertIn("mile--next", rows[0])
+
 
 class TestCohortAuthority(unittest.TestCase):
     def test_declined_provider_never_shown_as_funded(self):
@@ -455,3 +483,47 @@ class TestPublicShare(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def _thread_rows(html):
+    """The <li> classes inside the Provider threads section only. Assertions
+    have to read the rows, not the page: the colnote below them spells out
+    what "not watched" means, so a substring match hits the explanation."""
+    m = re.search(r"<h2>Provider threads</h2>(.*?)</ul>", html, re.S)
+    return re.findall(r'<li class="(check[^"]*)"', m.group(1)) if m else []
+
+
+class TestReportThreads(unittest.TestCase):
+    def test_every_funded_provider_appears_with_a_watch_state(self):
+        # An unwatched provider must be visible. report_watcher skips one with no
+        # thread in silence, which is how every run from 18 to 27 August 2026
+        # logged watched=0 without anyone noticing.
+        c = ctx()
+        html = R.render(c, "/reports")
+        self.assertIn("Provider threads", html)
+        funded = [p["name"] for p in c["providers"]["providers"]
+                  if p.get("cohort") == "spp3"]
+        self.assertTrue(funded)
+        for name in funded:
+            self.assertIn(name, html, "%s missing from /reports" % name)
+
+    def test_missing_thread_renders_as_not_watched(self):
+        c = ctx()
+        for prov in c["commitments"]["providers"].values():
+            prov["report_thread"] = ""
+        html = R.render(c, "/reports")
+        rows = _thread_rows(html)
+        self.assertEqual(len(rows), 4)
+        self.assertTrue(all("check--wait" in r for r in rows), rows)
+        self.assertIn("not watched", html)
+
+    def test_present_thread_renders_as_a_link(self):
+        c = ctx()
+        html = R.render(c, "/reports")
+        for prov in c["commitments"]["providers"].values():
+            url = prov.get("report_thread", "")
+            if url:
+                self.assertIn('href="%s"' % url, html)
+        rows = _thread_rows(html)
+        self.assertEqual(len(rows), 4)
+        self.assertTrue(all("check--ok" in r for r in rows), rows)
