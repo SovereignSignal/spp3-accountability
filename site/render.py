@@ -353,12 +353,14 @@ def page_home(ctx):
 
     market_card = ""
     if market:
+        market_fin = _financial_award(ctx, market.get("slug", "nomentum")) or {}
+        paid = market_fin.get("delivered_usd", market.get("paid_usdc", 0))
         market_card = (
             '<section><h2>Marketplace award</h2><a class="card card--ok" href="/marketplace">'
             '<span class="card__label">%s · %s</span><span class="card__amt">$%s<i> award</i></span>'
             '<span class="card__detail">$%s paid · milestone-gated funding</span></a></section>' % (
                 _esc(market.get("name", "")), _esc(market.get("product", "")),
-                _money(market.get("award_usd", 0)), _money(market.get("paid_usdc", 0))))
+                _money(market.get("award_usd", 0)), _money(paid)))
 
     next_obligation = (_esc("Quarterly Reports for %s, due %s" % (
         q["quarter"], _fmt_iso_date(q["report_due"]))) if q else "term reconciliation")
@@ -545,6 +547,20 @@ def page_marketplace(ctx):
     m = ctx["commitments"].get("marketplace_award") or {}
     if not m:
         return '<p class="empty">No marketplace award recorded.</p>'
+    payments = [e for e in (ctx.get("ledger") or {}).get("events", [])
+                if e.get("classification") == "marketplace payment"]
+    paid = sum(float(e.get("amount", 0)) for e in payments)
+    if not payments:
+        paid = float(m.get("paid_usdc", 0))
+    paid_through = (max((e.get("timestamp", "") for e in payments), default="")[:10]
+                    or m.get("paid_through", ""))
+    fin = _financial_award(ctx, m.get("slug", "nomentum")) or {}
+    held = fin.get("held_usd", max(0, float(m.get("award_usd", 0)) - paid))
+    gated = fin.get("gated_usd",
+                    float(m.get("conditional_stream_usd", 0)) +
+                    float(m.get("performance_reserve_usd", 0)))
+    scheduled = fin.get("scheduled_installments_usd",
+                        max(0, float(m.get("upfront_total_usd", 0)) - paid))
     return (
         '<p class="lede">SPP3 also includes a marketplace award selected through the '
         'committee RFP and executed on-chain after the original four-provider cohort.</p>'
@@ -552,14 +568,16 @@ def page_marketplace(ctx):
         '<p class="lead">$%s award</p></div>'
         '<section><h2>Current funding state</h2><dl class="facts">'
         '<dt>Executed</dt><dd>%s</dd>'
-        '<dt>Paid</dt><dd>$%s USDC through %s</dd>'
-        '<dt>Upfront tranche</dt><dd>$%s in three $%s installments</dd>'
+        '<dt>Actually paid</dt><dd>$%s USDC through %s</dd>'
+        '<dt>Held in award structure</dt><dd>$%s</dd>'
+        '<dt>Remaining scheduled installments</dt><dd>$%s</dd>'
         '<dt>Conditional stream</dt><dd>$%s · %s</dd>'
         '<dt>Performance reserve</dt><dd>$%s</dd>'
+        '<dt>Total gated</dt><dd>$%s</dd>'
         '</dl><p class="drift drift--info"><b>Important:</b> the $%s conditional stream '
         'is not represented as live until the committee verifies ENSv2 readiness and '
-        'the stream actually opens. The Streams page therefore remains a record of '
-        'observed on-chain streams, not promised future funding.</p></section>'
+        'the stream actually opens. Payment totals above come from Ethereum USDC '
+        'Transfer events when ledger history is available.</p></section>'
         '<section><h2>Scope</h2><p class="prose">%s</p></section>'
         '<section><h2>Sources</h2><p class="prose">'
         '<a href="%s" target="_blank" rel="noopener">Committee recommendation</a> · '
@@ -568,12 +586,12 @@ def page_marketplace(ctx):
         '</p></section>' % (
             _esc(m.get("name", "")), _esc(m.get("product", "")),
             _money(m.get("award_usd", 0)), _fmt_iso_date(m.get("executed_date", "")),
-            _money(m.get("paid_usdc", 0)), _esc(m.get("paid_through", "")),
-            _money(m.get("upfront_total_usd", 0)), _money(m.get("upfront_installment_usd", 0)),
+            _money(paid), _esc(paid_through), _money(held), _money(scheduled),
             _money(m.get("conditional_stream_usd", 0)), _esc(m.get("conditional_stream_status", "")),
-            _money(m.get("performance_reserve_usd", 0)), _money(m.get("conditional_stream_usd", 0)),
-            _esc(m.get("scope", "")), _esc(m.get("award_forum", "")),
-            _esc(m.get("executable_forum", "")), _esc(m.get("transaction_forum", ""))))
+            _money(m.get("performance_reserve_usd", 0)), _money(gated),
+            _money(m.get("conditional_stream_usd", 0)), _esc(m.get("scope", "")),
+            _esc(m.get("award_forum", "")), _esc(m.get("executable_forum", "")),
+            _esc(m.get("transaction_forum", ""))))
 
 
 def page_ledger(ctx):
