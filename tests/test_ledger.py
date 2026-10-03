@@ -43,6 +43,13 @@ class FakeChain:
     def flowrate(self, token, sender, receiver):
         return C.expected_rate(500000)
 
+    def flow_info(self, token, sender, receiver):
+        return {
+            "last_updated": FakeChain.epoch,
+            "flowrate": C.expected_rate(500000),
+            "deposit": 0,
+        }
+
     def event_logs(self, address, topics, start, end):
         if address.lower() == C.USDC.lower():
             out = []
@@ -98,13 +105,18 @@ class TestLedger(unittest.TestCase):
 
     def test_build_reconciles_custody_and_stream_history(self):
         commitments, providers = self.fixture()
-        doc = L.build(FakeChain(), commitments, providers, latest=L.START_BLOCK + 2)
+        previous = {
+            "through_block": L.START_BLOCK - 1,
+            "events": [],
+        }
+        doc = L.build(FakeChain(), commitments, providers, previous=previous,
+                      latest=L.START_BLOCK + 2)
         self.assertEqual(doc["summary"]["usdc_in"], 500000)
         self.assertEqual(doc["summary"]["usdc_out"], 30000)
         self.assertEqual(doc["summary"]["net_usdc"], 470000)
         stream = doc["stream_history"]["streams"][0]
         rate = C.expected_rate(500000)
-        self.assertEqual(stream["delivered_wei"], rate * 80)
+        self.assertEqual(stream["delivered_wei"], rate * 100)
         self.assertTrue(stream["reconciled"])
         self.assertTrue(doc["stream_history"]["all_reconciled"])
         self.assertEqual(doc["financials"]["authorized_usd"], 1000000)
