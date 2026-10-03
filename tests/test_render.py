@@ -121,6 +121,31 @@ class TestHistoricalFinancials(unittest.TestCase):
 
 
 
+class TestPerformanceEvidence(unittest.TestCase):
+    def test_marketplace_renders_all_release_gates_as_pending(self):
+        html = R.render(ctx(), "/marketplace")
+        for text in ("ENSv2 readiness", "Attributed protocol revenue",
+                     "Distinct value-transacting wallets",
+                     "Filtered secondary volume"):
+            self.assertIn(text, html)
+        self.assertIn("Missing data is never treated as a miss or a pass", html)
+        self.assertNotIn(">verified</span>", html)
+
+    def test_namespace_q3_claims_are_not_presented_as_verified(self):
+        html = R.render(ctx(), "/provider/namespace")
+        self.assertIn("Q3 evidence review", html)
+        self.assertIn("Provider-reported, committee review pending", html)
+        self.assertIn("871,975", html)
+        self.assertIn("ENSv2 Sepolia demo", html)
+        self.assertIn("unreviewed", html)
+
+    def test_other_providers_do_not_get_namespace_evidence(self):
+        html = R.render(ctx(), "/provider/goldsky")
+        self.assertNotIn("Q3 evidence review", html)
+        self.assertNotIn("871,975", html)
+
+
+
 class TestMarketplacePage(unittest.TestCase):
     def test_marketplace_award_is_first_class(self):
         html = R.render(ctx(), "/marketplace")
