@@ -24,6 +24,26 @@ VENUE_SOURCE = ('https://github.com/grailsmarket/backend/blob/' + SOURCE_COMMIT 
                 '/services/api/migrations/seq/0894_add_grails_fill_attribution.sql')
 
 
+class ReceiptReader(G.Reader):
+    """A null historical receipt is an RPC availability failure, not absence."""
+    def receipt(self, tx):
+        if self.receipts.get(tx) is not None:
+            return self.receipts[tx]
+        for attempt in range(4):
+            value = self.rpc('eth_getTransactionReceipt', [tx])
+            if value is not None:
+                self.receipts[tx] = value
+                return value
+            # A public RPC can return null instead of a JSON-RPC error for an
+            # available historical transaction. Change endpoint and retain all
+            # canonical block/event validation in confirm_log and verify_sale.
+            if len(self.client.rpcs) > 1:
+                self.client.rpcs = self.client.rpcs[1:] + self.client.rpcs[:1]
+            if attempt < 3:
+                time.sleep(2 ** attempt)
+        raise G.EvidenceError('historical receipt unavailable after endpoint failover')
+
+
 class Explorer:
     def __init__(self, raw_dir=None):
         self.raw_dir = raw_dir
@@ -241,7 +261,7 @@ def main(argv=None):
         observations = G.load(args.data_dir / 'observations.json')
         if not source.get('snapshot_id') or source['snapshot_id'] != observations.get('snapshot_id'):
             raise G.EvidenceError('API snapshots differ')
-        reader = G.Reader(args.raw_dir)
+        reader = ReceiptReader(args.raw_dir)
         if G.quantity(reader.rpc('eth_chainId', [])) != 1:
             raise G.EvidenceError('wrong chain')
         finalized = reader.rpc('eth_getBlockByNumber', ['finalized', False])
@@ -286,7 +306,8 @@ def main(argv=None):
         print(json.dumps({k:v for k,v in summary.items() if k != 'recent_results'}, indent=2))
         return 0
     except Exception as exc:
-        print('Indexed chain collection failed; previous published evidence unchanged ('+type(exc).__name__+')', file=sys.stderr)
+        detail = str(exc) if isinstance(exc, (G.EvidenceError, M.CollectionError)) else type(exc).__name__
+        print('Indexed chain collection failed; previous published evidence unchanged: '+detail, file=sys.stderr)
         return 1
 
 
