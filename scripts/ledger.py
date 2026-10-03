@@ -16,7 +16,7 @@ import acct_config as C
 import chain
 
 START_BLOCK = 25650000
-CHUNK = 25000
+CHUNK = 9000
 TRANSFER_TOPIC = "0x" + chain.keccak256(b"Transfer(address,address,uint256)").hex()
 
 
