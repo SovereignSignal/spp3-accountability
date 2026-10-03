@@ -11,31 +11,33 @@ CRIT = [{"severity": "critical", "code": "rate_mismatch",
 
 
 class TestAlertDecision(unittest.TestCase):
-    def test_first_problem_sends_and_sets_flag(self):
-        d = M.alert_decision(CRIT, flag_exists=False)
+    def test_first_problem_sends(self):
+        d = M.alert_decision(CRIT, previous_keys=[])
         self.assertTrue(d["send"])
         self.assertEqual(d["kind"], "alert")
-        self.assertTrue(d["set_flag"])
 
     def test_repeat_problem_is_suppressed(self):
-        # A daily repeat of the same unresolved fault must not re-alert.
-        # Alert fatigue is how SPP2's streams ran dead for 33 days.
-        d = M.alert_decision(CRIT, flag_exists=True)
+        d = M.alert_decision(CRIT, previous_keys=M._finding_keys(CRIT))
         self.assertFalse(d["send"])
-        self.assertEqual(d["kind"], "none")
 
-    def test_recovery_sends_once_and_clears_flag(self):
-        d = M.alert_decision([], flag_exists=True)
+    def test_new_problem_is_not_hidden_by_existing_problem(self):
+        newer = CRIT + [{"severity": "critical", "code": "stopped",
+                         "subject": "goldsky", "detail": "..."}]
+        d = M.alert_decision(newer, previous_keys=M._finding_keys(CRIT))
+        self.assertTrue(d["send"])
+        self.assertEqual(d["kind"], "alert")
+        self.assertEqual(len(d["keys"]), 2)
+
+    def test_recovery_sends_once(self):
+        d = M.alert_decision([], previous_keys=M._finding_keys(CRIT))
         self.assertTrue(d["send"])
         self.assertEqual(d["kind"], "recovery")
-        self.assertTrue(d["clear_flag"])
+        self.assertEqual(d["keys"], [])
 
     def test_healthy_with_no_prior_problem_is_silent(self):
-        d = M.alert_decision([], flag_exists=False)
+        d = M.alert_decision([], previous_keys=[])
         self.assertFalse(d["send"])
         self.assertEqual(d["kind"], "none")
-        self.assertFalse(d["set_flag"])
-        self.assertFalse(d["clear_flag"])
 
 
 if __name__ == "__main__":
