@@ -341,6 +341,18 @@ def page_home(ctx):
         '<span class="card__detail">%s</span></a>' % (href, _esc(t), _esc(d))
         for href, t, d in sections)
 
+    market_card = ""
+    if market:
+        market_card = (
+            '<section><h2>Marketplace award</h2><a class="card card--ok" href="/marketplace">'
+            '<span class="card__label">%s · %s</span><span class="card__amt">$%s<i> award</i></span>'
+            '<span class="card__detail">$%s paid · milestone-gated funding</span></a></section>' % (
+                _esc(market.get("name", "")), _esc(market.get("product", "")),
+                _money(market.get("award_usd", 0)), _money(market.get("paid_usdc", 0))))
+
+    next_obligation = (_esc("Quarterly Reports for %s, due %s" % (
+        q["quarter"], _fmt_iso_date(q["report_due"]))) if q else "term reconciliation")
+
     return (
         '<div class="hero hero--home">'
         '<p class="eyebrow">ENS Service Provider Program &middot; Season 3</p>'
@@ -355,27 +367,16 @@ def page_home(ctx):
         'quoted from EP&nbsp;6.49. Commitments are taken from each provider\'s '
         'application until Award Notice Item 5 is confirmed.</p>'
         '%s'
-        '<div class="factrow">'
-        '<div><i>Term</i><b>1 Aug 2026 &ndash; 31 Jul 2027</b></div>'
+        '<div class="factrow"><div><i>Term</i><b>1 Aug 2026 &ndash; 31 Jul 2027</b></div>'
         '<div><i>Next obligation</i><b>%s</b></div>'
         '<div><i>Committee</i><b>coltron.eth (Chair), sovereignsignal.eth, '
-        'austingriffith.eth, abdullahumar.eth; gregskril.eth (ENS Labs, '
-        'non-compensated)</b></div>'
-        '</div>'
-        '</div>'
-        '<section><h2>The cohort</h2><div class="cards cards--cohort">%s</div>'
-        '</section>'
-        + (('<section><h2>Marketplace award</h2><a class="card card--ok" href="/marketplace">'
-              '<span class="card__label">%s · %s</span><span class="card__amt">$%s<i> award</i></span>'
-              '<span class="card__detail">$%s paid · milestone-gated funding</span></a></section>' % (
-                  _esc(market.get("name", "")), _esc(market.get("product", "")),
-                  _money(market.get("award_usd", 0)), _money(market.get("paid_usdc", 0)))) if market else "") +
+        'austingriffith.eth, abdullahumar.eth; gregskril.eth (ENS Labs, non-compensated)</b></div>'
+        '</div></div>'
+        '<section><h2>The cohort</h2><div class="cards cards--cohort">%s</div></section>'
+        '%s'
         '<section><h2>On this site</h2><div class="cards">%s</div></section>' % (
-            _money(total), _term_timeline(ctx),
-            _esc("Quarterly Reports for %s, due %s" % (
-                q["quarter"], _fmt_iso_date(q["report_due"])))
-            if q else "term reconciliation",
-            cohort_cards, site_cards))
+            _money(total), _term_timeline(ctx), next_obligation,
+            cohort_cards, market_card, site_cards))
 
 
 def page_providers(ctx):
