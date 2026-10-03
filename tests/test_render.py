@@ -69,6 +69,58 @@ class TestLedgerPage(unittest.TestCase):
 
 
 
+class TestHistoricalFinancials(unittest.TestCase):
+    def enriched(self):
+        c = ctx()
+        c["ledger"]["through_block"] = 26123456
+        c["ledger"]["stream_history"] = {
+            "all_reconciled": True,
+            "unknown_flow_events": [],
+            "streams": [{
+                "slug": "namespace", "delivered_usd": 123456.78,
+                "reconciled": True, "changes": []
+            }]
+        }
+        c["ledger"]["financials"] = {
+            "authorized_usd": 2190000,
+            "delivered_usd": 456789.12,
+            "currently_streaming_annual_usd": 1690000,
+            "marketplace_held_usd": 470000,
+            "marketplace_gated_usd": 410000,
+            "marketplace_scheduled_usd": 60000,
+            "awards": [
+                {"slug": "namespace", "name": "Namespace", "type": "continuous stream",
+                 "authorized_usd": 500000, "delivered_usd": 123456.78,
+                 "current_annual_rate_usd": 500000},
+                {"slug": "nomentum", "name": "Nomentum Labs", "type": "milestone-gated",
+                 "authorized_usd": 500000, "delivered_usd": 30000,
+                 "held_usd": 470000, "gated_usd": 410000,
+                 "scheduled_installments_usd": 60000, "current_annual_rate_usd": 0},
+            ],
+        }
+        return c
+
+    def test_ledger_shows_unified_program_position(self):
+        html = R.render(self.enriched(), "/ledger")
+        self.assertIn("Program position", html)
+        self.assertIn("$2,190,000", html)
+        self.assertIn("$456,789.12", html)
+        self.assertIn("$1,690,000/yr", html)
+        self.assertIn("$470,000", html)
+        self.assertIn("Event history reconciles", html)
+
+    def test_stream_page_uses_event_derived_delivery(self):
+        html = R.render(self.enriched(), "/streams")
+        self.assertIn("$123,456.78", html)
+        self.assertIn("delivered since SPP3 start", html)
+
+    def test_provider_page_uses_event_derived_delivery(self):
+        html = R.render(self.enriched(), "/provider/namespace")
+        self.assertIn("$123,456.78", html)
+        self.assertIn("event-derived through block", html)
+
+
+
 class TestMarketplacePage(unittest.TestCase):
     def test_marketplace_award_is_first_class(self):
         html = R.render(ctx(), "/marketplace")
