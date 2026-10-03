@@ -1,69 +1,147 @@
 # spp3-accountability
 
-Accountability infrastructure for the ENS SPP3 cohort, operated by
-sovereignsignal.eth on the committee VM. Runs **alongside** `~/SPP3-Workspace`
-and `~/RFP-Workspace` and reads or writes neither.
+Public accountability infrastructure for ENS Service Provider Program Season 3.
 
-The public tracker is the Railway service `spp3-streams`, which renders the
-committed JSON in this repo. Sub-project B (stream health monitor), C
-(quarterly report watcher), the Notion whitelist export, and the tracker
-site are implemented.
+Production: https://spp3-streams-production.up.railway.app  
+Repository: https://github.com/SovereignSignal/spp3-accountability  
+Runtime: Railway service `spp3-streams`; monitoring/collection jobs publish committed evidence snapshots to `master`.
 
-## What the monitor checks, daily at 15:00 UTC
+## What the system does
 
-1. **Every provider stream against its ratified rate.** Four SPP3 cohort
-   streams, two continuing SPP2 streams, four committee salary streams.
-2. **Every retired SPP2 stream is stopped.** A retired stream still running
-   means the DAO is paying someone it stopped funding.
-3. **No unaccounted stream exists.** The pod's net flowrate must equal master
-   inflow minus known outflows. Checking only known receivers is blind to a
-   receiver nobody recorded; this catches one without an event indexer.
-4. **Funding runway.** Timelock USDCx plus USDC (autowrap's input) against the
-   master stream's daily draw.
+The site is a read-only renderer over committed evidence. HTTP requests do not make live chain calls.
 
-## Two rules that matter
+Public surfaces:
 
-**Compare `wei/s` integers, never dollars.** Rates are
-`annual_usd * 1e18 // 31_536_000`, so the nominal $3.21M/yr master stream is
-actually $3,207,871/yr. Comparing dollars flags healthy streams every day, and
-daily false alarms are how monitoring gets ignored. SPP2's streams ran dead for
-33.7 days and cost $416,076.52 in hand-calculated backpay.
+- **Overview**: SPP3 program state and funded entities.
+- **Providers**: award scope, provisional commitments, reports and evidence review.
+- **Marketplace**: Nomentum Labs / Grails award structure and release gates.
+- **Measurements**: Grails observations, settlement checks, registrar coverage and measurement limitations.
+- **Ledger**: unified program financial position from discrete USDC transfers plus continuous USDCx delivery.
+- **Streams**: live Superfluid rate health and event-derived delivered amounts.
+- **Reports**: quarterly filing status.
+- **Calendar**: reporting and program milestones.
+- JSON evidence endpoints include `/status.json`, `/ledger.json`, `/grails.json`, `/grails-sales.json`, `/grails-chain.json`, `/grails-settlements.json`, and `/grails-registrar.json`.
 
-**Runway thresholds are 60 days (warning) and 21 days (critical)**, set above
-SPP2's 33.7-day outage so an alert is still actionable when it fires.
+## Accountability model
 
-## Running it
+The tracker deliberately separates different levels of evidence:
 
-```bash
-python3 scripts/stream_monitor.py --dry-run    # check and print, change nothing
-python3 scripts/stream_monitor.py              # write, commit, alert on change
-python3 scripts/stream_monitor.py --heartbeat  # weekly all-clear
-python3 -m unittest discover -s tests -v       # stdlib only, no network needed
-```
+1. **Authorized / binding**: DAO executions and executed award terms where public.
+2. **On-chain observed**: token transfers, Superfluid state/history, settlement and registrar events.
+3. **Provider reported**: quarterly-report claims and metrics.
+4. **Independently verified artifact**: public code, deployments, transactions or other reproducible evidence.
+5. **Committee verified**: only when the committee has actually made that determination.
 
-Alerts use the flag-file pattern: one message per distinct fault, one recovery
-notice when it clears, silence otherwise. The Monday heartbeat exists because
-silence from a healthy system and silence from a dead monitor are otherwise
-indistinguishable.
+Missing data is not treated as a pass or a fail.
+
+The four original cohort providers' application milestones remain **provisional** until the binding Award Notice Item 5 records are available. Grails payment gates remain unapproved until the required scoring inputs and committee determinations exist.
+
+## Current production model
+
+### Stream monitoring
+
+Daily monitoring checks:
+
+1. Every known provider/committee stream against its exact ratified `wei/s` rate.
+2. Retired SPP2 streams remain stopped.
+3. Pod net flow equals known inflow minus known outflows, catching unknown receivers.
+4. Funding runway against the master stream draw.
+
+Rates are compared as integers, never rounded dollar values.
+
+Alert state is keyed by distinct fault, so a new fault is not hidden by an older active alert. Runway warning thresholds are 60 days and 21 days.
+
+### Event-sourced financial ledger
+
+The ledger combines two independent event classes:
+
+- **USDC custody**: every USDC transfer into/out of `stream.mg.wg.ens.eth`.
+- **USDCx delivery**: Superfluid stream history checkpointed against CFA state and incrementally updated from `FlowUpdated` events.
+
+The historical bootstrap is valid because each current SPP3 stream's CFA `lastUpdated` was at or before the 1 Aug 2026 SPP3 epoch. Future rate changes, stops and restarts are ingested incrementally and reconciled against live CFA reads.
+
+### Grails evidence
+
+Grails measurement data is observation-only. No payment gate is automatically approved.
+
+Current collection distinguishes:
+
+- API-reported **order origin** from reported **fill venue**.
+- Seaport settlement proof from Grails venue attribution.
+- registered owners from verified paying users.
+- indexed-source completeness from independent proof of all website activity.
+
+Registrar coverage uses ordered Blockscout traversal for the two configured ENSv1 referral contracts, then validates matching events against successful canonical finalized Ethereum receipts. Legacy checkpoints are fully rescanned; v2 checkpoints retain overlap and canonical-hash checks.
+
+The current API-origin sale feed can omit foreign-origin orders executed through Grails. Unknown venue remains unknown.
+
+## Automation and CI
+
+GitHub Actions runs the stdlib unit suite on PRs and `master`.
+
+The Grails workflow:
+
+- refreshes public observations;
+- verifies settlement evidence;
+- completes registrar coverage to a fixed finalized block;
+- validates canonical receipts;
+- fails closed on incomplete traversal, conflicting source data, invalid bootstrap evidence or unavailable required verification;
+- publishes a new committed snapshot only after verification.
+
+The on-chain ledger workflow refreshes its checkpoint and publishes only verified changes.
+
+Railway auto-deploys `master`.
 
 ## Data files
 
-| File | Written by | Hand-edit? |
+| File | Source | Hand-edit? |
 |---|---|---|
-| `data/providers.json` | humans (`_generated: false`) | yes, then run the tests |
-| `data/commitments.json` | humans (`_generated: false`) | yes; milestones stay provisional until Award Notice Item 5 |
-| `data/calendar.json` | humans (`_generated: false`) | yes |
-| `data/streams/status.json` | the monitor (`_generated: true`) | **never** |
-| `data/notion/board.json` | `notion_export.py` (`_generated: true`) | **never**; whitelist only |
+| `data/providers.json` | human-maintained program config | yes, then test |
+| `data/commitments.json` | human-maintained award/evidence model | yes, then test |
+| `data/calendar.json` | human-maintained program calendar | yes |
+| `data/streams/status.json` | stream monitor | never |
+| `data/onchain/ledger.json` | Ethereum ledger workflow | never |
+| `data/grails/*.json` | Grails observation/verification workflow | never |
+| `data/notion/board.json` | whitelisted Notion export | never |
 
-## Operational warnings
+## Running locally
 
-- **The crontab is shared.** `crontab <file>` replaces the *entire* user
-  crontab. `scripts/cron/crontab-accountability.txt` is a merged file
-  containing the RFP intake lines too, and is the only file that may be
-  installed. Diff it against `crontab -l` before installing.
-- Secrets live in `~/.claude/secrets/`, never in this repo.
-- Standard library only. Do not add pip dependencies; this VM runs live
-  RFP intake infrastructure.
-- Addresses were verified on-chain 2026-08-04 at block 25,685,582. Source:
-  blockful `ep-6-49/podStreamSetup.t.sol` @ `04d349a`.
+```bash
+python3 -m unittest discover -s tests -v
+
+python3 scripts/stream_monitor.py --dry-run
+python3 scripts/stream_monitor.py
+python3 scripts/stream_monitor.py --heartbeat
+
+python3 scripts/ledger.py --dry-run
+python3 scripts/grails_measurements.py --output-dir /tmp/grails-check --raw-dir /tmp/grails-raw
+```
+
+The project intentionally remains Python standard-library only.
+
+## Operational rules
+
+- Never hand-edit generated evidence files.
+- Never turn missing evidence into a positive or negative gate result.
+- Never equate a successful Seaport fill with proof that Grails originated or executed the user interaction.
+- Never count registered owners or transaction initiators as paying users without the approved methodology.
+- Never publish a partial registrar traversal as complete coverage.
+- Secrets stay outside the repository.
+- The committee VM crontab is shared. Do not replace it without reconciling existing jobs.
+
+## Known unresolved inputs
+
+These are documented gaps, not bugs:
+
+- binding Award Notice Item 5 records for the four original cohort providers;
+- Grails signing-date revenue baseline;
+- approved USD conversion methodology;
+- final paying-wallet policy for gate scoring;
+- exact anti-wash and minimum-value parameters for the secondary-volume gate;
+- authoritative Grails fill-venue evidence for the current API-origin records.
+
+Until those inputs exist, corresponding gate/milestone results remain pending.
+
+## Production verification
+
+As of **2026-10-03**, CI, the production Grails refresh, Railway deployment, health endpoint, on-chain ledger, registrar evidence and public measurement surfaces were verified after the final implementation pass.
