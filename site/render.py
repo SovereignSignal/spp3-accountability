@@ -524,6 +524,34 @@ def page_provider(ctx, slug):
     else:
         delivered = _ticker(s.get("actual_wei_s", 0), epoch, "tick tick--hero")
 
+    evidence_html = ""
+    evidence = (c.get("report_evidence") or {}).get("2026Q3")
+    if evidence:
+        metrics = "".join(
+            '<li class="check check--wait"><span class="check__label">%s'
+            '<span class="check__why">provider reported · not independently verified</span></span>'
+            '<span class="check__val">%s</span></li>' % (
+                _esc(x.get("label", "")), _esc(x.get("value", "")))
+            for x in evidence.get("metrics") or [])
+        claims = "".join(
+            '<li class="check check--wait"><span class="check__label">%s'
+            '<span class="check__why">%s</span></span><span class="check__val">%s</span></li>' % (
+                _esc(x.get("milestone", "")), _esc(x.get("provider_claim", "")),
+                _esc(x.get("committee_status", "unreviewed")))
+            for x in evidence.get("milestone_claims") or [])
+        links = " · ".join(
+            '<a href="%s" target="_blank" rel="noopener">%s</a>' % (
+                _esc(x.get("url", "")), _esc(x.get("label", "")))
+            for x in evidence.get("evidence") or [])
+        evidence_html = (
+            '<section><h2>Q3 evidence review</h2>'
+            '<p class="drift drift--info"><b>Provider-reported, committee review pending.</b> '
+            '%s No claim below changes a milestone status until reviewed against the binding Award Notice.</p>'
+            '<h3>Reported metrics</h3><ul>%s</ul>'
+            '<h3>Commitment mapping</h3><ul>%s</ul>'
+            '<p class="colnote">Evidence: %s</p></section>' % (
+                _esc(evidence.get("summary", "")), metrics, claims, links))
+
     return (
         '<p class="lede">%s</p>'
         '<div class="hero hero--sm"><p class="eyebrow">Delivered to %s since SPP3 start</p>'
@@ -533,13 +561,14 @@ def page_provider(ctx, slug):
         '<section><h2>Why the committee funded this</h2><p class="prose">%s</p>'
         '<p class="prose prose--dim">%s</p></section>'
         '<section><h2>Commitments</h2>%s</section>'
+        '%s'
         '<section><h2>Reports</h2>%s</section>' % (
             _esc(c.get("scope", "")), _esc(p["name"]),
             delivered,
             "".join("<dt>%s</dt><dd>%s</dd>" % (k, v) for k, v in facts),
             ext,
             _esc(c.get("why_funded", "")), _esc(c.get("watch", "")),
-            milestones, reports_html))
+            milestones, evidence_html, reports_html))
 
 
 
@@ -561,6 +590,30 @@ def page_marketplace(ctx):
                     float(m.get("performance_reserve_usd", 0)))
     scheduled = fin.get("scheduled_installments_usd",
                         max(0, float(m.get("upfront_total_usd", 0)) - paid))
+    gates = []
+    sg = m.get("stream_gate") or {}
+    if sg:
+        gates.append(
+            '<li class="check check--%s"><span class="check__label">$%s stream gate · %s'
+            '<span class="check__why">%s</span></span><span class="check__val">%s</span></li>' % (
+                "ok" if sg.get("verified") else "wait", _money(sg.get("value_usd", 0)),
+                _esc(sg.get("target", "")), _esc(sg.get("condition", "")),
+                "verified" if sg.get("verified") else _esc(sg.get("status", "pending"))))
+    for g in m.get("performance_gates") or []:
+        current = g.get("current")
+        value = ("current: %s" % _esc(current)) if current is not None else _esc(g.get("status", "pending"))
+        gates.append(
+            '<li class="check check--%s"><span class="check__label">$%s · %s'
+            '<span class="check__why">%s · due %s</span></span><span class="check__val">%s</span></li>' % (
+                "ok" if g.get("verified") else "wait", _money(g.get("value_usd", 0)),
+                _esc(g.get("metric", "")), _esc(g.get("condition", "")),
+                _esc(g.get("due", "")), value))
+    gates_html = (
+        '<section><h2>Release gates</h2><ul>%s</ul>'
+        '<p class="colnote">A gate remains pending until its measurement is sourced and '
+        'the committee verifies the result. Missing data is never treated as a miss or a pass.</p>'
+        '</section>' % "\n".join(gates)) if gates else ""
+
     return (
         '<p class="lede">SPP3 also includes a marketplace award selected through the '
         'committee RFP and executed on-chain after the original four-provider cohort.</p>'
@@ -578,6 +631,7 @@ def page_marketplace(ctx):
         'is not represented as live until the committee verifies ENSv2 readiness and '
         'the stream actually opens. Payment totals above come from Ethereum USDC '
         'Transfer events when ledger history is available.</p></section>'
+        '%s'
         '<section><h2>Scope</h2><p class="prose">%s</p></section>'
         '<section><h2>Sources</h2><p class="prose">'
         '<a href="%s" target="_blank" rel="noopener">Committee recommendation</a> · '
@@ -589,7 +643,7 @@ def page_marketplace(ctx):
             _money(paid), _esc(paid_through), _money(held), _money(scheduled),
             _money(m.get("conditional_stream_usd", 0)), _esc(m.get("conditional_stream_status", "")),
             _money(m.get("performance_reserve_usd", 0)), _money(gated),
-            _money(m.get("conditional_stream_usd", 0)), _esc(m.get("scope", "")),
+            _money(m.get("conditional_stream_usd", 0)), gates_html, _esc(m.get("scope", "")),
             _esc(m.get("award_forum", "")), _esc(m.get("executable_forum", "")),
             _esc(m.get("transaction_forum", ""))))
 
