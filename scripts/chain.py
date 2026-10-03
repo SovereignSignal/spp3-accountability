@@ -162,6 +162,17 @@ class Chain:
         block = self._rpc("eth_getBlockByNumber", [hex(block_number), False])
         return int(block["timestamp"], 16)
 
+    def block_at_or_after(self, timestamp, latest=None):
+        """First block whose timestamp is >= timestamp."""
+        lo, hi = 0, latest if latest is not None else self.block_number()
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if self.block_timestamp(mid) < timestamp:
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo
+
 
     def flowrate(self, token, sender, receiver):
         data = encode_call("getFlowrate(address,address,address)",
