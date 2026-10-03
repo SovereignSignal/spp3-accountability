@@ -1,0 +1,71 @@
+name: grails measurements
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+  push:
+    branches: [master]
+    paths: ["scripts/grails_measurements.py", "site/grails_view.py", "site/server.py", "tests/test_grails_measurements.py", ".github/workflows/grails.yml"]
+  pull_request:
+    paths: ["scripts/grails_measurements.py", "site/grails_view.py", "site/server.py", "tests/test_grails_measurements.py", ".github/workflows/grails.yml"]
+permissions:
+  contents: read
+concurrency:
+  group: grails-${{ github.event.pull_request.number || 'production' }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover -s tests -v
+      - run: python scripts/grails_measurements.py --output-dir /tmp/grails-check --raw-dir /tmp/grails-raw
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: grails-verification-${{ github.run_id }}
+          path: |
+            /tmp/grails-check
+            /tmp/grails-raw
+          retention-days: 90
+          if-no-files-found: ignore
+  refresh:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover -s tests -v
+      - run: python scripts/grails_measurements.py --raw-dir /tmp/grails-raw
+      - name: Commit observation snapshot
+        run: |
+          git config user.name "spp3-accountability[bot]"
+          git config user.email "spp3-accountability[bot]@users.noreply.github.com"
+          git add data/grails/observations.json data/grails/sales.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(grails): refresh public sale observations"
+            git pull --rebase origin master
+            git push origin HEAD:master
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: grails-source-${{ github.run_id }}
+          path: |
+            /tmp/grails-raw
+            data/grails/observations.json
+            data/grails/sales.json
+          retention-days: 90
+          if-no-files-found: ignore
