@@ -25,6 +25,7 @@ STATUS = ROOT / "data" / "streams" / "status.json"
 BOARD = ROOT / "data" / "notion" / "board.json"
 CALENDAR = ROOT / "data" / "calendar.json"
 COMMITMENTS = ROOT / "data" / "commitments.json"
+LEDGER = ROOT / "data" / "onchain" / "ledger.json"
 
 
 def _optional(path):
@@ -50,6 +51,7 @@ def _load():
         "board": _optional(BOARD),
         "calendar": _optional(CALENDAR),
         "commitments": _optional(COMMITMENTS),
+        "ledger": _optional(LEDGER),
     }
 
 
@@ -94,6 +96,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if path == "/status.json":
                 self._send(200, STATUS.read_text(), "application/json")
+            elif path == "/ledger.json":
+                self._send(200, LEDGER.read_text(), "application/json")
             elif path == "/healthz":
                 self._send(200, "ok\n", "text/plain; charset=utf-8")
             elif path == "/robots.txt":
