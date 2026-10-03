@@ -153,6 +153,16 @@ class Chain:
     def block_number(self):
         return decode_uint256(self._rpc("eth_blockNumber", []))
 
+    def event_logs(self, address, topics, from_block, to_block):
+        params = [{"address": address, "topics": topics,
+                   "fromBlock": hex(from_block), "toBlock": hex(to_block)}]
+        return self._rpc("eth_getLogs", params)
+
+    def block_timestamp(self, block_number):
+        block = self._rpc("eth_getBlockByNumber", [hex(block_number), False])
+        return int(block["timestamp"], 16)
+
+
     def flowrate(self, token, sender, receiver):
         data = encode_call("getFlowrate(address,address,address)",
                            token, sender, receiver)
