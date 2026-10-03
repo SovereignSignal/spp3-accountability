@@ -1,0 +1,217 @@
+{
+  "contracts": [
+    "0x59e16fccd424cc24e280be16e11bcd56fb0ce547",
+    "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a"
+  ],
+  "coverage": "backfill_in_progress",
+  "events": [],
+  "limitations": [
+    "Covers the two named ENSv1 referral paths only; future registrars require configuration.",
+    "Execution date is not the unknown signing baseline.",
+    "Referrer tags are public caller-supplied data, not independent proof of website use."
+  ],
+  "mapping_source": "https://dune.com/queries/8064446",
+  "observed_at": "2026-10-03T21:08:20Z",
+  "referrer": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+  "scan_manifests": [
+    {
+      "from_block": 25943261,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25944010
+    },
+    {
+      "from_block": 25944011,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25944760
+    },
+    {
+      "from_block": 25944761,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25945510
+    },
+    {
+      "from_block": 25945511,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25946260
+    },
+    {
+      "from_block": 25946261,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25947010
+    },
+    {
+      "from_block": 25947011,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25947760
+    },
+    {
+      "from_block": 25947761,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25948510
+    },
+    {
+      "from_block": 25948511,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25949260
+    },
+    {
+      "from_block": 25949261,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25950010
+    },
+    {
+      "from_block": 25950011,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25950760
+    },
+    {
+      "from_block": 25950761,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25951510
+    },
+    {
+      "from_block": 25951511,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25952260
+    },
+    {
+      "from_block": 25952261,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25953010
+    },
+    {
+      "from_block": 25953011,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25953760
+    },
+    {
+      "from_block": 25953761,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25954510
+    },
+    {
+      "from_block": 25954511,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25955260
+    },
+    {
+      "from_block": 25955261,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25956010
+    },
+    {
+      "from_block": 25956011,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25956760
+    },
+    {
+      "from_block": 25956761,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25957510
+    },
+    {
+      "from_block": 25957511,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25958260
+    },
+    {
+      "from_block": 25958261,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25959010
+    },
+    {
+      "from_block": 25959011,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25959760
+    },
+    {
+      "from_block": 25959761,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25960510
+    },
+    {
+      "from_block": 25960511,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25961260
+    },
+    {
+      "from_block": 25961261,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25962010
+    },
+    {
+      "from_block": 25962011,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25962760
+    },
+    {
+      "from_block": 25962761,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25963510
+    },
+    {
+      "from_block": 25963511,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25964260
+    },
+    {
+      "from_block": 25964261,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25965010
+    },
+    {
+      "from_block": 25965011,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25965760
+    },
+    {
+      "from_block": 25965761,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25966510
+    },
+    {
+      "from_block": 25966511,
+      "logs": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "to_block": 25967260
+    }
+  ],
+  "schema_version": 1,
+  "start": "2026-09-10T00:00:00Z",
+  "start_block": 25943261,
+  "target_finalized_block": 26114320,
+  "through_block": 25967260,
+  "through_block_hash": "0x2709120d2381409a76cd1252f0fb10b01cbab0397c328874ad21c3652b1a1b4f",
+  "through_timestamp": "2026-09-13T08:17:23Z"
+}
