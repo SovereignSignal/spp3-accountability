@@ -113,7 +113,8 @@ def main(argv=None):
         except (ValueError, TypeError):
             return ""
     changed = comparable(old) != comparable(new)
-    C.LEDGER_PATH.write_text(new)
+    if changed:
+        C.LEDGER_PATH.write_text(new)
     print("events=%d unclassified=%d changed=%s via=%s" % (
         len(doc["events"]), doc["summary"]["unclassified_events"], changed, client.last_endpoint))
     if changed:
