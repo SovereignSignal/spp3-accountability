@@ -246,18 +246,30 @@ def publish(path, message):
 ALERT_FLAG = C.LOG_DIR / "stream-alert.flag"
 
 
-def alert_decision(finding_list, flag_exists):
-    """Decide whether to speak, using the flag-file pattern the RFP harness
-    already uses. One alert per distinct fault, one recovery notice when it
-    clears, silence otherwise."""
-    if finding_list and not flag_exists:
-        return {"send": True, "kind": "alert", "set_flag": True, "clear_flag": False}
-    if finding_list and flag_exists:
-        return {"send": False, "kind": "none", "set_flag": False, "clear_flag": False}
-    if not finding_list and flag_exists:
-        return {"send": True, "kind": "recovery", "set_flag": False, "clear_flag": True}
-    return {"send": False, "kind": "none", "set_flag": False, "clear_flag": False}
+def _finding_keys(finding_list):
+    return sorted("%s|%s|%s" % (f.get("severity"), f.get("code"), f.get("subject"))
+                  for f in finding_list)
 
+
+def _load_alert_keys(path=ALERT_FLAG):
+    """Read the distinct faults already announced. Legacy flag files upgrade
+    on the next active fault rather than suppressing it."""
+    try:
+        doc = json.loads(Path(path).read_text())
+        return doc.get("keys", []) if isinstance(doc, dict) else []
+    except (OSError, ValueError):
+        return []
+
+
+def alert_decision(finding_list, previous_keys):
+    """Speak when the distinct fault set changes, stay silent on repeats."""
+    keys = _finding_keys(finding_list)
+    previous = sorted(previous_keys or [])
+    if keys and keys != previous:
+        return {"send": True, "kind": "alert", "keys": keys}
+    if not keys and previous:
+        return {"send": True, "kind": "recovery", "keys": []}
+    return {"send": False, "kind": "none", "keys": keys}
 
 def _format_alert(status, finding_list):
     lines = ["<b>[SPP3 STREAMS] %s</b>" % status["overall"].upper()]
@@ -316,7 +328,7 @@ def main(argv=None):
         publish(C.STATUS_PATH, "chore(streams): status %s at block %d"
                 % (status["overall"], block))
 
-    decision = alert_decision(problems, ALERT_FLAG.exists())
+    decision = alert_decision(problems, _load_alert_keys())
     if not args.no_notify:
         if decision["kind"] == "alert":
             tg_send(_format_alert(status, problems))
@@ -325,10 +337,7 @@ def main(argv=None):
                     "ratified rates. Block %d." % block)
         elif args.heartbeat:
             tg_send(_format_heartbeat(status))
-    if decision["set_flag"]:
-        ALERT_FLAG.write_text("alerted")
-    if decision["clear_flag"] and ALERT_FLAG.exists():
-        ALERT_FLAG.unlink()
+    ALERT_FLAG.write_text(json.dumps({"keys": decision["keys"]}) + "\n")
 
     return 2 if status["overall"] == "critical" else 0
 
