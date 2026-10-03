@@ -5,9 +5,9 @@ on:
     - cron: "17 * * * *"
   push:
     branches: [master]
-    paths: ["scripts/grails_measurements.py", "scripts/grails_chain.py", "site/grails_view.py", "site/grails_chain_view.py", "site/server.py", "tests/test_grails_measurements.py", "tests/test_grails_chain.py", "tests/test_grails_rpc.py", ".github/workflows/grails.yml"]
+    paths: ["scripts/grails*.py", "site/grails*.py", "site/server.py", "tests/test_grails*.py", ".github/workflows/grails.yml"]
   pull_request:
-    paths: ["scripts/grails_measurements.py", "scripts/grails_chain.py", "site/grails_view.py", "site/grails_chain_view.py", "site/server.py", "tests/test_grails_measurements.py", "tests/test_grails_chain.py", "tests/test_grails_rpc.py", ".github/workflows/grails.yml"]
+    paths: ["scripts/grails*.py", "site/grails*.py", "site/server.py", "tests/test_grails*.py", ".github/workflows/grails.yml"]
 permissions:
   contents: read
 concurrency:
@@ -17,7 +17,7 @@ jobs:
   verify:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -25,8 +25,17 @@ jobs:
           python-version: "3.12"
       - run: python -m unittest discover -s tests -v
       - run: python scripts/grails_measurements.py --output-dir /tmp/grails-check --raw-dir /tmp/grails-raw
-      - name: Verify live settlements and bounded registrar scan
-        run: python scripts/grails_chain.py --data-dir /tmp/grails-check --raw-dir /tmp/grails-chain-raw --max-blocks 24000
+      - name: Verify complete registrar coverage and settlement evidence
+        run: |
+          cp data/grails/registrar.json /tmp/grails-check/registrar.json
+          python scripts/grails_backfill.py --data-dir /tmp/grails-check --api-raw-dir /tmp/grails-raw --raw-dir /tmp/grails-chain-raw
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/grails-check/registrar.json'))
+          assert d['coverage']=='current_known_contracts'
+          assert d['through_block']==d['target_finalized_block']
+          assert all(e['receipt_event_verified'] for e in d['events'])
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -40,7 +49,7 @@ jobs:
   refresh:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: write
     steps:
@@ -52,15 +61,15 @@ jobs:
           python-version: "3.12"
       - run: python -m unittest discover -s tests -v
       - run: python scripts/grails_measurements.py --raw-dir /tmp/grails-raw
-      - name: Verify settlements and advance contiguous registrar checkpoint
-        run: python scripts/grails_chain.py --raw-dir /tmp/grails-chain-raw --max-blocks 24000
+      - name: Complete indexed coverage and verify canonical event receipts
+        run: python scripts/grails_backfill.py --api-raw-dir /tmp/grails-raw --raw-dir /tmp/grails-chain-raw
       - name: Commit observation snapshot
         run: |
           git config user.name "spp3-accountability[bot]"
           git config user.email "spp3-accountability[bot]@users.noreply.github.com"
           git add data/grails/observations.json data/grails/sales.json data/grails/chain.json data/grails/settlements.json data/grails/registrar.json
           if ! git diff --cached --quiet; then
-            git commit -m "chore(grails): refresh API and chain evidence"
+            git commit -m "chore(grails): refresh receipt-validated registrar and sale evidence"
             git pull --rebase origin master
             git push origin HEAD:master
           fi
