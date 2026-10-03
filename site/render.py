@@ -1,17 +1,13 @@
 """render.py — ENS SPP3 cohort accountability tracker.
 
-Tracks the four providers the DAO is actually funding: what they were funded to
-do, what money has reached them, what they have committed to, and whether their
-reports have landed.
+Tracks the funded SPP3 program: continuous provider streams, the marketplace
+award, actual on-chain delivery, commitments, reporting, and evidence.
 
   /                     overview: one card per provider, next obligation
   /provider/<slug>      scope, funding, commitments, reports for one provider
   /streams              every stream on the pod, integrity checks, runway
   /reports              the reporting calendar and who owes what by when
   /calendar             cohort obligations through the end of term
-
-Deliberately out of scope: the Marketplace RFP. That is a selection process
-still in flight, not an accountability record of funded work.
 
 Two rules hold everywhere and are enforced by tests:
   - Live figures come from (rate x elapsed) against the explicit program epoch,
@@ -229,6 +225,20 @@ def _commit(ctx, slug):
     return ctx["commitments"].get("providers", {}).get(slug, {})
 
 
+def _history_for(ctx, slug):
+    for item in (ctx.get("ledger") or {}).get("stream_history", {}).get("streams", []):
+        if item.get("slug") == slug:
+            return item
+    return None
+
+
+def _financial_award(ctx, slug):
+    for item in (ctx.get("ledger") or {}).get("financials", {}).get("awards", []):
+        if item.get("slug") == slug:
+            return item
+    return None
+
+
 def _next_quarter(ctx):
     for q in ctx["commitments"].get("quarters", []):
         d = _days_to(q["report_due"], ctx["now"])
@@ -356,7 +366,7 @@ def page_home(ctx):
     return (
         '<div class="hero hero--home">'
         '<p class="eyebrow">ENS Service Provider Program &middot; Season 3</p>'
-        '<h2 class="lead">The public record of the SPP3 cohort.</h2>'
+        '<h2 class="lead">The public accountability record for SPP3.</h2>'
         '<p class="hero__sub">SPP3 was authorized by <a href="https://discuss.ens.'
         'domains/t/22086" target="_blank" rel="noopener">EP&nbsp;6.42</a> and its '
         'cohort ratified on-chain by <a href="https://discuss.ens.domains/t/22237" '
@@ -504,9 +514,17 @@ def page_provider(ctx, slug):
                             _esc(q["quarter"]), _esc(q["report_due"]), _when(qdays))
                         if q else '<p class="empty">No reports filed.</p>') + watched
 
+    hist = _history_for(ctx, p["slug"])
+    if hist:
+        delivered = '<span class="lead">$%s</span><span class="colnote"> event-derived through block %s</span>' % (
+            _money(hist.get("delivered_usd", 0), 2),
+            _money((ctx.get("ledger") or {}).get("through_block", 0)))
+    else:
+        delivered = _ticker(s.get("actual_wei_s", 0), epoch, "tick tick--hero")
+
     return (
         '<p class="lede">%s</p>'
-        '<div class="hero hero--sm"><p class="eyebrow">Delivered to %s</p>'
+        '<div class="hero hero--sm"><p class="eyebrow">Delivered to %s since SPP3 start</p>'
         '<p class="ticker ticker--sm">%s</p></div>'
         '<section><h2>Funding</h2><dl class="facts">%s</dl></section>'
         '%s'
@@ -515,7 +533,7 @@ def page_provider(ctx, slug):
         '<section><h2>Commitments</h2>%s</section>'
         '<section><h2>Reports</h2>%s</section>' % (
             _esc(c.get("scope", "")), _esc(p["name"]),
-            _ticker(s.get("actual_wei_s", 0), epoch, "tick tick--hero"),
+            delivered,
             "".join("<dt>%s</dt><dd>%s</dd>" % (k, v) for k, v in facts),
             ext,
             _esc(c.get("why_funded", "")), _esc(c.get("watch", "")),
@@ -561,13 +579,31 @@ def page_marketplace(ctx):
 def page_ledger(ctx):
     ledger = ctx.get("ledger") or {}
     summary = ledger.get("summary") or {}
+    fin = ledger.get("financials") or {}
     events = ledger.get("events") or []
-    rows = []
+    history = ledger.get("stream_history") or {}
+
+    award_rows = []
+    for a in fin.get("awards", []):
+        detail = "continuous at $%s/yr" % _money(a.get("current_annual_rate_usd", 0))
+        if a.get("type") == "milestone-gated":
+            detail = "$%s held · $%s gated · $%s scheduled" % (
+                _money(a.get("held_usd", 0)), _money(a.get("gated_usd", 0)),
+                _money(a.get("scheduled_installments_usd", 0)))
+        award_rows.append(
+            '<li class="check check--ok"><span class="check__label">%s'
+            '<span class="check__why">%s</span></span>'
+            '<span class="check__val">$%s / $%s delivered</span></li>' % (
+                _esc(a.get("name", "")), _esc(detail),
+                _money(a.get("delivered_usd", 0), 2),
+                _money(a.get("authorized_usd", 0))))
+
+    custody_rows = []
     for e in reversed(events):
         incoming = e.get("direction") == "in"
         counterparty = e.get("from") if incoming else e.get("to")
         tx = e.get("tx_hash", "")
-        rows.append(
+        custody_rows.append(
             '<li class="stream stream--ok"><div class="stream__id">'
             '<span class="stream__name">%s · %s</span>'
             '<span class="stream__meta">%s · <a href="https://etherscan.io/tx/%s" '
@@ -576,29 +612,65 @@ def page_ledger(ctx):
                 _esc(e.get("timestamp", "")[:10]), _esc(e.get("classification", "unclassified")),
                 _esc(_short(counterparty or "")), _esc(tx), _esc(_short(tx)) if tx else "tx",
                 "+" if incoming else "-", _money(e.get("amount", 0))))
-    unknown = summary.get("unclassified_events", 0)
+
+    if fin:
+        position = (
+            '<section><h2>Program position</h2><div class="factrow">'
+            '<div><i>Authorized</i><b>$%s</b></div>'
+            '<div><i>Actually delivered</i><b>$%s</b></div>'
+            '<div><i>Streaming now</i><b>$%s/yr</b></div>'
+            '<div><i>Marketplace held</i><b>$%s</b></div>'
+            '</div><ul>%s</ul>'
+            '<p class="colnote">Continuous delivery is reconstructed from Superfluid '
+            'FlowUpdated events. Discrete marketplace payments come from USDC Transfer '
+            'events. These are separate event streams reconciled at the same Ethereum block.</p>'
+            '</section>' % (
+                _money(fin.get("authorized_usd", 0)),
+                _money(fin.get("delivered_usd", 0), 2),
+                _money(fin.get("currently_streaming_annual_usd", 0)),
+                _money(fin.get("marketplace_held_usd", 0)),
+                "\n".join(award_rows)))
+    else:
+        position = ""
+
+    integrity = ""
+    if history:
+        state = "ok" if history.get("all_reconciled") and not history.get("unknown_flow_events") else "fault"
+        integrity = (
+            '<section><h2>Stream-history integrity</h2><ul>'
+            '<li class="check check--%s"><span class="check__label">Event history reconciles '
+            '<span class="check__why">Final event-derived rates are compared with fresh CFA reads.</span></span>'
+            '<span class="check__val">%s</span></li>'
+            '<li class="check check--%s"><span class="check__label">Unknown flow events</span>'
+            '<span class="check__val">%s</span></li></ul></section>' % (
+                state, "yes" if history.get("all_reconciled") else "NO",
+                "ok" if not history.get("unknown_flow_events") else "fault",
+                len(history.get("unknown_flow_events") or [])))
+
     return (
-        '<p class="lede">A block-backed custody record for <code>stream.mg.wg.ens.eth</code>. '
-        'Every USDC transfer involving the pod is read from Ethereum logs. Unknown '
-        'movements remain explicitly unclassified rather than being guessed.</p>'
-        '<div class="factrow">'
+        '<p class="lede">The financial record for SPP3, reconstructed directly from '
+        'Ethereum. Continuous USDCx delivery and discrete USDC custody movements are '
+        'kept distinct, then combined into one award-level view.</p>'
+        '%s%s'
+        '<section><h2>Discrete USDC custody</h2><div class="factrow">'
         '<div><i>USDC in</i><b>$%s</b></div><div><i>USDC out</i><b>$%s</b></div>'
         '<div><i>Net custody movement</i><b>$%s</b></div><div><i>Unclassified</i><b>%s</b></div>'
-        '</div><section><h2>Custody events</h2><ul>%s</ul>'
-        '<p class="colnote">Through Ethereum block %s. Continuous USDCx flows are '
-        'monitored separately on the Streams page.</p></section>' % (
+        '</div><ul>%s</ul>'
+        '<p class="colnote">Through Ethereum block %s.</p></section>' % (
+            position, integrity,
             _money(summary.get("usdc_in", 0)), _money(summary.get("usdc_out", 0)),
-            _money(summary.get("net_usdc", 0)), _money(unknown),
-            "\n".join(rows) if rows else '<li class="empty">No custody events recorded.</li>',
+            _money(summary.get("net_usdc", 0)), _money(summary.get("unclassified_events", 0)),
+            "\n".join(custody_rows) if custody_rows else '<li class="empty">No custody events recorded.</li>',
             "{:,}".format(ledger.get("through_block", 0))))
+
 
 def page_streams(ctx):
     st = ctx["status"]
     epoch = ctx["providers"]["spp3_stream_start"]
     max_rate = max([s["actual_wei_s"] for s in st["streams"]] or [1])
     body = ['<p class="lede">Every stream the Stream Management Pod runs, compared '
-            'against the rates ratified in EP&nbsp;6.49. Amounts are delivered since '
-            'the 1 Aug 2026 switch so rows stay comparable; a provider whose rate was '
+            'against the rates ratified in EP&nbsp;6.49. Delivered amounts are reconstructed '
+            'from Superfluid rate-change events since the 1 Aug 2026 switch; a provider whose rate was '
             'unchanged across cycles kept the same uninterrupted stream, noted beside '
             'its address. The master inflow renders as $%s/yr because Superfluid '
             'stores an integer <code>wei/s</code> rate: the executable\'s nominal '
@@ -629,7 +701,10 @@ def page_streams(ctx):
                     _esc(s["address"]), _esc(_short(s["address"])),
                     (" &middot; flowing since " + _fmt_short(fs)) if fs else "",
                     pct, _money(_usd(s["expected_wei_s"])),
-                    _ticker(s["actual_wei_s"], max(fs, epoch), "tick tick--row")))
+                    ('<span class="tick tick--row">$%s</span><span class="stream__meta"> delivered since SPP3 start</span>' %
+                     _money(_history_for(ctx, s["slug"]).get("delivered_usd", 0), 2)
+                     if _history_for(ctx, s["slug"]) else
+                     _ticker(s["actual_wei_s"], max(fs, epoch), "tick tick--row"))))
         note = ""
         if key == "committee":
             note = ('<p class="colnote">gregskril.eth holds the ENS Labs technical '
