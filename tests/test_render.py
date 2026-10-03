@@ -26,7 +26,7 @@ def ctx(now=None):
     }
 
 
-ALL_PAGES = ["/", "/providers", "/streams", "/reports", "/calendar",
+ALL_PAGES = ["/", "/providers", "/marketplace", "/streams", "/reports", "/calendar",
              "/provider/namespace", "/provider/goldsky",
              "/provider/unruggable", "/provider/fluidkey"]
 
@@ -52,6 +52,25 @@ class TestRouting(unittest.TestCase):
     def test_provider_page_navigates_under_providers(self):
         html = R.render(ctx(), "/provider/namespace")
         self.assertIn('class="nav__link is-active" href="/providers"', html)
+
+
+class TestMarketplacePage(unittest.TestCase):
+    def test_marketplace_award_is_first_class(self):
+        html = R.render(ctx(), "/marketplace")
+        self.assertIn("Nomentum Labs", html)
+        self.assertIn("Grails", html)
+        self.assertIn("$500,000", html)
+        self.assertIn("$30,000", html)
+
+    def test_conditional_stream_is_not_presented_as_live(self):
+        html = R.render(ctx(), "/marketplace")
+        self.assertIn("not opened", html)
+        self.assertIn("not represented as live", html)
+
+    def test_overview_links_marketplace(self):
+        html = R.render(ctx(), "/")
+        self.assertIn('href="/marketplace"', html)
+        self.assertIn("Marketplace award", html)
 
 
 class TestScope(unittest.TestCase):
