@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import re
 import sys
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 ZERO = '0x' + '0' * 40
@@ -295,6 +296,18 @@ def decode_registrar(log: dict) -> dict | None:
             'source_log': log, 'source_log_sha256': digest(log)}
 
 
+def read_with_retry(client, method, params):
+    """Bounded read retries; never expose endpoints or credentials in diagnostics."""
+    time.sleep(0.2)
+    for attempt in range(4):
+        try:
+            return client._rpc(method, params)
+        except RuntimeError:
+            if attempt == 3:
+                raise
+            time.sleep(2 ** attempt)
+
+
 class Reader:
     def __init__(self, raw_dir: Path | None = None):
         from chain import Chain
@@ -304,8 +317,7 @@ class Reader:
         self.receipts = {}
 
     def rpc(self, method, params):
-        value = self.client._rpc(method, params)
-        # Avoid retrying known-incompatible endpoints for every small log page.
+        value = read_with_retry(self.client, method, params)
         last = self.client.last_endpoint
         if last in self.client.rpcs:
             self.client.rpcs = [last] + [x for x in self.client.rpcs if x != last]
