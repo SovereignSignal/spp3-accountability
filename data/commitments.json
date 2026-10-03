@@ -61,9 +61,11 @@
         "condition": "At or above the at-signing baseline",
         "baseline": "Grails attributed revenue over the 90 days before signing",
         "status": "pending measurement",
-        "measurement_source": "Award Notice / committee verification",
+        "measurement_source": "Dune query 8064446",
         "current": null,
-        "verified": false
+        "verified": false,
+        "measurement_url": "https://dune.com/queries/8064446",
+        "measurement_status": "source live; baseline window must be frozen from signing date"
       },
       {
         "id": "q1-active-wallets",
@@ -74,9 +76,11 @@
         "target": 150,
         "unit": "wallets",
         "status": "pending measurement",
-        "measurement_source": "Award Notice / committee verification",
+        "measurement_source": "Grails public API / Dune attribution data",
         "current": null,
-        "verified": false
+        "verified": false,
+        "measurement_url": "https://api.grails.app/api/v1/leaderboard",
+        "measurement_status": "public user data available; quarter-specific value-transacting definition pending"
       },
       {
         "id": "term-revenue-pace",
@@ -87,9 +91,11 @@
         "target": 1000000,
         "unit": "USD/year",
         "status": "pending measurement",
-        "measurement_source": "Award Notice / committee verification",
+        "measurement_source": "Dune query 8064446",
         "current": null,
-        "verified": false
+        "verified": false,
+        "measurement_url": "https://dune.com/queries/8064446",
+        "measurement_status": "source live; term-end pace calculation pending"
       },
       {
         "id": "term-secondary-volume",
@@ -100,9 +106,11 @@
         "target": 250,
         "unit": "ETH",
         "status": "pending measurement",
-        "measurement_source": "Award Notice / committee verification",
+        "measurement_source": "Grails public API plus Seaport fills",
         "current": null,
-        "verified": false
+        "verified": false,
+        "measurement_url": "https://docs.grails.app/docs/api/leaderboard",
+        "measurement_status": "public data available; filtered two-quarter methodology pending"
       }
     ],
     "stream_gate": {
@@ -115,7 +123,29 @@
       "measurement_source": "Committee verification under executed award"
     },
     "wind_down_escrow_usd": 25000,
-    "unreleased_funds_destination": "ENS DAO treasury at term end"
+    "unreleased_funds_destination": "ENS DAO treasury at term end",
+    "measurement_sources": {
+      "revenue": {
+        "kind": "public on-chain query",
+        "url": "https://dune.com/queries/8064446",
+        "query_id": 8064446,
+        "description": "Grails-attributed ENS DAO registration and renewal revenue from Ethereum logs",
+        "latest_observed": "2026Q3",
+        "latest_total_usd": 154493,
+        "latest_total_eth": 73.13,
+        "lifetime_total_usd": 622794,
+        "lifetime_total_eth": 280.77,
+        "observed_at": "2026-10-03",
+        "verification_status": "independently observable"
+      },
+      "secondary_market": {
+        "kind": "public API + on-chain settlement",
+        "url": "https://docs.grails.app/docs/api/leaderboard",
+        "api": "https://api.grails.app/api/v1/leaderboard",
+        "description": "Grails exposes user sales and sales_volume publicly; fills settle through Seaport. A gate-specific filtered-quarter query is still required.",
+        "verification_status": "source identified; gate query not yet defined"
+      }
+    }
   },
   "providers": {
     "namespace": {
