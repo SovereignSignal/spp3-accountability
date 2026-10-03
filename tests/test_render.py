@@ -135,12 +135,27 @@ class TestPerformanceEvidence(unittest.TestCase):
         html = R.render(ctx(), "/marketplace")
         self.assertIn("dune.com/queries/8064446", html)
         self.assertIn("api.grails.app/api/v1/leaderboard", html)
-        self.assertIn("methodologies still need gate-specific definitions", html)
+        self.assertIn("must be frozen before the secondary-volume gate can be scored", html)
+
+    def test_marketplace_exposes_gate_methodology_without_inventing_filters(self):
+        html = R.render(ctx(), "/marketplace")
+        self.assertIn("Measurement contract", html)
+        self.assertIn("Count distinct wallet addresses", html)
+        self.assertIn("anti-wash", html)
+        self.assertIn("minimum-value", html)
+        self.assertIn("must be frozen", html)
+
+    def test_namespace_separates_verified_artifacts_from_unverified_metrics(self):
+        html = R.render(ctx(), "/provider/namespace")
+        self.assertIn("Independently verified artifacts", html)
+        self.assertIn("ENSv2 onchain subname infrastructure exists on Sepolia", html)
+        self.assertIn("Reported metrics, not independently verified", html)
+        self.assertIn("24.5M+", html)
 
     def test_namespace_q3_claims_are_not_presented_as_verified(self):
         html = R.render(ctx(), "/provider/namespace")
         self.assertIn("Q3 evidence review", html)
-        self.assertIn("Provider-reported, committee review pending", html)
+        self.assertIn("Provider report received; committee determination pending", html)
         self.assertIn("871,975", html)
         self.assertIn("ENSv2 Sepolia demo", html)
         self.assertIn("unreviewed", html)

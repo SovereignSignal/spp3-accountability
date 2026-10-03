@@ -80,7 +80,7 @@
         "current": null,
         "verified": false,
         "measurement_url": "https://api.grails.app/api/v1/leaderboard",
-        "measurement_status": "public user data available; quarter-specific value-transacting definition pending"
+        "measurement_status": "method defined from RFP; collector pending"
       },
       {
         "id": "term-revenue-pace",
@@ -110,7 +110,7 @@
         "current": null,
         "verified": false,
         "measurement_url": "https://docs.grails.app/docs/api/leaderboard",
-        "measurement_status": "public data available; filtered two-quarter methodology pending"
+        "measurement_status": "method defined; anti-wash and minimum-value parameters still require committee publication"
       }
     ],
     "stream_gate": {
@@ -145,6 +145,53 @@
         "description": "Grails exposes user sales and sales_volume publicly; fills settle through Seaport. A gate-specific filtered-quarter query is still required.",
         "verification_status": "source identified; gate query not yet defined"
       }
+    },
+    "measurement_methodology": {
+      "authority": "[7.1] SPP3 Marketplace RFP + executed Nomentum award",
+      "q1_revenue": {
+        "window": "2027-01-01 through 2027-03-31",
+        "comparator": "at or above signing baseline",
+        "baseline_window": "90 days immediately before Award Notice signing",
+        "source": "Dune query 8064446",
+        "method": "Sum Grails-attributed ENS registration and renewal protocol revenue from independently reproducible Ethereum logs."
+      },
+      "q1_active_wallets": {
+        "window": "2027-01-01 through 2027-03-31",
+        "target": 150,
+        "method": "Count distinct wallet addresses completing at least one value-transferring action through Grails during the quarter.",
+        "qualifying_actions": [
+          "completed Grails-sourced ENS secondary sale",
+          "Grails-attributed ENS registration",
+          "Grails-attributed ENS renewal"
+        ],
+        "dedupe": "one wallet counts once regardless of number or type of qualifying actions",
+        "sources": [
+          "Grails public completed-sales API",
+          "Grails attribution queries / Ethereum registrar events"
+        ],
+        "status": "method defined; automated collector pending"
+      },
+      "term_revenue_pace": {
+        "measurement_at": "term end",
+        "target_usd_per_year": 1000000,
+        "method": "Annualize the most recent agreed revenue measurement window using the same Grails-attributed registration/renewal revenue definition as the baseline.",
+        "source": "Dune query 8064446",
+        "status": "measurement source defined"
+      },
+      "term_secondary_volume": {
+        "window": "two calendar quarters immediately before term-end measurement",
+        "target_eth": 250,
+        "method": "Sum completed ENS secondary-sale consideration attributable to Grails after anti-wash filters and minimum-value rules.",
+        "qualifying_source": "completed sales through Grails; settlement independently checkable from transaction hash / Seaport fill",
+        "anti_wash_policy": "required by RFP but exact filter parameters are not public",
+        "minimum_value_rule": "required by RFP but exact threshold is not public",
+        "status": "method partially defined; committee must publish/freeze anti-wash and minimum-value parameters before scoring"
+      }
+    },
+    "data_continuity_note": {
+      "observed_conflict": "ENS.Tools published on 2026-07-19 that Grails was winding down; the DAO subsequently awarded Nomentum Labs funding to operate and develop Grails in September 2026.",
+      "treatment": "Do not assume pre-award API continuity proves post-award operation. Gate measurements must use dated events inside the contractual measurement window and independently verifiable settlement/attribution data.",
+      "source": "https://ens.tools/blog/grails-shutting-down-ens-tools-marketplace"
     }
   },
   "providers": {
@@ -543,6 +590,43 @@
               ],
               "committee_status": "unreviewed"
             }
+          ],
+          "independent_verification": [
+            {
+              "claim": "ENSv2 onchain subname infrastructure exists on Sepolia",
+              "status": "verified public artifact",
+              "source": "ENS Forum development thread",
+              "url": "https://discuss.ens.domains/t/onchain-subnames-on-ensv2/22353",
+              "note": "Namespace publicly documented the ENSv2 subname demo and activation/minting flow on Aug 12."
+            },
+            {
+              "claim": "ENS Forge is an open-source ENSv1/ENSv2 SDK",
+              "status": "verified public artifact",
+              "source": "ENS Forum + npm",
+              "url": "https://discuss.ens.domains/t/ensforge-a-unified-typescript-sdk-for-ensv1-and-ensv2/22409",
+              "note": "Public release documents V1/V2 routing, writes, batching, migration and Sepolia ENSv2 support."
+            },
+            {
+              "claim": "ENS Components has public ENSv2 tooling",
+              "status": "verified public artifact",
+              "source": "npm package",
+              "url": "https://www.npmjs.com/package/@thenamespace/ens-components-v2",
+              "note": "Public package supports ENSv2 Sepolia; this verifies shipped tooling, not the binding milestone."
+            },
+            {
+              "claim": "Avatar/header metadata service is public and supports smart-wallet signature verification",
+              "status": "verified public artifact",
+              "source": "ENS Forum / public GitHub",
+              "url": "https://github.com/thenamespace/metadata-service",
+              "note": "Public documentation describes SIWE plus EIP-1271/EIP-6492 support."
+            }
+          ],
+          "unverified_claims": [
+            "871,975 total subnames issued",
+            "24.5M+ ENS resolutions processed",
+            "248 active namespaces",
+            "108 L2 registries deployed",
+            "15 high-value companies in active conversations"
           ]
         }
       }
