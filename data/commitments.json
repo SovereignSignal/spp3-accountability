@@ -25,6 +25,33 @@
       "report_due": "2027-07-30"
     }
   ],
+  "marketplace_award": {
+    "slug": "nomentum",
+    "name": "Nomentum Labs",
+    "product": "Grails",
+    "award_usd": 500000,
+    "base_award_usd": 400000,
+    "performance_gated_usd": 100000,
+    "status": "active",
+    "payment_model": "milestone-gated",
+    "executed": true,
+    "executed_date": "2026-09-10",
+    "paid_usdc": 30000,
+    "paid_through": "2026-09-30",
+    "upfront_total_usd": 90000,
+    "upfront_installment_usd": 30000,
+    "upfront_installments": 3,
+    "conditional_stream_usd": 310000,
+    "conditional_stream_status": "not opened",
+    "conditional_stream_condition": "Committee verification of ENSv2 readiness, targeted Q4 2026",
+    "performance_reserve_usd": 100000,
+    "scope": "Operate and develop Grails as a live ENS marketplace and portfolio manager, prioritizing ENSv2 readiness, a registry agent for expiration and portfolio management, a UI/UX redesign, and a native mobile application.",
+    "award_forum": "https://discuss.ens.domains/t/spp3-marketplace-rfp-recommendation/22371",
+    "executable_forum": "https://discuss.ens.domains/t/executable-spp3-marketplace-rfp-award-nomentum-labs-grails/22374",
+    "transaction_forum": "https://discuss.ens.domains/t/metagov-transaction-transparency-term-7-index/22401/6",
+    "report_thread": "",
+    "reports": []
+  },
   "providers": {
     "namespace": {
       "scope": "ENSv2 migration of their on-chain subname stack, continued maintenance of existing tooling, and business development.",
