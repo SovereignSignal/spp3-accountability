@@ -1,0 +1,507 @@
+{
+  "committee_approved": false,
+  "coverage": {
+    "basis": "award execution date; signing date not established",
+    "boundary": "start_boundary_reached",
+    "duplicates": 0,
+    "end": "2026-10-03T20:39:36Z",
+    "independent_chain_coverage": false,
+    "pages": 1,
+    "source_manifests": [
+      {
+        "page": 1,
+        "records": 100,
+        "reported_total": 987,
+        "sha256": "bd29637a2ee3ef5428e6e7c753942f7cdf7bc5c0b57bf4f0322057aca932e4e0"
+      }
+    ],
+    "start": "2026-09-10T00:00:00Z",
+    "status": "complete_api_window"
+  },
+  "gate_status": "observation_only",
+  "observed": {
+    "api_sales": 50,
+    "candidate_sale_participants": 31,
+    "candidate_secondary_buyers": 17,
+    "end_exclusive": "2026-10-03T20:39:36Z",
+    "exclusions": {
+      "zero_value": 27
+    },
+    "gate_eligible": false,
+    "native_eth_volume": "1.5382",
+    "receipt_statuses": {
+      "not_checked": 44,
+      "success": 6
+    },
+    "start": "2026-09-10T00:00:00Z",
+    "weth_volume": "5.513001"
+  },
+  "observed_at": "2026-10-03T20:39:36Z",
+  "q1_2027": {
+    "candidate_observations": null,
+    "passed": null,
+    "status": "not_started",
+    "target_wallets": 150,
+    "verified_wallets": null
+  },
+  "raw_archive": {
+    "note": "Canonical evidence persists in Git. Full source pages are workflow artifacts.",
+    "retention_days": 90,
+    "workflow": "grails measurements"
+  },
+  "recent_sales": [
+    {
+      "amount_raw": "500001000000000000",
+      "asset_id": "99029485022306171977040236163357576307908364657354910252108509939216804021076",
+      "buyer": "0x2184b97649a1689e7f92b11f217af8ae39f701aa",
+      "candidate_exclusions": [],
+      "chain_id": 1,
+      "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "first_observed_at": "2026-10-03T20:39:36Z",
+      "key": "ab125a4b96697944c2dc55002a717dbf2d0bdeb123593f5f85db9711d1b6bb44",
+      "last_observed_at": "2026-10-03T20:39:36Z",
+      "name": "mint.eth",
+      "order_hash": "0x7277038f2eb94d80cd5c4535a215a9e2309c4332d99c6327f538945eca6d279b",
+      "present_in_latest_scan": true,
+      "receipt": {
+        "attribution_verified": false,
+        "block_hash": "0x7971d5e633c3fd6d80360dae7cd1256c2d74fffbc8225c0d916f60f62539bcf2",
+        "block_number": 26097659,
+        "checked_at": "2026-10-03T20:39:36Z",
+        "sale_amount_verified": false,
+        "status": "success"
+      },
+      "sale_at": "2026-10-01T13:06:49Z",
+      "seller": "0x9701ae64b07b51050934c683d35265c53c60f481",
+      "source": "grails",
+      "source_record": {
+        "block_number": "0",
+        "buyer_address": "0x2184b97649a1689e7f92b11f217af8ae39f701aa",
+        "currency_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "ens_name_id": 665348,
+        "id": 442599,
+        "name": "mint.eth",
+        "order_hash": "0x7277038f2eb94d80cd5c4535a215a9e2309c4332d99c6327f538945eca6d279b",
+        "sale_date": "2026-10-01T13:06:49.655Z",
+        "sale_price_wei": "500001000000000000",
+        "seller_address": "0x9701ae64b07b51050934c683d35265c53c60f481",
+        "source": "grails",
+        "token_id": "99029485022306171977040236163357576307908364657354910252108509939216804021076",
+        "transaction_hash": "0xd7ddb4b87e67d93c7b8120bcbf516f9094ec5ad67b2738be470423169eed57f0"
+      },
+      "source_record_sha256": "db8d45ece96d599914547b1f1100f98784f9ae5fc6c0c1bb6769ee5ebfb01875",
+      "transaction_hash": "0xd7ddb4b87e67d93c7b8120bcbf516f9094ec5ad67b2738be470423169eed57f0",
+      "verification": "api_reported"
+    },
+    {
+      "amount_raw": "0",
+      "asset_id": "103191425249974941393931928410567375235045593466823747129491356259372484553799",
+      "buyer": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+      "candidate_exclusions": [
+        "zero_value"
+      ],
+      "chain_id": 1,
+      "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "first_observed_at": "2026-10-03T20:39:36Z",
+      "key": "ba5a0fdad42e1b3e90b48a16a4f2c92cdcdd3a8f4f9a25c87f46bead1129e834",
+      "last_observed_at": "2026-10-03T20:39:36Z",
+      "name": "10kftdao.eth",
+      "order_hash": "",
+      "present_in_latest_scan": true,
+      "receipt": {
+        "attribution_verified": false,
+        "block_hash": "0x5602ba084c9b131ff9715a5745b15b9fe1e6c7957e08994ed56c5d0f8b90c364",
+        "block_number": 26060760,
+        "checked_at": "2026-10-03T20:39:36Z",
+        "sale_amount_verified": false,
+        "status": "success"
+      },
+      "sale_at": "2026-09-26T09:34:39Z",
+      "seller": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+      "source": "grails",
+      "source_record": {
+        "block_number": "0",
+        "buyer_address": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+        "currency_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "ens_name_id": 5476359,
+        "id": 442184,
+        "name": "10kftdao.eth",
+        "order_hash": "",
+        "sale_date": "2026-09-26T09:34:39.257Z",
+        "sale_price_wei": "0",
+        "seller_address": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+        "source": "grails",
+        "token_id": "103191425249974941393931928410567375235045593466823747129491356259372484553799",
+        "transaction_hash": "0x4592e226bd6590225420cb7ea24db906ded16e5dc674f47fd7cdf6c56eb1a80d"
+      },
+      "source_record_sha256": "df5586072b973e8508f97dcbee50e973dde239e181a13395aec0236659b93756",
+      "transaction_hash": "0x4592e226bd6590225420cb7ea24db906ded16e5dc674f47fd7cdf6c56eb1a80d",
+      "verification": "api_reported"
+    },
+    {
+      "amount_raw": "0",
+      "asset_id": "96358736384256786659400891939726924628798359185659098445507963617841994069391",
+      "buyer": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+      "candidate_exclusions": [
+        "zero_value"
+      ],
+      "chain_id": 1,
+      "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "first_observed_at": "2026-10-03T20:39:36Z",
+      "key": "36dd7754d54de21b089eb77500a76b65233d67440fb57fbb4ab4169c645b59db",
+      "last_observed_at": "2026-10-03T20:39:36Z",
+      "name": "pepechain.eth",
+      "order_hash": "",
+      "present_in_latest_scan": true,
+      "receipt": {
+        "attribution_verified": false,
+        "block_hash": "0xc62bb36dc229b8f1f5d24b46eba76aec17945546caf97348ccd1f6c538b3206f",
+        "block_number": 26060756,
+        "checked_at": "2026-10-03T20:39:36Z",
+        "sale_amount_verified": false,
+        "status": "success"
+      },
+      "sale_at": "2026-09-26T09:33:40Z",
+      "seller": "0xc9beeb552f7679405732201e5fcf62801b658d44",
+      "source": "grails",
+      "source_record": {
+        "block_number": "0",
+        "buyer_address": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+        "currency_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "ens_name_id": 791078,
+        "id": 442175,
+        "name": "pepechain.eth",
+        "order_hash": "",
+        "sale_date": "2026-09-26T09:33:40.780Z",
+        "sale_price_wei": "0",
+        "seller_address": "0xc9beeb552f7679405732201e5fcf62801b658d44",
+        "source": "grails",
+        "token_id": "96358736384256786659400891939726924628798359185659098445507963617841994069391",
+        "transaction_hash": "0xea540153ef07e677c393d1bca39cdd49dc4d6e131f99d360b3a2da8b0330e015"
+      },
+      "source_record_sha256": "21d4af9078195ef34cbea2e62816e8912ca7db64f2524923e1e0c03cb4803235",
+      "transaction_hash": "0xea540153ef07e677c393d1bca39cdd49dc4d6e131f99d360b3a2da8b0330e015",
+      "verification": "api_reported"
+    },
+    {
+      "amount_raw": "0",
+      "asset_id": "86476785250928025196221444139534336154909442919250356846381322726892566697329",
+      "buyer": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+      "candidate_exclusions": [
+        "zero_value"
+      ],
+      "chain_id": 1,
+      "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "first_observed_at": "2026-10-03T20:39:36Z",
+      "key": "e5f95240c77c8fd785de02e5da8db1a762f569f8662c00c75f163b4a67c47208",
+      "last_observed_at": "2026-10-03T20:39:36Z",
+      "name": "metavsesvit.eth",
+      "order_hash": "",
+      "present_in_latest_scan": true,
+      "receipt": {
+        "attribution_verified": false,
+        "block_hash": "0xfcb60b24d790a5ef40e1d7ffc6a3e18fb164553753eb61f5e12e949b2c180ea8",
+        "block_number": 26060750,
+        "checked_at": "2026-10-03T20:39:36Z",
+        "sale_amount_verified": false,
+        "status": "success"
+      },
+      "sale_at": "2026-09-26T09:32:28Z",
+      "seller": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+      "source": "grails",
+      "source_record": {
+        "block_number": "0",
+        "buyer_address": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+        "currency_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "ens_name_id": 5003935,
+        "id": 442162,
+        "name": "metavsesvit.eth",
+        "order_hash": "",
+        "sale_date": "2026-09-26T09:32:28.918Z",
+        "sale_price_wei": "0",
+        "seller_address": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+        "source": "grails",
+        "token_id": "86476785250928025196221444139534336154909442919250356846381322726892566697329",
+        "transaction_hash": "0x6e3aaf4ed2262e934e57e3a1f5f39a51ff2e36454186234fd5549c89103a0fb7"
+      },
+      "source_record_sha256": "3376f45170d12ee672fc3ec00820ae38943bfb5b6114b1f550febfe78e7404ac",
+      "transaction_hash": "0x6e3aaf4ed2262e934e57e3a1f5f39a51ff2e36454186234fd5549c89103a0fb7",
+      "verification": "api_reported"
+    },
+    {
+      "amount_raw": "0",
+      "asset_id": "86164711901141095365862664858103067786968589488232002890712297943096118348580",
+      "buyer": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+      "candidate_exclusions": [
+        "zero_value"
+      ],
+      "chain_id": 1,
+      "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "first_observed_at": "2026-10-03T20:39:36Z",
+      "key": "5fee4bdee84391814ce02f35df0b0227218540686ace3eb0b7a44d1ffc2a0330",
+      "last_observed_at": "2026-10-03T20:39:36Z",
+      "name": "sanjez.eth",
+      "order_hash": "",
+      "present_in_latest_scan": true,
+      "receipt": {
+        "attribution_verified": false,
+        "block_hash": "0xfcb60b24d790a5ef40e1d7ffc6a3e18fb164553753eb61f5e12e949b2c180ea8",
+        "block_number": 26060750,
+        "checked_at": "2026-10-03T20:39:36Z",
+        "sale_amount_verified": false,
+        "status": "success"
+      },
+      "sale_at": "2026-09-26T09:32:28Z",
+      "seller": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+      "source": "grails",
+      "source_record": {
+        "block_number": "0",
+        "buyer_address": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+        "currency_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "ens_name_id": 4995109,
+        "id": 442159,
+        "name": "sanjez.eth",
+        "order_hash": "",
+        "sale_date": "2026-09-26T09:32:28.912Z",
+        "sale_price_wei": "0",
+        "seller_address": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+        "source": "grails",
+        "token_id": "86164711901141095365862664858103067786968589488232002890712297943096118348580",
+        "transaction_hash": "0x6e3aaf4ed2262e934e57e3a1f5f39a51ff2e36454186234fd5549c89103a0fb7"
+      },
+      "source_record_sha256": "8662fbfdf22bae21f9a76a859e1ba0459dd13c7c23d5cf07d8882b7c50837c35",
+      "transaction_hash": "0x6e3aaf4ed2262e934e57e3a1f5f39a51ff2e36454186234fd5549c89103a0fb7",
+      "verification": "api_reported"
+    },
+    {
+      "amount_raw": "0",
+      "asset_id": "85802628633948405767442017013691135945249344435752976021247401843292069337327",
+      "buyer": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+      "candidate_exclusions": [
+        "zero_value"
+      ],
+      "chain_id": 1,
+      "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "first_observed_at": "2026-10-03T20:39:36Z",
+      "key": "31a531c6e915f43b086410f691d1ac6930c7600280ca91b914f9eabb58555d5b",
+      "last_observed_at": "2026-10-03T20:39:36Z",
+      "name": "openbrowser.eth",
+      "order_hash": "",
+      "present_in_latest_scan": true,
+      "receipt": {
+        "attribution_verified": false,
+        "block_hash": "0x3a95613cac48882c60f69eae54018e97d2f193a05805b2f5b985007464ea8014",
+        "block_number": 26060749,
+        "checked_at": "2026-10-03T20:39:36Z",
+        "sale_amount_verified": false,
+        "status": "success"
+      },
+      "sale_at": "2026-09-26T09:32:19Z",
+      "seller": "0xc9beeb552f7679405732201e5fcf62801b658d44",
+      "source": "grails",
+      "source_record": {
+        "block_number": "0",
+        "buyer_address": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+        "currency_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "ens_name_id": 554061,
+        "id": 442157,
+        "name": "openbrowser.eth",
+        "order_hash": "",
+        "sale_date": "2026-09-26T09:32:19.838Z",
+        "sale_price_wei": "0",
+        "seller_address": "0xc9beeb552f7679405732201e5fcf62801b658d44",
+        "source": "grails",
+        "token_id": "85802628633948405767442017013691135945249344435752976021247401843292069337327",
+        "transaction_hash": "0x743a49a39d8f87228125dda214d4563026a97dda3cf75ac4ef90c6b654e67fed"
+      },
+      "source_record_sha256": "030b5b8d7f0a5af88ea4fd2bb1fc11efb7202726afe8f73a5cc65c6eb276233e",
+      "transaction_hash": "0x743a49a39d8f87228125dda214d4563026a97dda3cf75ac4ef90c6b654e67fed",
+      "verification": "api_reported"
+    },
+    {
+      "amount_raw": "0",
+      "asset_id": "82250542997163142468964468340975697839625989744722531027604068244368459930829",
+      "buyer": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+      "candidate_exclusions": [
+        "zero_value"
+      ],
+      "chain_id": 1,
+      "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "first_observed_at": "2026-10-03T20:39:36Z",
+      "key": "9590225be81791a5fe6ecfe117ad47b03d55beb177e99cfe3fd8a51505f76cd0",
+      "last_observed_at": "2026-10-03T20:39:36Z",
+      "name": "iddao.eth",
+      "order_hash": "",
+      "present_in_latest_scan": true,
+      "receipt": {
+        "status": "not_checked"
+      },
+      "sale_at": "2026-09-26T09:31:57Z",
+      "seller": "0xc9beeb552f7679405732201e5fcf62801b658d44",
+      "source": "grails",
+      "source_record": {
+        "block_number": "0",
+        "buyer_address": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+        "currency_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "ens_name_id": 4885566,
+        "id": 442146,
+        "name": "iddao.eth",
+        "order_hash": "",
+        "sale_date": "2026-09-26T09:31:57.429Z",
+        "sale_price_wei": "0",
+        "seller_address": "0xc9beeb552f7679405732201e5fcf62801b658d44",
+        "source": "grails",
+        "token_id": "82250542997163142468964468340975697839625989744722531027604068244368459930829",
+        "transaction_hash": "0x68932230c7c604fbb556fedd599b8db0b12e85aebac9f41ed41e7ae5fe500678"
+      },
+      "source_record_sha256": "971797f0b32a0fe145aff1760dd5701e42451a047e797bc7338e88a29f6ea0dc",
+      "transaction_hash": "0x68932230c7c604fbb556fedd599b8db0b12e85aebac9f41ed41e7ae5fe500678",
+      "verification": "api_reported"
+    },
+    {
+      "amount_raw": "0",
+      "asset_id": "81577746031926107280754724458056374262201052995236491689200598129477724673527",
+      "buyer": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+      "candidate_exclusions": [
+        "zero_value"
+      ],
+      "chain_id": 1,
+      "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "first_observed_at": "2026-10-03T20:39:36Z",
+      "key": "7ac1e2da742498e367a31285fa015cec49d76982af98d0d7f150d420c8f33c49",
+      "last_observed_at": "2026-10-03T20:39:36Z",
+      "name": "metamaskflask.eth",
+      "order_hash": "",
+      "present_in_latest_scan": true,
+      "receipt": {
+        "status": "not_checked"
+      },
+      "sale_at": "2026-09-26T09:31:57Z",
+      "seller": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+      "source": "grails",
+      "source_record": {
+        "block_number": "0",
+        "buyer_address": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+        "currency_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "ens_name_id": 4866844,
+        "id": 442142,
+        "name": "metamaskflask.eth",
+        "order_hash": "",
+        "sale_date": "2026-09-26T09:31:57.429Z",
+        "sale_price_wei": "0",
+        "seller_address": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+        "source": "grails",
+        "token_id": "81577746031926107280754724458056374262201052995236491689200598129477724673527",
+        "transaction_hash": "0x6014d342b3211e960db05bde117239736577f6b0d15f3cf055214c3881dcda1a"
+      },
+      "source_record_sha256": "5ce7a41bbc81997f32e8a44a4c9f6ceedc3551d2ad27f563ad44f80333e0ae4b",
+      "transaction_hash": "0x6014d342b3211e960db05bde117239736577f6b0d15f3cf055214c3881dcda1a",
+      "verification": "api_reported"
+    },
+    {
+      "amount_raw": "0",
+      "asset_id": "82195784928205280594164733190113678132619052729928337029172275789057724142025",
+      "buyer": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+      "candidate_exclusions": [
+        "zero_value"
+      ],
+      "chain_id": 1,
+      "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "first_observed_at": "2026-10-03T20:39:36Z",
+      "key": "6f46c906b309798ccca0b4267cbc3b4ac4de31107e630280e560b12fc5f591a1",
+      "last_observed_at": "2026-10-03T20:39:36Z",
+      "name": "aigentid.eth",
+      "order_hash": "",
+      "present_in_latest_scan": true,
+      "receipt": {
+        "status": "not_checked"
+      },
+      "sale_at": "2026-09-26T09:31:57Z",
+      "seller": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+      "source": "grails",
+      "source_record": {
+        "block_number": "0",
+        "buyer_address": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+        "currency_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "ens_name_id": 6103689,
+        "id": 442139,
+        "name": "aigentid.eth",
+        "order_hash": "",
+        "sale_date": "2026-09-26T09:31:57.341Z",
+        "sale_price_wei": "0",
+        "seller_address": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+        "source": "grails",
+        "token_id": "82195784928205280594164733190113678132619052729928337029172275789057724142025",
+        "transaction_hash": "0x68932230c7c604fbb556fedd599b8db0b12e85aebac9f41ed41e7ae5fe500678"
+      },
+      "source_record_sha256": "3489cf4cee33642b91709d8d479e320fe00eddafedb715991529fa8584b888c8",
+      "transaction_hash": "0x68932230c7c604fbb556fedd599b8db0b12e85aebac9f41ed41e7ae5fe500678",
+      "verification": "api_reported"
+    },
+    {
+      "amount_raw": "0",
+      "asset_id": "82152884821943826469401420190809282452563702599401437053730974896454971335700",
+      "buyer": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+      "candidate_exclusions": [
+        "zero_value"
+      ],
+      "chain_id": 1,
+      "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "first_observed_at": "2026-10-03T20:39:36Z",
+      "key": "46b00f68a51c51a7c30630a2051fd8209471c2cffe72e51fc35bb3de274b1aed",
+      "last_observed_at": "2026-10-03T20:39:36Z",
+      "name": "metafilter.eth",
+      "order_hash": "",
+      "present_in_latest_scan": true,
+      "receipt": {
+        "status": "not_checked"
+      },
+      "sale_at": "2026-09-26T09:31:57Z",
+      "seller": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+      "source": "grails",
+      "source_record": {
+        "block_number": "0",
+        "buyer_address": "0x91d7f7c9d08a50bb252f1ef2e0a5749a396eb653",
+        "currency_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "ens_name_id": 4882884,
+        "id": 442147,
+        "name": "metafilter.eth",
+        "order_hash": "",
+        "sale_date": "2026-09-26T09:31:57.431Z",
+        "sale_price_wei": "0",
+        "seller_address": "0x891866b2286a1279f59bfc7f4fef464235ce3edd",
+        "source": "grails",
+        "token_id": "82152884821943826469401420190809282452563702599401437053730974896454971335700",
+        "transaction_hash": "0x68932230c7c604fbb556fedd599b8db0b12e85aebac9f41ed41e7ae5fe500678"
+      },
+      "source_record_sha256": "5d52e93e2a87f5c2fb5e752982fb4ad1abd7cefa73e816ff637bb53171a8bbc3",
+      "transaction_hash": "0x68932230c7c604fbb556fedd599b8db0b12e85aebac9f41ed41e7ae5fe500678",
+      "verification": "api_reported"
+    }
+  ],
+  "removed_upstream_records": 0,
+  "revenue": {
+    "current": null,
+    "status": "not_collected"
+  },
+  "schema_version": 1,
+  "secondary_volume_gate": {
+    "filtered_volume_eth": null,
+    "passed": null,
+    "target_eth": 250
+  },
+  "snapshot_id": "b4e7824b20d0a86aeff67880e1314fa12ca437869d9cac354d46bed4c3570fb9",
+  "source": {
+    "api": "https://api.grails.app/api/v1/analytics/sales",
+    "documentation": "https://docs.grails.app/docs/api/analytics/sales",
+    "filter": "source=grails"
+  },
+  "warnings": [
+    "API source attribution has not been independently verified from settlement logs.",
+    "Receipt success verifies a transaction only, not the sale, amount or attribution.",
+    "Candidate wallets cover secondary-sale buyers only; registrations and renewals are not collected.",
+    "Self/zero-value exclusions are sanity filters, not a committee-approved anti-wash policy.",
+    "Minimum-value rules, wallet roles and term-end window require committee approval.",
+    "Execution date is an observation boundary, not the Award Notice signing date or revenue baseline."
+  ]
+}
