@@ -5,19 +5,20 @@ on:
     - cron: "17 * * * *"
   push:
     branches: [master]
-    paths: ["scripts/grails_measurements.py", "scripts/grails_chain.py", "site/grails_view.py", "site/grails_chain_view.py", "site/server.py", "tests/test_grails_measurements.py", "tests/test_grails_chain.py", "tests/test_grails_rpc.py", ".github/workflows/grails.yml"]
+    paths: ["scripts/grails*.py", "site/grails*.py", "site/server.py", "tests/test_grails*.py", ".github/workflows/grails.yml"]
   pull_request:
-    paths: ["scripts/grails_measurements.py", "scripts/grails_chain.py", "site/grails_view.py", "site/grails_chain_view.py", "site/server.py", "tests/test_grails_measurements.py", "tests/test_grails_chain.py", "tests/test_grails_rpc.py", ".github/workflows/grails.yml"]
+    paths: ["scripts/grails*.py", "site/grails*.py", "site/server.py", "tests/test_grails*.py", ".github/workflows/grails.yml"]
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: grails-${{ github.event.pull_request.number || 'production' }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   verify:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -25,8 +26,43 @@ jobs:
           python-version: "3.12"
       - run: python -m unittest discover -s tests -v
       - run: python scripts/grails_measurements.py --output-dir /tmp/grails-check --raw-dir /tmp/grails-raw
-      - name: Verify live settlements and bounded registrar scan
-        run: python scripts/grails_chain.py --data-dir /tmp/grails-check --raw-dir /tmp/grails-chain-raw --max-blocks 24000
+      - name: Check registrar bootstrap requirement
+        id: bootstrap
+        run: |
+          cp data/grails/registrar.json /tmp/grails-check/registrar.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          doc=json.load(open('/tmp/grails-check/registrar.json'))
+          print('needed='+str(doc.get('schema_version')!=2).lower())
+          PY
+      - name: Fetch previously validated registrar checkpoint
+        id: bootstrap_fetch
+        if: steps.bootstrap.outputs.needed == 'true'
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: "11285803431"
+          run-id: "37156753227"
+          github-token: ${{ github.token }}
+          merge-multiple: true
+          path: /tmp/grails-bootstrap
+      - name: Verify exact bootstrap digest
+        if: steps.bootstrap.outputs.needed == 'true'
+        run: |
+          if [ "${{ steps.bootstrap_fetch.outcome }}" = "success" ]; then
+            test -f /tmp/grails-bootstrap/grails-check/registrar.json
+          fi
+          python scripts/grails_seed.py --source /tmp/grails-bootstrap/grails-check/registrar.json --destination /tmp/grails-check/registrar.json
+      - name: Verify complete registrar coverage and settlement evidence
+        run: |
+          python scripts/grails_backfill.py --data-dir /tmp/grails-check --api-raw-dir /tmp/grails-raw --raw-dir /tmp/grails-chain-raw
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/grails-check/registrar.json'))
+          assert d['coverage']=='current_known_contracts'
+          assert d['through_block']==d['target_finalized_block']
+          assert all(e['receipt_event_verified'] for e in d['events'])
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -40,9 +76,10 @@ jobs:
   refresh:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: write
+      actions: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,15 +89,43 @@ jobs:
           python-version: "3.12"
       - run: python -m unittest discover -s tests -v
       - run: python scripts/grails_measurements.py --raw-dir /tmp/grails-raw
-      - name: Verify settlements and advance contiguous registrar checkpoint
-        run: python scripts/grails_chain.py --raw-dir /tmp/grails-chain-raw --max-blocks 24000
+      - name: Check registrar bootstrap requirement
+        id: bootstrap
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          p=Path('data/grails/registrar.json')
+          doc=json.loads(p.read_text()) if p.exists() else {}
+          print('needed='+str(doc.get('schema_version')!=2).lower())
+          PY
+      - name: Fetch previously validated registrar checkpoint
+        id: bootstrap_fetch
+        if: steps.bootstrap.outputs.needed == 'true'
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: "11285803431"
+          run-id: "37156753227"
+          github-token: ${{ github.token }}
+          merge-multiple: true
+          path: /tmp/grails-bootstrap
+      - name: Verify exact bootstrap digest
+        if: steps.bootstrap.outputs.needed == 'true'
+        run: |
+          if [ "${{ steps.bootstrap_fetch.outcome }}" = "success" ]; then
+            test -f /tmp/grails-bootstrap/grails-check/registrar.json
+          fi
+          python scripts/grails_seed.py --source /tmp/grails-bootstrap/grails-check/registrar.json --destination data/grails/registrar.json
+      - name: Complete indexed coverage and verify canonical event receipts
+        run: python scripts/grails_backfill.py --api-raw-dir /tmp/grails-raw --raw-dir /tmp/grails-chain-raw
       - name: Commit observation snapshot
         run: |
           git config user.name "spp3-accountability[bot]"
           git config user.email "spp3-accountability[bot]@users.noreply.github.com"
           git add data/grails/observations.json data/grails/sales.json data/grails/chain.json data/grails/settlements.json data/grails/registrar.json
           if ! git diff --cached --quiet; then
-            git commit -m "chore(grails): refresh API and chain evidence"
+            git commit -m "chore(grails): refresh receipt-validated registrar and sale evidence"
             git pull --rebase origin master
             git push origin HEAD:master
           fi
