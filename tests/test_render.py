@@ -137,6 +137,21 @@ class TestPerformanceEvidence(unittest.TestCase):
         self.assertIn("api.grails.app/api/v1/leaderboard", html)
         self.assertIn("methodologies still need gate-specific definitions", html)
 
+    def test_marketplace_exposes_gate_methodology_without_inventing_filters(self):
+        html = R.render(ctx(), "/marketplace")
+        self.assertIn("Measurement contract", html)
+        self.assertIn("Count distinct wallet addresses", html)
+        self.assertIn("anti-wash", html)
+        self.assertIn("minimum-value", html)
+        self.assertIn("must be frozen", html)
+
+    def test_namespace_separates_verified_artifacts_from_unverified_metrics(self):
+        html = R.render(ctx(), "/provider/namespace")
+        self.assertIn("Independently verified artifacts", html)
+        self.assertIn("ENSv2 onchain subname infrastructure exists on Sepolia", html)
+        self.assertIn("Reported metrics, not independently verified", html)
+        self.assertIn("24.5M+", html)
+
     def test_namespace_q3_claims_are_not_presented_as_verified(self):
         html = R.render(ctx(), "/provider/namespace")
         self.assertIn("Q3 evidence review", html)
