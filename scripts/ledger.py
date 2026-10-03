@@ -111,7 +111,9 @@ def _stream_history(client, providers, latest, latest_ts, ts_cache):
     start_block = client.block_at_or_after(epoch, latest=latest)
     logs = _fetch_flow_events(client, start_block, latest)
     known = {p["approved_wallet"].lower(): p for p in providers["providers"]}
+    retired = {p["approved_wallet"].lower(): p for p in providers.get("retired", [])}
     by_receiver = {k: [] for k in known}
+    retired_events = []
     unknown = []
 
     for log in logs:
@@ -133,6 +135,9 @@ def _stream_history(client, providers, latest, latest_ts, ts_cache):
         key = receiver.lower()
         if key in by_receiver:
             by_receiver[key].append(event)
+        elif key in retired:
+            event["retired_slug"] = retired[key]["slug"]
+            retired_events.append(event)
         else:
             unknown.append(event)
 
@@ -171,12 +176,13 @@ def _stream_history(client, providers, latest, latest_ts, ts_cache):
         "epoch_block": start_block,
         "through_timestamp": latest_ts,
         "streams": streams,
+        "retired_flow_events": retired_events,
         "unknown_flow_events": unknown,
         "all_reconciled": all(s["reconciled"] for s in streams),
     }
 
 
-def _financials(providers, commitments, custody_summary, history):
+def _financials(providers, commitments, custody_events, custody_summary, history):
     by_slug = {s["slug"]: s for s in history["streams"]}
     awards = []
     cohort_authorized = cohort_delivered = 0.0
@@ -196,7 +202,9 @@ def _financials(providers, commitments, custody_summary, history):
 
     market = commitments.get("marketplace_award") or {}
     market_authorized = float(market.get("award_usd", 0))
-    market_delivered = float(market.get("paid_usdc", custody_summary["usdc_out"]))
+    market_delivered = sum(
+        float(e.get("amount", 0)) for e in custody_events
+        if e.get("classification") == "marketplace payment")
     held = max(0.0, market_authorized - market_delivered)
     gated = float(market.get("conditional_stream_usd", 0)) + float(market.get("performance_reserve_usd", 0))
     scheduled = max(0.0, float(market.get("upfront_total_usd", 0)) - market_delivered)
@@ -228,7 +236,7 @@ def build(client, commitments, providers, latest=None):
     ts_cache[latest] = latest_ts
     custody_events, custody_summary = _custody(client, commitments, latest, ts_cache)
     history = _stream_history(client, providers, latest, latest_ts, ts_cache)
-    financials = _financials(providers, commitments, custody_summary, history)
+    financials = _financials(providers, commitments, custody_events, custody_summary, history)
     return {
         "_generated": True,
         "_source": "ledger.py: Ethereum USDC transfers + Superfluid CFA FlowUpdated events",
