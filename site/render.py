@@ -543,14 +543,23 @@ def page_provider(ctx, slug):
             '<a href="%s" target="_blank" rel="noopener">%s</a>' % (
                 _esc(x.get("url", "")), _esc(x.get("label", "")))
             for x in evidence.get("evidence") or [])
+        verified = "".join(
+            '<li class="check check--ok"><span class="check__label">%s'
+            '<span class="check__why">%s</span></span><span class="check__val">'
+            '<a href="%s" target="_blank" rel="noopener">%s</a></span></li>' % (
+                _esc(x.get("claim", "")), _esc(x.get("note", "")),
+                _esc(x.get("url", "")), _esc(x.get("status", "verified")))
+            for x in evidence.get("independent_verification") or [])
         evidence_html = (
             '<section><h2>Q3 evidence review</h2>'
-            '<p class="drift drift--info"><b>Provider-reported, committee review pending.</b> '
-            '%s No claim below changes a milestone status until reviewed against the binding Award Notice.</p>'
-            '<h3>Reported metrics</h3><ul>%s</ul>'
+            '<p class="drift drift--info"><b>Provider report received; committee determination pending.</b> '
+            '%s Public artifacts can independently verify that work exists, but they do not by themselves '
+            'satisfy a binding Award Notice milestone.</p>'
+            '<h3>Independently verified artifacts</h3><ul>%s</ul>'
+            '<h3>Reported metrics, not independently verified</h3><ul>%s</ul>'
             '<h3>Commitment mapping</h3><ul>%s</ul>'
-            '<p class="colnote">Evidence: %s</p></section>' % (
-                _esc(evidence.get("summary", "")), metrics, claims, links))
+            '<p class="colnote">Provider evidence: %s</p></section>' % (
+                _esc(evidence.get("summary", "")), verified, metrics, claims, links))
 
     return (
         '<p class="lede">%s</p>'
@@ -612,13 +621,29 @@ def page_marketplace(ctx):
                 "ok" if g.get("verified") else "wait", _money(g.get("value_usd", 0)),
                 _esc(g.get("metric", "")), _esc(g.get("condition", "")),
                 _esc(g.get("due", "")), source, value))
+    method = m.get("measurement_methodology") or {}
+    active = method.get("q1_active_wallets") or {}
+    secondary = method.get("term_secondary_volume") or {}
+    methodology = ""
+    if method:
+        methodology = (
+            '<h3>Measurement contract</h3><dl class="facts">'
+            '<dt>Q1 active wallets</dt><dd>%s</dd>'
+            '<dt>Wallet dedupe</dt><dd>%s</dd>'
+            '<dt>Term secondary volume</dt><dd>%s</dd>'
+            '<dt>Open parameter</dt><dd>%s; %s</dd>'
+            '</dl>' % (
+                _esc(active.get("method", "")), _esc(active.get("dedupe", "")),
+                _esc(secondary.get("method", "")),
+                _esc(secondary.get("anti_wash_policy", "")),
+                _esc(secondary.get("minimum_value_rule", ""))))
     gates_html = (
-        '<section><h2>Release gates</h2><ul>%s</ul>'
+        '<section><h2>Release gates</h2><ul>%s</ul>%s'
         '<p class="colnote">A gate remains pending until its measurement is sourced and '
         'the committee verifies the result. Missing data is never treated as a miss or a pass. '
-        'Revenue is independently observable in the public Dune query; wallet and filtered-volume '
-        'methodologies still need gate-specific definitions before they can be scored.</p>'
-        '</section>' % "\n".join(gates)) if gates else ""
+        'The RFP defines the measurement classes; anti-wash and minimum-value parameters must '
+        'be frozen before the secondary-volume gate can be scored.</p>'
+        '</section>' % ("\n".join(gates), methodology)) if gates else ""
 
     return (
         '<p class="lede">SPP3 also includes a marketplace award selected through the '
