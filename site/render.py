@@ -615,7 +615,7 @@ def page_marketplace(ctx):
         '</section>' % "\n".join(gates)) if gates else ""
 
     return (
-        '<p class="lede">SPP3 also includes a marketplace award selected through the 
+        '<p class="lede">SPP3 also includes a marketplace award selected through the '
         'committee RFP and executed on-chain after the original four-provider cohort.</p>'
         '<div class="hero hero--sm"><p class="eyebrow">%s · %s</p>'
         '<p class="lead">$%s award</p></div>'
