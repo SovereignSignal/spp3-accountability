@@ -3,10 +3,38 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "3 15 * * *"
+  push:
+    branches: [master]
+    paths:
+      - "scripts/ledger.py"
+      - "scripts/chain.py"
+      - "data/providers.json"
+      - "data/commitments.json"
+      - ".github/workflows/ledger.yml"
+  pull_request:
+    paths:
+      - "scripts/ledger.py"
+      - "scripts/chain.py"
+      - "data/providers.json"
+      - "data/commitments.json"
+      - ".github/workflows/ledger.yml"
+
 permissions:
   contents: write
+
 jobs:
+  verify:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/ledger.py --dry-run
+
   refresh:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
