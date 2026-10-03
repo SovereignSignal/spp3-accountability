@@ -131,6 +131,12 @@ class TestPerformanceEvidence(unittest.TestCase):
         self.assertIn("Missing data is never treated as a miss or a pass", html)
         self.assertNotIn(">verified</span>", html)
 
+    def test_grails_gates_link_independent_measurement_sources(self):
+        html = R.render(ctx(), "/marketplace")
+        self.assertIn("dune.com/queries/8064446", html)
+        self.assertIn("api.grails.app/api/v1/leaderboard", html)
+        self.assertIn("methodologies still need gate-specific definitions", html)
+
     def test_namespace_q3_claims_are_not_presented_as_verified(self):
         html = R.render(ctx(), "/provider/namespace")
         self.assertIn("Q3 evidence review", html)
