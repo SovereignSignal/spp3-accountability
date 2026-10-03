@@ -1,9 +1,9 @@
 {
   "committee_approved": false,
-  "finalized_block": 26114384,
-  "finalized_block_hash": "0x699df90345b93253d41b413a64ffb97bca50da3851e87cd421adaf4f1a620dc4",
+  "finalized_block": 26114703,
+  "finalized_block_hash": "0x316b1cbb5e14802bffe15969b3af3d053aeab2ac1d5864c1f0e4c3e38d18f67c",
   "gate_status": "observation_only",
-  "observed_at": "2026-10-03T21:17:34Z",
+  "observed_at": "2026-10-03T22:25:54Z",
   "q1_2027": {
     "passed": null,
     "verified_paying_wallets": null
@@ -18,7 +18,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "ab125a4b96697944c2dc55002a717dbf2d0bdeb123593f5f85db9711d1b6bb44",
-      "last_observed_at": "2026-10-03T21:17:33Z",
+      "last_observed_at": "2026-10-03T22:25:49Z",
       "name": "mint.eth",
       "order_hash": "0x7277038f2eb94d80cd5c4535a215a9e2309c4332d99c6327f538945eca6d279b",
       "present_in_latest_scan": true,
@@ -26,7 +26,7 @@
         "attribution_verified": false,
         "block_hash": "0x7971d5e633c3fd6d80360dae7cd1256c2d74fffbc8225c0d916f60f62539bcf2",
         "block_number": 26097659,
-        "checked_at": "2026-10-03T21:17:33Z",
+        "checked_at": "2026-10-03T22:25:49Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -42,7 +42,7 @@
         "block_hash": "0x7971d5e633c3fd6d80360dae7cd1256c2d74fffbc8225c0d916f60f62539bcf2",
         "block_number": 26097659,
         "chain_timestamp": "2026-10-01T13:06:47Z",
-        "checked_at": "2026-10-03T21:08:20Z",
+        "checked_at": "2026-10-03T22:25:54Z",
         "emitter": "0x0000000000000068f116a894984e2db1123eb395",
         "log_index": 471,
         "marketplace_attribution": "api_reported",
@@ -72,6 +72,15 @@
       },
       "source_record_sha256": "db8d45ece96d599914547b1f1100f98784f9ae5fc6c0c1bb6769ee5ebfb01875",
       "transaction_hash": "0xd7ddb4b87e67d93c7b8120bcbf516f9094ec5ad67b2738be470423169eed57f0",
+      "venue": {
+        "fill_venue_basis": "unknown",
+        "filled_via": null,
+        "independent_venue_verified": false,
+        "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+        "order_origin": "grails",
+        "order_origin_basis": "api_reported",
+        "source_record_sha256": "db8d45ece96d599914547b1f1100f98784f9ae5fc6c0c1bb6769ee5ebfb01875"
+      },
       "verification": "api_reported"
     },
     {
@@ -85,7 +94,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "ba5a0fdad42e1b3e90b48a16a4f2c92cdcdd3a8f4f9a25c87f46bead1129e834",
-      "last_observed_at": "2026-10-03T21:17:33Z",
+      "last_observed_at": "2026-10-03T22:25:49Z",
       "name": "10kftdao.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -93,7 +102,7 @@
         "attribution_verified": false,
         "block_hash": "0x5602ba084c9b131ff9715a5745b15b9fe1e6c7957e08994ed56c5d0f8b90c364",
         "block_number": 26060760,
-        "checked_at": "2026-10-03T21:17:33Z",
+        "checked_at": "2026-10-03T22:25:49Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -105,7 +114,7 @@
         "block_hash": "0x5602ba084c9b131ff9715a5745b15b9fe1e6c7957e08994ed56c5d0f8b90c364",
         "block_number": 26060760,
         "chain_timestamp": "2026-09-26T09:34:23Z",
-        "checked_at": "2026-10-03T21:17:34Z",
+        "checked_at": "2026-10-03T22:25:54Z",
         "receipt_sha256": "9fd2247f7d14d51df13df4c09e62ec2276b352ee5bd8612762ee62ed98c13259",
         "sale_amount_verified": false,
         "status": "no_matching_fill"
@@ -128,6 +137,15 @@
       },
       "source_record_sha256": "df5586072b973e8508f97dcbee50e973dde239e181a13395aec0236659b93756",
       "transaction_hash": "0x4592e226bd6590225420cb7ea24db906ded16e5dc674f47fd7cdf6c56eb1a80d",
+      "venue": {
+        "fill_venue_basis": "unknown",
+        "filled_via": null,
+        "independent_venue_verified": false,
+        "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+        "order_origin": "grails",
+        "order_origin_basis": "api_reported",
+        "source_record_sha256": "df5586072b973e8508f97dcbee50e973dde239e181a13395aec0236659b93756"
+      },
       "verification": "api_reported"
     },
     {
@@ -141,7 +159,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "36dd7754d54de21b089eb77500a76b65233d67440fb57fbb4ab4169c645b59db",
-      "last_observed_at": "2026-10-03T21:17:33Z",
+      "last_observed_at": "2026-10-03T22:25:49Z",
       "name": "pepechain.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -149,7 +167,7 @@
         "attribution_verified": false,
         "block_hash": "0xc62bb36dc229b8f1f5d24b46eba76aec17945546caf97348ccd1f6c538b3206f",
         "block_number": 26060756,
-        "checked_at": "2026-10-03T21:17:33Z",
+        "checked_at": "2026-10-03T22:25:49Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -161,7 +179,7 @@
         "block_hash": "0xc62bb36dc229b8f1f5d24b46eba76aec17945546caf97348ccd1f6c538b3206f",
         "block_number": 26060756,
         "chain_timestamp": "2026-09-26T09:33:35Z",
-        "checked_at": "2026-10-03T21:17:34Z",
+        "checked_at": "2026-10-03T22:25:54Z",
         "receipt_sha256": "5a0ac1059ccf4fe1c28d56b400ad1d5c5c3d53f6188f2cd21958b0ecfeaf7520",
         "sale_amount_verified": false,
         "status": "no_matching_fill"
@@ -184,6 +202,15 @@
       },
       "source_record_sha256": "21d4af9078195ef34cbea2e62816e8912ca7db64f2524923e1e0c03cb4803235",
       "transaction_hash": "0xea540153ef07e677c393d1bca39cdd49dc4d6e131f99d360b3a2da8b0330e015",
+      "venue": {
+        "fill_venue_basis": "unknown",
+        "filled_via": null,
+        "independent_venue_verified": false,
+        "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+        "order_origin": "grails",
+        "order_origin_basis": "api_reported",
+        "source_record_sha256": "21d4af9078195ef34cbea2e62816e8912ca7db64f2524923e1e0c03cb4803235"
+      },
       "verification": "api_reported"
     },
     {
@@ -197,7 +224,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "5fee4bdee84391814ce02f35df0b0227218540686ace3eb0b7a44d1ffc2a0330",
-      "last_observed_at": "2026-10-03T21:17:33Z",
+      "last_observed_at": "2026-10-03T22:25:49Z",
       "name": "sanjez.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -205,7 +232,7 @@
         "attribution_verified": false,
         "block_hash": "0xfcb60b24d790a5ef40e1d7ffc6a3e18fb164553753eb61f5e12e949b2c180ea8",
         "block_number": 26060750,
-        "checked_at": "2026-10-03T21:17:33Z",
+        "checked_at": "2026-10-03T22:25:49Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -217,7 +244,7 @@
         "block_hash": "0xfcb60b24d790a5ef40e1d7ffc6a3e18fb164553753eb61f5e12e949b2c180ea8",
         "block_number": 26060750,
         "chain_timestamp": "2026-09-26T09:32:23Z",
-        "checked_at": "2026-10-03T21:17:34Z",
+        "checked_at": "2026-10-03T22:25:54Z",
         "receipt_sha256": "9bb0269667ce6338e4cafafb28d1f377f39780dc4a74645b4e22d017f765a872",
         "sale_amount_verified": false,
         "status": "no_matching_fill"
@@ -240,6 +267,15 @@
       },
       "source_record_sha256": "8662fbfdf22bae21f9a76a859e1ba0459dd13c7c23d5cf07d8882b7c50837c35",
       "transaction_hash": "0x6e3aaf4ed2262e934e57e3a1f5f39a51ff2e36454186234fd5549c89103a0fb7",
+      "venue": {
+        "fill_venue_basis": "unknown",
+        "filled_via": null,
+        "independent_venue_verified": false,
+        "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+        "order_origin": "grails",
+        "order_origin_basis": "api_reported",
+        "source_record_sha256": "8662fbfdf22bae21f9a76a859e1ba0459dd13c7c23d5cf07d8882b7c50837c35"
+      },
       "verification": "api_reported"
     },
     {
@@ -253,7 +289,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "e5f95240c77c8fd785de02e5da8db1a762f569f8662c00c75f163b4a67c47208",
-      "last_observed_at": "2026-10-03T21:17:33Z",
+      "last_observed_at": "2026-10-03T22:25:49Z",
       "name": "metavsesvit.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -261,7 +297,7 @@
         "attribution_verified": false,
         "block_hash": "0xfcb60b24d790a5ef40e1d7ffc6a3e18fb164553753eb61f5e12e949b2c180ea8",
         "block_number": 26060750,
-        "checked_at": "2026-10-03T21:17:33Z",
+        "checked_at": "2026-10-03T22:25:49Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -273,7 +309,7 @@
         "block_hash": "0xfcb60b24d790a5ef40e1d7ffc6a3e18fb164553753eb61f5e12e949b2c180ea8",
         "block_number": 26060750,
         "chain_timestamp": "2026-09-26T09:32:23Z",
-        "checked_at": "2026-10-03T21:17:34Z",
+        "checked_at": "2026-10-03T22:25:54Z",
         "receipt_sha256": "9bb0269667ce6338e4cafafb28d1f377f39780dc4a74645b4e22d017f765a872",
         "sale_amount_verified": false,
         "status": "no_matching_fill"
@@ -296,6 +332,15 @@
       },
       "source_record_sha256": "3376f45170d12ee672fc3ec00820ae38943bfb5b6114b1f550febfe78e7404ac",
       "transaction_hash": "0x6e3aaf4ed2262e934e57e3a1f5f39a51ff2e36454186234fd5549c89103a0fb7",
+      "venue": {
+        "fill_venue_basis": "unknown",
+        "filled_via": null,
+        "independent_venue_verified": false,
+        "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+        "order_origin": "grails",
+        "order_origin_basis": "api_reported",
+        "source_record_sha256": "3376f45170d12ee672fc3ec00820ae38943bfb5b6114b1f550febfe78e7404ac"
+      },
       "verification": "api_reported"
     },
     {
@@ -309,7 +354,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "31a531c6e915f43b086410f691d1ac6930c7600280ca91b914f9eabb58555d5b",
-      "last_observed_at": "2026-10-03T21:17:33Z",
+      "last_observed_at": "2026-10-03T22:25:49Z",
       "name": "openbrowser.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -317,7 +362,7 @@
         "attribution_verified": false,
         "block_hash": "0x3a95613cac48882c60f69eae54018e97d2f193a05805b2f5b985007464ea8014",
         "block_number": 26060749,
-        "checked_at": "2026-10-03T21:17:33Z",
+        "checked_at": "2026-10-03T22:25:49Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -329,7 +374,7 @@
         "block_hash": "0x3a95613cac48882c60f69eae54018e97d2f193a05805b2f5b985007464ea8014",
         "block_number": 26060749,
         "chain_timestamp": "2026-09-26T09:32:11Z",
-        "checked_at": "2026-10-03T21:17:34Z",
+        "checked_at": "2026-10-03T22:25:54Z",
         "receipt_sha256": "0b7c67f91707b6f954e7e8739120caff4f45d823fad4c49a95c9ce1f560d4205",
         "sale_amount_verified": false,
         "status": "no_matching_fill"
@@ -352,6 +397,15 @@
       },
       "source_record_sha256": "030b5b8d7f0a5af88ea4fd2bb1fc11efb7202726afe8f73a5cc65c6eb276233e",
       "transaction_hash": "0x743a49a39d8f87228125dda214d4563026a97dda3cf75ac4ef90c6b654e67fed",
+      "venue": {
+        "fill_venue_basis": "unknown",
+        "filled_via": null,
+        "independent_venue_verified": false,
+        "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+        "order_origin": "grails",
+        "order_origin_basis": "api_reported",
+        "source_record_sha256": "030b5b8d7f0a5af88ea4fd2bb1fc11efb7202726afe8f73a5cc65c6eb276233e"
+      },
       "verification": "api_reported"
     },
     {
@@ -365,7 +419,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "46b00f68a51c51a7c30630a2051fd8209471c2cffe72e51fc35bb3de274b1aed",
-      "last_observed_at": "2026-10-03T21:17:33Z",
+      "last_observed_at": "2026-10-03T22:25:49Z",
       "name": "metafilter.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -380,7 +434,7 @@
         "block_hash": "0xd3d013a1a08e57d95e13b54233b690c235c1c4ad0309322141f9f6546cda4fd2",
         "block_number": 26060747,
         "chain_timestamp": "2026-09-26T09:31:47Z",
-        "checked_at": "2026-10-03T21:17:34Z",
+        "checked_at": "2026-10-03T22:25:54Z",
         "receipt_sha256": "dc08c260c8513d50c56eb32fa350af32364ed997f1d492339ab96f4face5ed57",
         "sale_amount_verified": false,
         "status": "no_matching_fill"
@@ -403,6 +457,15 @@
       },
       "source_record_sha256": "5d52e93e2a87f5c2fb5e752982fb4ad1abd7cefa73e816ff637bb53171a8bbc3",
       "transaction_hash": "0x68932230c7c604fbb556fedd599b8db0b12e85aebac9f41ed41e7ae5fe500678",
+      "venue": {
+        "fill_venue_basis": "unknown",
+        "filled_via": null,
+        "independent_venue_verified": false,
+        "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+        "order_origin": "grails",
+        "order_origin_basis": "api_reported",
+        "source_record_sha256": "5d52e93e2a87f5c2fb5e752982fb4ad1abd7cefa73e816ff637bb53171a8bbc3"
+      },
       "verification": "api_reported"
     },
     {
@@ -416,7 +479,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "6f46c906b309798ccca0b4267cbc3b4ac4de31107e630280e560b12fc5f591a1",
-      "last_observed_at": "2026-10-03T21:17:33Z",
+      "last_observed_at": "2026-10-03T22:25:49Z",
       "name": "aigentid.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -431,7 +494,7 @@
         "block_hash": "0xd3d013a1a08e57d95e13b54233b690c235c1c4ad0309322141f9f6546cda4fd2",
         "block_number": 26060747,
         "chain_timestamp": "2026-09-26T09:31:47Z",
-        "checked_at": "2026-10-03T21:17:34Z",
+        "checked_at": "2026-10-03T22:25:54Z",
         "receipt_sha256": "dc08c260c8513d50c56eb32fa350af32364ed997f1d492339ab96f4face5ed57",
         "sale_amount_verified": false,
         "status": "no_matching_fill"
@@ -454,6 +517,15 @@
       },
       "source_record_sha256": "3489cf4cee33642b91709d8d479e320fe00eddafedb715991529fa8584b888c8",
       "transaction_hash": "0x68932230c7c604fbb556fedd599b8db0b12e85aebac9f41ed41e7ae5fe500678",
+      "venue": {
+        "fill_venue_basis": "unknown",
+        "filled_via": null,
+        "independent_venue_verified": false,
+        "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+        "order_origin": "grails",
+        "order_origin_basis": "api_reported",
+        "source_record_sha256": "3489cf4cee33642b91709d8d479e320fe00eddafedb715991529fa8584b888c8"
+      },
       "verification": "api_reported"
     },
     {
@@ -467,7 +539,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "7ac1e2da742498e367a31285fa015cec49d76982af98d0d7f150d420c8f33c49",
-      "last_observed_at": "2026-10-03T21:17:33Z",
+      "last_observed_at": "2026-10-03T22:25:49Z",
       "name": "metamaskflask.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -482,7 +554,7 @@
         "block_hash": "0xd3d013a1a08e57d95e13b54233b690c235c1c4ad0309322141f9f6546cda4fd2",
         "block_number": 26060747,
         "chain_timestamp": "2026-09-26T09:31:47Z",
-        "checked_at": "2026-10-03T21:17:34Z",
+        "checked_at": "2026-10-03T22:25:54Z",
         "receipt_sha256": "56a948aa4645d31c8cbd699ed681c9f50b6796df948898654a5c9d4810dd9d29",
         "sale_amount_verified": false,
         "status": "no_matching_fill"
@@ -505,6 +577,15 @@
       },
       "source_record_sha256": "5ce7a41bbc81997f32e8a44a4c9f6ceedc3551d2ad27f563ad44f80333e0ae4b",
       "transaction_hash": "0x6014d342b3211e960db05bde117239736577f6b0d15f3cf055214c3881dcda1a",
+      "venue": {
+        "fill_venue_basis": "unknown",
+        "filled_via": null,
+        "independent_venue_verified": false,
+        "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+        "order_origin": "grails",
+        "order_origin_basis": "api_reported",
+        "source_record_sha256": "5ce7a41bbc81997f32e8a44a4c9f6ceedc3551d2ad27f563ad44f80333e0ae4b"
+      },
       "verification": "api_reported"
     },
     {
@@ -518,7 +599,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "9590225be81791a5fe6ecfe117ad47b03d55beb177e99cfe3fd8a51505f76cd0",
-      "last_observed_at": "2026-10-03T21:17:33Z",
+      "last_observed_at": "2026-10-03T22:25:49Z",
       "name": "iddao.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -533,7 +614,7 @@
         "block_hash": "0xd3d013a1a08e57d95e13b54233b690c235c1c4ad0309322141f9f6546cda4fd2",
         "block_number": 26060747,
         "chain_timestamp": "2026-09-26T09:31:47Z",
-        "checked_at": "2026-10-03T21:17:34Z",
+        "checked_at": "2026-10-03T22:25:54Z",
         "receipt_sha256": "dc08c260c8513d50c56eb32fa350af32364ed997f1d492339ab96f4face5ed57",
         "sale_amount_verified": false,
         "status": "no_matching_fill"
@@ -556,25 +637,37 @@
       },
       "source_record_sha256": "971797f0b32a0fe145aff1760dd5701e42451a047e797bc7338e88a29f6ea0dc",
       "transaction_hash": "0x68932230c7c604fbb556fedd599b8db0b12e85aebac9f41ed41e7ae5fe500678",
+      "venue": {
+        "fill_venue_basis": "unknown",
+        "filled_via": null,
+        "independent_venue_verified": false,
+        "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+        "order_origin": "grails",
+        "order_origin_basis": "api_reported",
+        "source_record_sha256": "971797f0b32a0fe145aff1760dd5701e42451a047e797bc7338e88a29f6ea0dc"
+      },
       "verification": "api_reported"
     }
   ],
   "registrar": {
     "ambiguous_records_excluded": 0,
-    "coverage": "backfill_in_progress",
-    "distinct_registered_owners": 0,
+    "completeness_basis": "complete indexed-source traversal, not an independent exhaustive RPC scan",
+    "coverage": "current_known_contracts",
+    "distinct_registered_owners": 124,
     "gate_eligible": false,
-    "protocol_revenue_wei": "0",
-    "registrations": 0,
-    "renewals": 0,
+    "protocol_revenue_wei": "11107145347044933096",
+    "receipt_validated_events": 8799,
+    "registrations": 968,
+    "renewals": 7831,
+    "retrieval": "blockscout_keyset_rpc_receipts",
     "start": "2026-09-10T00:00:00Z",
-    "target_finalized_block": 26114384,
-    "through_block": 25991260,
-    "through_timestamp": "2026-09-16T16:33:59Z",
+    "target_finalized_block": 26114703,
+    "through_block": 26114703,
+    "through_timestamp": "2026-10-03T22:08:11Z",
     "usd_revenue": null,
     "verified_paying_wallets": null
   },
-  "schema_version": 1,
+  "schema_version": 2,
   "settlements": {
     "duplicate_fill_references": 0,
     "gate_eligible": false,
@@ -589,11 +682,21 @@
     },
     "weth_wei": "5513001000000000000"
   },
-  "snapshot_id": "efedf7ce3b72e63e4cd0352289ae23367d168becf8f0b968b5257c0173e25e1c",
-  "source_snapshot_id": "5baffee5b034ebe99dbc7c852fe5647487c494aaab992717491f6c08b65a4b14",
+  "snapshot_id": "20f00aeb8251dacfc57f743552018a09e22c206dddbe5b73969c209ef1b83b80",
+  "source_snapshot_id": "0630c8cb09c181e5e3b30565eee57e442c28f82515e9d85fc0e1ce1294e83483",
+  "venue_attribution": {
+    "fill_venue_reports": 0,
+    "independent_venue_verified": false,
+    "methodology_source": "https://github.com/grailsmarket/backend/blob/c354ce0ad11e9016b190dcebc9c0c72344fa35fd/services/api/migrations/seq/0894_add_grails_fill_attribution.sql",
+    "order_origin": "grails",
+    "order_origin_basis": "api_reported",
+    "scope": "Grails-origin API records only; foreign-origin fills through Grails may be absent.",
+    "unknown_fill_venues": 50
+  },
   "warnings": [
-    "Seaport settlement does not independently establish Grails source attribution.",
-    "Registration owners and transaction initiators are not proven paying users.",
-    "Unknown signing baseline, wallet-role policy and wash filters block gate scoring."
+    "Order origin and fill venue are different: source is API-reported; filled_via is an app report.",
+    "Complete indexed-source coverage is not independent proof of all website activity.",
+    "Registered owners and transaction initiators are not verified paying users.",
+    "Unknown signing baseline, USD methodology and committee policies block gate scoring."
   ]
 }
