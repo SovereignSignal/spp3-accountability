@@ -10,6 +10,7 @@ on:
     paths: ["scripts/grails*.py", "site/grails*.py", "site/server.py", "tests/test_grails*.py", ".github/workflows/grails.yml"]
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: grails-${{ github.event.pull_request.number || 'production' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -25,9 +26,29 @@ jobs:
           python-version: "3.12"
       - run: python -m unittest discover -s tests -v
       - run: python scripts/grails_measurements.py --output-dir /tmp/grails-check --raw-dir /tmp/grails-raw
-      - name: Verify complete registrar coverage and settlement evidence
+      - name: Check registrar bootstrap requirement
+        id: bootstrap
         run: |
           cp data/grails/registrar.json /tmp/grails-check/registrar.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          doc=json.load(open('/tmp/grails-check/registrar.json'))
+          print('needed='+str(doc.get('schema_version')!=2).lower())
+          PY
+      - name: Fetch previously validated registrar checkpoint
+        if: steps.bootstrap.outputs.needed == 'true'
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: "11285803431"
+          run-id: "37156753227"
+          github-token: ${{ github.token }}
+          path: /tmp/grails-bootstrap
+      - name: Verify exact bootstrap digest
+        if: steps.bootstrap.outputs.needed == 'true'
+        run: python scripts/grails_seed.py --source /tmp/grails-bootstrap/grails-check/registrar.json --destination /tmp/grails-check/registrar.json
+      - name: Verify complete registrar coverage and settlement evidence
+        run: |
           python scripts/grails_backfill.py --data-dir /tmp/grails-check --api-raw-dir /tmp/grails-raw --raw-dir /tmp/grails-chain-raw
           python - <<'PY'
           import json
@@ -52,6 +73,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: write
+      actions: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -61,6 +83,28 @@ jobs:
           python-version: "3.12"
       - run: python -m unittest discover -s tests -v
       - run: python scripts/grails_measurements.py --raw-dir /tmp/grails-raw
+      - name: Check registrar bootstrap requirement
+        id: bootstrap
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          p=Path('data/grails/registrar.json')
+          doc=json.loads(p.read_text()) if p.exists() else {}
+          print('needed='+str(doc.get('schema_version')!=2).lower())
+          PY
+      - name: Fetch previously validated registrar checkpoint
+        if: steps.bootstrap.outputs.needed == 'true'
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: "11285803431"
+          run-id: "37156753227"
+          github-token: ${{ github.token }}
+          path: /tmp/grails-bootstrap
+      - name: Verify exact bootstrap digest
+        if: steps.bootstrap.outputs.needed == 'true'
+        run: python scripts/grails_seed.py --source /tmp/grails-bootstrap/grails-check/registrar.json --destination data/grails/registrar.json
       - name: Complete indexed coverage and verify canonical event receipts
         run: python scripts/grails_backfill.py --api-raw-dir /tmp/grails-raw --raw-dir /tmp/grails-chain-raw
       - name: Commit observation snapshot
