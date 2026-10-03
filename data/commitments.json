@@ -590,6 +590,43 @@
               ],
               "committee_status": "unreviewed"
             }
+          ],
+          "independent_verification": [
+            {
+              "claim": "ENSv2 onchain subname infrastructure exists on Sepolia",
+              "status": "verified public artifact",
+              "source": "ENS Forum development thread",
+              "url": "https://discuss.ens.domains/t/onchain-subnames-on-ensv2/22353",
+              "note": "Namespace publicly documented the ENSv2 subname demo and activation/minting flow on Aug 12."
+            },
+            {
+              "claim": "ENS Forge is an open-source ENSv1/ENSv2 SDK",
+              "status": "verified public artifact",
+              "source": "ENS Forum + npm",
+              "url": "https://discuss.ens.domains/t/ensforge-a-unified-typescript-sdk-for-ensv1-and-ensv2/22409",
+              "note": "Public release documents V1/V2 routing, writes, batching, migration and Sepolia ENSv2 support."
+            },
+            {
+              "claim": "ENS Components has public ENSv2 tooling",
+              "status": "verified public artifact",
+              "source": "npm package",
+              "url": "https://www.npmjs.com/package/@thenamespace/ens-components-v2",
+              "note": "Public package supports ENSv2 Sepolia; this verifies shipped tooling, not the binding milestone."
+            },
+            {
+              "claim": "Avatar/header metadata service is public and supports smart-wallet signature verification",
+              "status": "verified public artifact",
+              "source": "ENS Forum / public GitHub",
+              "url": "https://github.com/thenamespace/metadata-service",
+              "note": "Public documentation describes SIWE plus EIP-1271/EIP-6492 support."
+            }
+          ],
+          "unverified_claims": [
+            "871,975 total subnames issued",
+            "24.5M+ ENS resolutions processed",
+            "248 active namespaces",
+            "108 L2 registries deployed",
+            "15 high-value companies in active conversations"
           ]
         }
       }
