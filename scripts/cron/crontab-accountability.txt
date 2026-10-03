@@ -27,6 +27,8 @@ MAILTO=""
 # --- SPP3 accountability ---
 # Daily stream health at 15:00 UTC (8am PT). Alerts only on change.
 0 15 * * * /home/ubuntu/Accountability-Workspace/scripts/stream_monitor.py >> /home/ubuntu/Accountability-Workspace/.cron-logs/streams.log 2>&1
+# On-chain USDC custody ledger, after stream health and before report polling.
+2 15 * * * /home/ubuntu/Accountability-Workspace/scripts/ledger.py >> /home/ubuntu/Accountability-Workspace/.cron-logs/ledger.log 2>&1
 # Weekly heartbeat Mondays 15:05 UTC. Silence from a dead monitor and silence
 # from a healthy system are otherwise indistinguishable.
 5 15 * * 1 /home/ubuntu/Accountability-Workspace/scripts/stream_monitor.py --heartbeat >> /home/ubuntu/Accountability-Workspace/.cron-logs/streams.log 2>&1
