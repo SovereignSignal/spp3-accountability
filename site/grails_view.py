@@ -43,8 +43,9 @@ def marketplace_summary(ctx):
 
 def page_measurements(ctx):
     doc = ctx.get("grails") or {}
-    intro = ('<p class="lede">Grails API observations for the SPP3 award. Candidate buyer and volume '
-             'counts are provisional. Transaction receipt checks do not verify sale amounts or Grails attribution.</p>'
+    intro = ('<h2>API-reported observations</h2><p class="lede">These Grails API buyer and volume '
+             'counts are provisional. The API collector receipt checks below establish transaction success only. '
+             'Independent settlement and registrar checks are reported separately.</p>'
              '<p class="prose"><a href="/marketplace">Back to Marketplace</a> · '
              '<a href="/grails.json">Snapshot JSON</a> · <a href="/grails-sales.json">Sale evidence JSON</a></p>')
     if not doc:
@@ -68,7 +69,7 @@ def page_measurements(ctx):
     gates = ('<section><h2>Payment gates</h2><ul>' +
              row("Q1 2027: 150-wallet target", "Unscored", q1_copy) +
              row("Term-end: 250 ETH filtered volume", "Unscored", "Window and filtering parameters require committee approval") +
-             row("Revenue gates", "Not collected", "No signing-date baseline or revenue collector has been established here") +
+             row("Revenue gates", "Unscored", "No signing-date baseline or agreed USD comparison. See independent chain coverage for collected referral events.") +
              '</ul></section>')
     exclusions = ''.join(row(k.replace('_', ' '), v) for k, v in obs.get("exclusions", {}).items())
     checks = ''.join(row(k.replace('_', ' '), v) for k, v in obs.get("receipt_statuses", {}).items())
@@ -91,9 +92,10 @@ def page_measurements(ctx):
             '<section><h2>Data quality</h2><ul>' +
             row("API traversal", cov.get("status", "Unknown"), "%s pages; %s" % (cov.get("pages", "Unknown"), cov.get("boundary", "Unknown"))) +
             row("Records disappeared upstream", doc.get("removed_upstream_records", 0), "Retained in evidence; excluded from current candidate totals") +
-            exclusions + '</ul><h3>Transaction receipt checks</h3><ul>' + checks + '</ul>'
+            exclusions + '</ul><h3>API collector receipt checks</h3><ul>' + checks + '</ul>'
             '<p class="colnote">A successful receipt alone does not establish an ENS sale, price, marketplace attribution or finality.</p></section>' +
             '<section><h2>Recent transaction evidence</h2><ul>' + ''.join(recent) + '</ul></section>' +
-            '<section><h2>Methodology limits</h2><ul>' + warnings + '</ul>'
+            '<section><h2>API-only methodology limits</h2><p class="colnote">These limits apply to the API snapshot. '
+            'The independent chain section reports its own verification and historical coverage.</p><ul>' + warnings + '</ul>'
             '<p class="colnote">Canonical sale evidence persists in Git. Full API response pages are SHA-256 identified '
             'workflow artifacts retained for 90 days. No wallet signatures or payments are performed.</p></section>')
