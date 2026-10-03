@@ -2,7 +2,7 @@
   "_generated": false,
   "_source": "Scope text quoted from EP 6.49 (discuss.ens.domains/t/22237). Milestones are PROVISIONAL: extracted from each provider's own SPP3 application, which is what they proposed, NOT the negotiated set in Award Notice Item 5. Every milestone carries a verbatim quote from its source document, and all 60 were verified as exact substrings of the fetched applications on 2026-08-06. They are unconfirmed by the committee and must be reconciled against Item 5 when the executed Award Notices reach the workspace.",
   "_epoch_note": "Reports are due within 30 days of each calendar quarter end (Program Terms clause 6.3). The public ENS Forum version is contractual, not a courtesy.",
-  "schema_version": 1,
+  "schema_version": 2,
   "quarters": [
     {
       "quarter": "2026Q3",
@@ -51,7 +51,71 @@
     "transaction_forum": "https://discuss.ens.domains/t/metagov-transaction-transparency-term-7-index/22401/6",
     "report_thread": "",
     "reports": [],
-    "recipient": "0xF8DD51A64942aAC80340a71fC22AF8d41591cE82"
+    "recipient": "0xF8DD51A64942aAC80340a71fC22AF8d41591cE82",
+    "performance_gates": [
+      {
+        "id": "q1-revenue-baseline",
+        "value_usd": 25000,
+        "due": "2027Q1",
+        "metric": "Attributed protocol revenue",
+        "condition": "At or above the at-signing baseline",
+        "baseline": "Grails attributed revenue over the 90 days before signing",
+        "status": "pending measurement",
+        "measurement_source": "Award Notice / committee verification",
+        "current": null,
+        "verified": false
+      },
+      {
+        "id": "q1-active-wallets",
+        "value_usd": 25000,
+        "due": "2027Q1",
+        "metric": "Distinct value-transacting wallets",
+        "condition": "At least 150 distinct wallets completing value-transferring actions in the quarter",
+        "target": 150,
+        "unit": "wallets",
+        "status": "pending measurement",
+        "measurement_source": "Award Notice / committee verification",
+        "current": null,
+        "verified": false
+      },
+      {
+        "id": "term-revenue-pace",
+        "value_usd": 25000,
+        "due": "term end",
+        "metric": "Attributed protocol revenue pace",
+        "condition": "Revenue on pace for $1,000,000 a year",
+        "target": 1000000,
+        "unit": "USD/year",
+        "status": "pending measurement",
+        "measurement_source": "Award Notice / committee verification",
+        "current": null,
+        "verified": false
+      },
+      {
+        "id": "term-secondary-volume",
+        "value_usd": 25000,
+        "due": "term end",
+        "metric": "Filtered secondary volume",
+        "condition": "At least 250 ETH over the prior two quarters",
+        "target": 250,
+        "unit": "ETH",
+        "status": "pending measurement",
+        "measurement_source": "Award Notice / committee verification",
+        "current": null,
+        "verified": false
+      }
+    ],
+    "stream_gate": {
+      "id": "ensv2-readiness",
+      "value_usd": 310000,
+      "target": "Q4 2026",
+      "condition": "Committee verification of ENSv2 readiness, or sufficient progress at the committee's judgment",
+      "status": "not verified",
+      "verified": false,
+      "measurement_source": "Committee verification under executed award"
+    },
+    "wind_down_escrow_usd": 25000,
+    "unreleased_funds_destination": "ENS DAO treasury at term end"
   },
   "providers": {
     "namespace": {
@@ -341,7 +405,117 @@
         }
       ],
       "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafybeiee73y2jwinefaszeng3frn47wmqini562qtcibzgnh42cnqiu2la",
-      "report_thread": "https://discuss.ens.domains/t/namespace-spp3-quarterly-reports/22360"
+      "report_thread": "https://discuss.ens.domains/t/namespace-spp3-quarterly-reports/22360",
+      "report_evidence": {
+        "2026Q3": {
+          "url": "https://discuss.ens.domains/t/namespace-spp3-quarterly-reports/22360/2",
+          "filed": "2026-10-02",
+          "status": "provider reported",
+          "verified_by_committee": false,
+          "summary": "Namespace reports Q3 work across ENSv2 readiness, developer infrastructure, product improvements, business development, marketing, and new ENS experiments.",
+          "metrics": [
+            {
+              "label": "Total subnames issued",
+              "value": "871,975",
+              "source": "provider report",
+              "verified": false
+            },
+            {
+              "label": "ENS resolutions processed",
+              "value": "24.5M+",
+              "source": "provider report",
+              "verified": false
+            },
+            {
+              "label": "Active namespaces",
+              "value": "248",
+              "source": "provider report",
+              "verified": false
+            },
+            {
+              "label": "L2 registries deployed",
+              "value": "108",
+              "source": "provider report",
+              "verified": false
+            },
+            {
+              "label": "High-value companies in active conversations",
+              "value": "15",
+              "source": "provider report",
+              "verified": false
+            }
+          ],
+          "evidence": [
+            {
+              "label": "ENSv2 Sepolia demo",
+              "url": "https://demo.namespace.ninja/",
+              "kind": "live demo",
+              "supports": [
+                "ENSv2 Onchain Subnames Infrastructure Development"
+              ]
+            },
+            {
+              "label": "ENSv2 readiness forum post",
+              "url": "https://discuss.ens.domains/t/onchain-subnames-on-ensv2/22353",
+              "kind": "forum evidence",
+              "supports": [
+                "ENSv2 Onchain Subnames Infrastructure Development"
+              ]
+            },
+            {
+              "label": "ENS Components 2.0.0",
+              "url": "https://github.com/thenamespace/ens-components/pull/54",
+              "kind": "code",
+              "supports": [
+                "ENS component support for new subname issuing functionality"
+              ]
+            },
+            {
+              "label": "ENS Forge repository",
+              "url": "https://github.com/thenamespace/ensforge",
+              "kind": "code",
+              "supports": []
+            },
+            {
+              "label": "Metadata service",
+              "url": "https://github.com/thenamespace/metadata-service",
+              "kind": "code",
+              "supports": []
+            },
+            {
+              "label": "ENS Diamonds repository",
+              "url": "https://github.com/thenamespace/ens-diamonds",
+              "kind": "code",
+              "supports": []
+            }
+          ],
+          "milestone_claims": [
+            {
+              "milestone": "ENSv2 Onchain Subnames Infrastructure Development",
+              "provider_claim": "substantial progress",
+              "evidence_labels": [
+                "ENSv2 Sepolia demo",
+                "ENSv2 readiness forum post"
+              ],
+              "committee_status": "unreviewed"
+            },
+            {
+              "milestone": "ENSv2 Onchain Subnames Indexing Infrastructure Available",
+              "provider_claim": "not clearly evidenced in Q3 report",
+              "evidence_labels": [],
+              "committee_status": "unreviewed"
+            },
+            {
+              "milestone": "ENS component support for new subname issuing functionality",
+              "provider_claim": "ENS Components 2.0.0 released; additional ENSv2 compatibility underway",
+              "evidence_labels": [
+                "ENS Components 2.0.0"
+              ],
+              "committee_status": "unreviewed"
+            }
+          ]
+        }
+      }
     },
     "goldsky": {
       "scope": "Operate ENS indexing as a dedicated public service (with eRPC), at the expanded scope presented as Option B in their application.",
