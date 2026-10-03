@@ -602,16 +602,22 @@ def page_marketplace(ctx):
     for g in m.get("performance_gates") or []:
         current = g.get("current")
         value = ("current: %s" % _esc(current)) if current is not None else _esc(g.get("status", "pending"))
+        source = ""
+        if g.get("measurement_url"):
+            source = ' · <a href="%s" target="_blank" rel="noopener">%s</a>' % (
+                _esc(g.get("measurement_url", "")), _esc(g.get("measurement_source", "measurement source")))
         gates.append(
             '<li class="check check--%s"><span class="check__label">$%s · %s'
-            '<span class="check__why">%s · due %s</span></span><span class="check__val">%s</span></li>' % (
+            '<span class="check__why">%s · due %s%s</span></span><span class="check__val">%s</span></li>' % (
                 "ok" if g.get("verified") else "wait", _money(g.get("value_usd", 0)),
                 _esc(g.get("metric", "")), _esc(g.get("condition", "")),
-                _esc(g.get("due", "")), value))
+                _esc(g.get("due", "")), source, value))
     gates_html = (
         '<section><h2>Release gates</h2><ul>%s</ul>'
         '<p class="colnote">A gate remains pending until its measurement is sourced and '
-        'the committee verifies the result. Missing data is never treated as a miss or a pass.</p>'
+        'the committee verifies the result. Missing data is never treated as a miss or a pass. '
+        'Revenue is independently observable in the public Dune query; wallet and filtered-volume '
+        'methodologies still need gate-specific definitions before they can be scored.</p>'
         '</section>' % "\n".join(gates)) if gates else ""
 
     return (
