@@ -36,6 +36,7 @@ jobs:
           print('needed='+str(doc.get('schema_version')!=2).lower())
           PY
       - name: Fetch previously validated registrar checkpoint
+        id: bootstrap_fetch
         if: steps.bootstrap.outputs.needed == 'true'
         continue-on-error: true
         uses: actions/download-artifact@v4
@@ -43,10 +44,15 @@ jobs:
           artifact-ids: "11285803431"
           run-id: "37156753227"
           github-token: ${{ github.token }}
+          merge-multiple: true
           path: /tmp/grails-bootstrap
       - name: Verify exact bootstrap digest
         if: steps.bootstrap.outputs.needed == 'true'
-        run: python scripts/grails_seed.py --source /tmp/grails-bootstrap/grails-check/registrar.json --destination /tmp/grails-check/registrar.json
+        run: |
+          if [ "${{ steps.bootstrap_fetch.outcome }}" = "success" ]; then
+            test -f /tmp/grails-bootstrap/grails-check/registrar.json
+          fi
+          python scripts/grails_seed.py --source /tmp/grails-bootstrap/grails-check/registrar.json --destination /tmp/grails-check/registrar.json
       - name: Verify complete registrar coverage and settlement evidence
         run: |
           python scripts/grails_backfill.py --data-dir /tmp/grails-check --api-raw-dir /tmp/grails-raw --raw-dir /tmp/grails-chain-raw
@@ -94,6 +100,7 @@ jobs:
           print('needed='+str(doc.get('schema_version')!=2).lower())
           PY
       - name: Fetch previously validated registrar checkpoint
+        id: bootstrap_fetch
         if: steps.bootstrap.outputs.needed == 'true'
         continue-on-error: true
         uses: actions/download-artifact@v4
@@ -101,10 +108,15 @@ jobs:
           artifact-ids: "11285803431"
           run-id: "37156753227"
           github-token: ${{ github.token }}
+          merge-multiple: true
           path: /tmp/grails-bootstrap
       - name: Verify exact bootstrap digest
         if: steps.bootstrap.outputs.needed == 'true'
-        run: python scripts/grails_seed.py --source /tmp/grails-bootstrap/grails-check/registrar.json --destination data/grails/registrar.json
+        run: |
+          if [ "${{ steps.bootstrap_fetch.outcome }}" = "success" ]; then
+            test -f /tmp/grails-bootstrap/grails-check/registrar.json
+          fi
+          python scripts/grails_seed.py --source /tmp/grails-bootstrap/grails-check/registrar.json --destination data/grails/registrar.json
       - name: Complete indexed coverage and verify canonical event receipts
         run: python scripts/grails_backfill.py --api-raw-dir /tmp/grails-raw --raw-dir /tmp/grails-chain-raw
       - name: Commit observation snapshot
