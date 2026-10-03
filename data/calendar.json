@@ -1,6 +1,6 @@
 {
   "_generated": false,
-  "_source": "EP 6.49 (ratified cohort recommendation), [7.1] Marketplace RFP as passed on Snapshot 2026-07-19, and SPP3 Program Terms v1.0 clauses 4.4 and 6.1-6.5. Stream dates verified on-chain.",
+  "_source": "EP 6.49 (ratified cohort recommendation), [7.1] Marketplace RFP as passed on Snapshot 2026-07-19, and SPP3 Program Terms v1.0 clauses 4.4 and 6.1-6.5. Stream dates verified on-chain. Marketplace execution/payment status updated from ENS Forum MetaGov transaction index 2026-10-03.",
   "milestones": [
     {
       "date": "2026-07-16",
@@ -33,16 +33,22 @@
       "done": true
     },
     {
-      "date": "2026-09-09",
-      "label": "RFP executable; awardee stream opens",
-      "track": "rfp",
-      "done": false
+      "date": "2026-09-10",
+      "label": "Nomentum Labs marketplace award executed on-chain; $500,000 moved to the Stream Management Pod",
+      "track": "marketplace",
+      "done": true
+    },
+    {
+      "date": "2026-09-30",
+      "label": "Nomentum Labs installment 1 paid: $30,000 USDC",
+      "track": "marketplace",
+      "done": true
     },
     {
       "date": "2026-09-30",
       "label": "Q3 ends",
       "track": "reporting",
-      "done": false
+      "done": true
     },
     {
       "date": "2026-10-30",

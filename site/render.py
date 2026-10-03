@@ -25,8 +25,8 @@ import time as _time
 
 SECONDS_PER_YEAR = 31_536_000
 
-NAV = [("/", "Overview"), ("/providers", "Providers"), ("/streams", "Streams"),
-       ("/reports", "Reports"), ("/calendar", "Calendar")]
+NAV = [("/", "Overview"), ("/providers", "Providers"), ("/marketplace", "Marketplace"),
+       ("/streams", "Streams"), ("/reports", "Reports"), ("/calendar", "Calendar")]
 
 # Each provider gets an identity hue, used on its card, its flow edge and its
 # page. Deliberately jewel-toned and cool so none of them collides with the
@@ -322,7 +322,9 @@ def page_home(ctx):
             _esc(_clip(_commit(ctx, p["slug"]).get("scope") or "", 130)))
         for p in funded)
 
+    market = ctx["commitments"].get("marketplace_award", {})
     sections = [
+        ("/marketplace", "Marketplace", "The executed SPP3 marketplace award, payment structure, and current funding state."),
         ("/streams", "Streams", "Every payment stream, checked daily against "
          "Ethereum mainnet at the rates ratified in EP 6.49."),
         ("/providers", "Providers", "Each provider's scope, funding, and "
@@ -362,6 +364,11 @@ def page_home(ctx):
         '</div>'
         '<section><h2>The cohort</h2><div class="cards cards--cohort">%s</div>'
         '</section>'
+        + (('<section><h2>Marketplace award</h2><a class="card card--ok" href="/marketplace">'
+              '<span class="card__label">%s · %s</span><span class="card__amt">$%s<i> award</i></span>'
+              '<span class="card__detail">$%s paid · milestone-gated funding</span></a></section>' % (
+                  _esc(market.get("name", "")), _esc(market.get("product", "")),
+                  _money(market.get("award_usd", 0)), _money(market.get("paid_usdc", 0)))) if market else "") +
         '<section><h2>On this site</h2><div class="cards">%s</div></section>' % (
             _money(total), _term_timeline(ctx),
             _esc("Quarterly Reports for %s, due %s" % (
@@ -512,6 +519,41 @@ def page_provider(ctx, slug):
             _esc(c.get("why_funded", "")), _esc(c.get("watch", "")),
             milestones, reports_html))
 
+
+
+def page_marketplace(ctx):
+    m = ctx["commitments"].get("marketplace_award") or {}
+    if not m:
+        return '<p class="empty">No marketplace award recorded.</p>'
+    return (
+        '<p class="lede">SPP3 also includes a marketplace award selected through the '
+        'committee RFP and executed on-chain after the original four-provider cohort.</p>'
+        '<div class="hero hero--sm"><p class="eyebrow">%s · %s</p>'
+        '<p class="lead">$%s award</p></div>'
+        '<section><h2>Current funding state</h2><dl class="facts">'
+        '<dt>Executed</dt><dd>%s</dd>'
+        '<dt>Paid</dt><dd>$%s USDC through %s</dd>'
+        '<dt>Upfront tranche</dt><dd>$%s in three $%s installments</dd>'
+        '<dt>Conditional stream</dt><dd>$%s · %s</dd>'
+        '<dt>Performance reserve</dt><dd>$%s</dd>'
+        '</dl><p class="drift drift--info"><b>Important:</b> the $%s conditional stream '
+        'is not represented as live until the committee verifies ENSv2 readiness and '
+        'the stream actually opens. The Streams page therefore remains a record of '
+        'observed on-chain streams, not promised future funding.</p></section>'
+        '<section><h2>Scope</h2><p class="prose">%s</p></section>'
+        '<section><h2>Sources</h2><p class="prose">'
+        '<a href="%s" target="_blank" rel="noopener">Committee recommendation</a> · '
+        '<a href="%s" target="_blank" rel="noopener">Executable proposal</a> · '
+        '<a href="%s" target="_blank" rel="noopener">transaction record</a>'
+        '</p></section>' % (
+            _esc(m.get("name", "")), _esc(m.get("product", "")),
+            _money(m.get("award_usd", 0)), _fmt_iso_date(m.get("executed_date", "")),
+            _money(m.get("paid_usdc", 0)), _esc(m.get("paid_through", "")),
+            _money(m.get("upfront_total_usd", 0)), _money(m.get("upfront_installment_usd", 0)),
+            _money(m.get("conditional_stream_usd", 0)), _esc(m.get("conditional_stream_status", "")),
+            _money(m.get("performance_reserve_usd", 0)), _money(m.get("conditional_stream_usd", 0)),
+            _esc(m.get("scope", "")), _esc(m.get("award_forum", "")),
+            _esc(m.get("executable_forum", "")), _esc(m.get("transaction_forum", ""))))
 
 def page_streams(ctx):
     st = ctx["status"]
@@ -684,6 +726,7 @@ def page_calendar(ctx):
 ROUTES = {
     "/": ("Overview", page_home),
     "/providers": ("Providers", page_providers),
+    "/marketplace": ("Marketplace", page_marketplace),
     "/streams": ("Streams", page_streams),
     "/reports": ("Reports", page_reports),
     "/calendar": ("Calendar", page_calendar),
