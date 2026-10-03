@@ -58,7 +58,7 @@
           "target_quarter": "2026Q4",
           "kpis": [],
           "depends_on_external": "ensv2-mainnet",
-          "quote": "We can’t launch this without ENSv2 official contracts on mainnet.",
+          "quote": "We can\u2019t launch this without ENSv2 official contracts on mainnet.",
           "source": "application",
           "confirmed": false,
           "status": "not started"
@@ -177,10 +177,10 @@
           "title": "Monthly outreach to 50-75 organizations",
           "target_quarter": null,
           "kpis": [
-            "50–75 organizations contacted per month"
+            "50\u201375 organizations contacted per month"
           ],
           "depends_on_external": null,
-          "quote": "Identify and reach out to 50–75 organizations every month across Web2 and Web3",
+          "quote": "Identify and reach out to 50\u201375 organizations every month across Web2 and Web3",
           "source": "application",
           "confirmed": false,
           "status": "not started"
@@ -306,7 +306,12 @@
           "status": "not started"
         }
       ],
-      "reports": [],
+      "reports": [
+        {
+          "quarter": "2026Q3",
+          "url": "https://discuss.ens.domains/t/namespace-spp3-quarterly-reports/22360/2"
+        }
+      ],
       "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafybeiee73y2jwinefaszeng3frn47wmqini562qtcibzgnh42cnqiu2la",
       "report_thread": "https://discuss.ens.domains/t/namespace-spp3-quarterly-reports/22360"
     },
