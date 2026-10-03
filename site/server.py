@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import render as R
 import grails_view as G
+import grails_chain_view as H
 
 PROVIDERS = ROOT / "data" / "providers.json"
 STATUS = ROOT / "data" / "streams" / "status.json"
@@ -22,16 +23,24 @@ COMMITMENTS = ROOT / "data" / "commitments.json"
 LEDGER = ROOT / "data" / "onchain" / "ledger.json"
 GRAILS = ROOT / "data" / "grails" / "observations.json"
 GRAILS_SALES = ROOT / "data" / "grails" / "sales.json"
+GRAILS_CHAIN = ROOT / "data" / "grails" / "chain.json"
+CHAIN_FEEDS = {
+    "/grails-chain.json": GRAILS_CHAIN,
+    "/grails-settlements.json": ROOT / "data" / "grails" / "settlements.json",
+    "/grails-registrar.json": ROOT / "data" / "grails" / "registrar.json",
+}
 
 
 def _marketplace(ctx):
     return R.page_marketplace(ctx) + G.marketplace_summary(ctx)
 
 
-# Compose the new page in the existing shell without coupling the collector to
-# the large legacy renderer. No RPC or Grails request occurs during rendering.
+def _measurements(ctx):
+    return H.chain_section(ctx) + G.page_measurements(ctx)
+
+
 R.ROUTES["/marketplace"] = ("Marketplace", _marketplace)
-R.ROUTES["/marketplace/measurements"] = ("Grails measurements", G.page_measurements)
+R.ROUTES["/marketplace/measurements"] = ("Grails measurements", _measurements)
 if not any(path == "/marketplace/measurements" for path, _ in R.NAV):
     R.NAV.insert(3, ("/marketplace/measurements", "Measurements"))
 
@@ -55,6 +64,7 @@ def _load():
         "status": status, "providers": providers, "board": _optional(BOARD),
         "calendar": _optional(CALENDAR), "commitments": _optional(COMMITMENTS),
         "ledger": _optional(LEDGER), "grails": _optional(GRAILS),
+        "grails_chain": _optional(GRAILS_CHAIN),
     }
 
 
@@ -95,6 +105,9 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, STATUS.read_text(), "application/json")
             elif path == "/ledger.json":
                 self._send(200, LEDGER.read_text(), "application/json")
+            elif path in CHAIN_FEEDS:
+                doc = _optional(CHAIN_FEEDS[path])
+                self._send(200 if doc else 503, json.dumps(doc or {"status": "unavailable"}), "application/json")
             elif path in ("/grails.json", "/grails-sales.json"):
                 doc = _optional(GRAILS if path == "/grails.json" else GRAILS_SALES)
                 self._send(200 if doc else 503, json.dumps(doc or {"status": "unavailable"}), "application/json")
