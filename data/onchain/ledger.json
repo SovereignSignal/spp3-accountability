@@ -1,0 +1,63 @@
+{
+  "_generated": true,
+  "_source": "ledger.py: Ethereum mainnet USDC Transfer logs involving stream.mg.wg.ens.eth",
+  "checked_at": "2026-10-03T19:49:00Z",
+  "through_block": 26112567,
+  "pod": "0xB162Bf7A7fD64eF32b787719335d06B2780e31D1",
+  "summary": {
+    "usdc_in": 500000,
+    "usdc_out": 30000,
+    "net_usdc": 470000,
+    "unclassified_events": 0
+  },
+  "events": [
+    {
+      "block_number": 25947821,
+      "timestamp": "2026-09-10T15:15:35Z",
+      "tx_hash": "0x3236c46d318f6391bcacb33217f801d2baa8b9b6a92fca5280d512269ba60e06",
+      "log_index": 270,
+      "token": "USDC",
+      "amount": 90000,
+      "direction": "in",
+      "from": "0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7",
+      "to": "0xB162Bf7A7fD64eF32b787719335d06B2780e31D1",
+      "classification": "treasury funding"
+    },
+    {
+      "block_number": 25947821,
+      "timestamp": "2026-09-10T15:15:35Z",
+      "tx_hash": "0x3236c46d318f6391bcacb33217f801d2baa8b9b6a92fca5280d512269ba60e06",
+      "log_index": 272,
+      "token": "USDC",
+      "amount": 100000,
+      "direction": "in",
+      "from": "0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7",
+      "to": "0xB162Bf7A7fD64eF32b787719335d06B2780e31D1",
+      "classification": "treasury funding"
+    },
+    {
+      "block_number": 25947821,
+      "timestamp": "2026-09-10T15:15:35Z",
+      "tx_hash": "0x3236c46d318f6391bcacb33217f801d2baa8b9b6a92fca5280d512269ba60e06",
+      "log_index": 274,
+      "token": "USDC",
+      "amount": 310000,
+      "direction": "in",
+      "from": "0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7",
+      "to": "0xB162Bf7A7fD64eF32b787719335d06B2780e31D1",
+      "classification": "treasury funding"
+    },
+    {
+      "block_number": 26092227,
+      "timestamp": "2026-09-30T18:56:11Z",
+      "tx_hash": "0x374c09cdc506e6ad09a2f4a05143ebb87ff33ea1468b7aa82d29b5342cdce8d7",
+      "log_index": 575,
+      "token": "USDC",
+      "amount": 30000,
+      "direction": "out",
+      "from": "0xB162Bf7A7fD64eF32b787719335d06B2780e31D1",
+      "to": "0xF8DD51A64942aAC80340a71fC22AF8d41591cE82",
+      "classification": "marketplace payment"
+    }
+  ]
+}

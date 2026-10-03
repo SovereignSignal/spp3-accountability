@@ -26,7 +26,7 @@ import time as _time
 SECONDS_PER_YEAR = 31_536_000
 
 NAV = [("/", "Overview"), ("/providers", "Providers"), ("/marketplace", "Marketplace"),
-       ("/streams", "Streams"), ("/reports", "Reports"), ("/calendar", "Calendar")]
+       ("/ledger", "Ledger"), ("/streams", "Streams"), ("/reports", "Reports"), ("/calendar", "Calendar")]
 
 # Each provider gets an identity hue, used on its card, its flow edge and its
 # page. Deliberately jewel-toned and cool so none of them collides with the
@@ -325,6 +325,7 @@ def page_home(ctx):
     market = ctx["commitments"].get("marketplace_award", {})
     sections = [
         ("/marketplace", "Marketplace", "The executed SPP3 marketplace award, payment structure, and current funding state."),
+        ("/ledger", "On-chain ledger", "Every USDC movement into and out of the Stream Management Pod, derived from Ethereum logs."),
         ("/streams", "Streams", "Every payment stream, checked daily against "
          "Ethereum mainnet at the rates ratified in EP 6.49."),
         ("/providers", "Providers", "Each provider's scope, funding, and "
@@ -340,6 +341,18 @@ def page_home(ctx):
         '<span class="card__detail">%s</span></a>' % (href, _esc(t), _esc(d))
         for href, t, d in sections)
 
+    market_card = ""
+    if market:
+        market_card = (
+            '<section><h2>Marketplace award</h2><a class="card card--ok" href="/marketplace">'
+            '<span class="card__label">%s · %s</span><span class="card__amt">$%s<i> award</i></span>'
+            '<span class="card__detail">$%s paid · milestone-gated funding</span></a></section>' % (
+                _esc(market.get("name", "")), _esc(market.get("product", "")),
+                _money(market.get("award_usd", 0)), _money(market.get("paid_usdc", 0))))
+
+    next_obligation = (_esc("Quarterly Reports for %s, due %s" % (
+        q["quarter"], _fmt_iso_date(q["report_due"]))) if q else "term reconciliation")
+
     return (
         '<div class="hero hero--home">'
         '<p class="eyebrow">ENS Service Provider Program &middot; Season 3</p>'
@@ -354,27 +367,16 @@ def page_home(ctx):
         'quoted from EP&nbsp;6.49. Commitments are taken from each provider\'s '
         'application until Award Notice Item 5 is confirmed.</p>'
         '%s'
-        '<div class="factrow">'
-        '<div><i>Term</i><b>1 Aug 2026 &ndash; 31 Jul 2027</b></div>'
+        '<div class="factrow"><div><i>Term</i><b>1 Aug 2026 &ndash; 31 Jul 2027</b></div>'
         '<div><i>Next obligation</i><b>%s</b></div>'
         '<div><i>Committee</i><b>coltron.eth (Chair), sovereignsignal.eth, '
-        'austingriffith.eth, abdullahumar.eth; gregskril.eth (ENS Labs, '
-        'non-compensated)</b></div>'
-        '</div>'
-        '</div>'
-        '<section><h2>The cohort</h2><div class="cards cards--cohort">%s</div>'
-        '</section>'
-        + (('<section><h2>Marketplace award</h2><a class="card card--ok" href="/marketplace">'
-              '<span class="card__label">%s · %s</span><span class="card__amt">$%s<i> award</i></span>'
-              '<span class="card__detail">$%s paid · milestone-gated funding</span></a></section>' % (
-                  _esc(market.get("name", "")), _esc(market.get("product", "")),
-                  _money(market.get("award_usd", 0)), _money(market.get("paid_usdc", 0)))) if market else "") +
+        'austingriffith.eth, abdullahumar.eth; gregskril.eth (ENS Labs, non-compensated)</b></div>'
+        '</div></div>'
+        '<section><h2>The cohort</h2><div class="cards cards--cohort">%s</div></section>'
+        '%s'
         '<section><h2>On this site</h2><div class="cards">%s</div></section>' % (
-            _money(total), _term_timeline(ctx),
-            _esc("Quarterly Reports for %s, due %s" % (
-                q["quarter"], _fmt_iso_date(q["report_due"])))
-            if q else "term reconciliation",
-            cohort_cards, site_cards))
+            _money(total), _term_timeline(ctx), next_obligation,
+            cohort_cards, market_card, site_cards))
 
 
 def page_providers(ctx):
@@ -555,6 +557,41 @@ def page_marketplace(ctx):
             _esc(m.get("scope", "")), _esc(m.get("award_forum", "")),
             _esc(m.get("executable_forum", "")), _esc(m.get("transaction_forum", ""))))
 
+
+def page_ledger(ctx):
+    ledger = ctx.get("ledger") or {}
+    summary = ledger.get("summary") or {}
+    events = ledger.get("events") or []
+    rows = []
+    for e in reversed(events):
+        incoming = e.get("direction") == "in"
+        counterparty = e.get("from") if incoming else e.get("to")
+        tx = e.get("tx_hash", "")
+        rows.append(
+            '<li class="stream stream--ok"><div class="stream__id">'
+            '<span class="stream__name">%s · %s</span>'
+            '<span class="stream__meta">%s · <a href="https://etherscan.io/tx/%s" '
+            'target="_blank" rel="noopener">%s</a></span></div>'
+            '<div class="stream__rate"><b>%s$%s</b><span> USDC</span></div></li>' % (
+                _esc(e.get("timestamp", "")[:10]), _esc(e.get("classification", "unclassified")),
+                _esc(_short(counterparty or "")), _esc(tx), _esc(_short(tx)) if tx else "tx",
+                "+" if incoming else "-", _money(e.get("amount", 0))))
+    unknown = summary.get("unclassified_events", 0)
+    return (
+        '<p class="lede">A block-backed custody record for <code>stream.mg.wg.ens.eth</code>. '
+        'Every USDC transfer involving the pod is read from Ethereum logs. Unknown '
+        'movements remain explicitly unclassified rather than being guessed.</p>'
+        '<div class="factrow">'
+        '<div><i>USDC in</i><b>$%s</b></div><div><i>USDC out</i><b>$%s</b></div>'
+        '<div><i>Net custody movement</i><b>$%s</b></div><div><i>Unclassified</i><b>%s</b></div>'
+        '</div><section><h2>Custody events</h2><ul>%s</ul>'
+        '<p class="colnote">Through Ethereum block %s. Continuous USDCx flows are '
+        'monitored separately on the Streams page.</p></section>' % (
+            _money(summary.get("usdc_in", 0)), _money(summary.get("usdc_out", 0)),
+            _money(summary.get("net_usdc", 0)), _money(unknown),
+            "\n".join(rows) if rows else '<li class="empty">No custody events recorded.</li>',
+            "{:,}".format(ledger.get("through_block", 0))))
+
 def page_streams(ctx):
     st = ctx["status"]
     epoch = ctx["providers"]["spp3_stream_start"]
@@ -681,8 +718,8 @@ def page_reports(ctx):
         '<section><h2>Reporting calendar</h2><ul>%s</ul>'
         '<p class="colnote">Calendar quarters, matching the ensdao/spp convention. '
         'SPP2 counted quarters from program start in places and from the calendar in '
-        'others, and the resulting due-date confusion played out in public. Nothing is '
-        'overdue: the first window opens 30 September 2026.</p></section>'
+        'others, and the resulting due-date confusion played out in public. Status above '
+        'is calculated from the current date and filed-report record.</p></section>'
         '<section><h2>Provider threads</h2><ul>%s</ul>'
         '<p class="colnote">Each provider keeps one forum thread listing its reports. '
         'These are polled daily and a report counts as filed only when its entry points '
@@ -727,6 +764,7 @@ ROUTES = {
     "/": ("Overview", page_home),
     "/providers": ("Providers", page_providers),
     "/marketplace": ("Marketplace", page_marketplace),
+    "/ledger": ("On-chain ledger", page_ledger),
     "/streams": ("Streams", page_streams),
     "/reports": ("Reports", page_reports),
     "/calendar": ("Calendar", page_calendar),

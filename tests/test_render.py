@@ -22,11 +22,12 @@ def ctx(now=None):
         "board": json.loads(board_path.read_text()) if board_path.exists() else {},
         "calendar": json.loads((ROOT / "data" / "calendar.json").read_text()),
         "commitments": json.loads((ROOT / "data" / "commitments.json").read_text()),
+        "ledger": json.loads((ROOT / "data" / "onchain" / "ledger.json").read_text()),
         "now": now or (providers["spp3_stream_start"] + 86400),
     }
 
 
-ALL_PAGES = ["/", "/providers", "/marketplace", "/streams", "/reports", "/calendar",
+ALL_PAGES = ["/", "/providers", "/marketplace", "/ledger", "/streams", "/reports", "/calendar",
              "/provider/namespace", "/provider/goldsky",
              "/provider/unruggable", "/provider/fluidkey"]
 
@@ -52,6 +53,20 @@ class TestRouting(unittest.TestCase):
     def test_provider_page_navigates_under_providers(self):
         html = R.render(ctx(), "/provider/namespace")
         self.assertIn('class="nav__link is-active" href="/providers"', html)
+
+
+class TestLedgerPage(unittest.TestCase):
+    def test_ledger_renders_verified_custody_totals(self):
+        html = R.render(ctx(), "/ledger")
+        self.assertIn("$500,000", html)
+        self.assertIn("$30,000", html)
+        self.assertIn("$470,000", html)
+        self.assertIn("marketplace payment", html)
+
+    def test_ledger_links_transactions(self):
+        html = R.render(ctx(), "/ledger")
+        self.assertIn("etherscan.io/tx/", html)
+
 
 
 class TestMarketplacePage(unittest.TestCase):
