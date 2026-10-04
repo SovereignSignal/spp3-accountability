@@ -314390,6 +314390,112 @@
       "timestamp": "2026-10-04T17:18:11Z",
       "transaction_hash": "0xa002393071bc6035eb31efd1ac6f922850b2567ea6a2992c6da36a7701740c43",
       "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x28d863bca6e0b7a4cf8f93d22760d61111cba8bfdfea17769ffd01744e0d4911",
+      "block_number": 26120523,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "9135658293521352",
+      "key": "1:0x939ba95fb4802ebaaad54ae7232a7f3a60f80806ad3f4377ea7d7f31bc796361:822",
+      "kind": "renewal",
+      "labelhash": "0x8edbbbf0e660e244e9d48f6ff71cdb49758b12813609419a7f4c21d7843208fb",
+      "log_index": 822,
+      "name": "ixrp.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "133b04dfc40ac393a76baacda0043346908fc9f79ea8818a72f2a6c0d1bdb188",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x28d863bca6e0b7a4cf8f93d22760d61111cba8bfdfea17769ffd01744e0d4911",
+        "blockNumber": "0x18e914b",
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000002074d5335febc800000000000000000000000000000000000000000000000000000000004a41ec0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000046978727000000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0x336",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0x8edbbbf0e660e244e9d48f6ff71cdb49758b12813609419a7f4c21d7843208fb"
+        ],
+        "transactionHash": "0x939ba95fb4802ebaaad54ae7232a7f3a60f80806ad3f4377ea7d7f31bc796361"
+      },
+      "source_log_sha256": "73a0330eee6b8c0112c78fe45306f3a7c50e3b5ebc1790ec1e1c7b2c30d16baf",
+      "timestamp": "2026-10-04T17:35:35Z",
+      "transaction_hash": "0x939ba95fb4802ebaaad54ae7232a7f3a60f80806ad3f4377ea7d7f31bc796361",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0xfbced163001cc260675194047f17dfd267d2600889fb8a61734cfb5072579aa0",
+      "block_number": 26121158,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "5070048498612",
+      "key": "1:0x838ccbce0949a1690d2785f4dae82e927cdbb75b96fc50603d9fe4d7bc8d057b:1128",
+      "kind": "renewal",
+      "labelhash": "0x58996a85dd4302f70ad0dc60a85b9739b225d2707a6287af93749fa2ee97770e",
+      "log_index": 1128,
+      "name": "yuchen.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "cdeeb38cc58c46b11834fbb0032e8db5d9b16b2aabd2282bd52e03a36603b41a",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0xfbced163001cc260675194047f17dfd267d2600889fb8a61734cfb5072579aa0",
+        "blockNumber": "0x18e93c6",
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000049c767093b400000000000000000000000000000000000000000000000000000000000151800000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d000000000000000000000000000000000000000000000000000000000000000679756368656e0000000000000000000000000000000000000000000000000000",
+        "logIndex": "0x468",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0x58996a85dd4302f70ad0dc60a85b9739b225d2707a6287af93749fa2ee97770e"
+        ],
+        "transactionHash": "0x838ccbce0949a1690d2785f4dae82e927cdbb75b96fc50603d9fe4d7bc8d057b"
+      },
+      "source_log_sha256": "3f4e9f8714c83ec3deae4331230d93fdc1ebfc2bddc4931ae7377f4b4301a3bf",
+      "timestamp": "2026-10-04T19:43:11Z",
+      "transaction_hash": "0x838ccbce0949a1690d2785f4dae82e927cdbb75b96fc50603d9fe4d7bc8d057b",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x49381d1d7ba677781c742a450059fb8f8195484fa78dd13402fa58fee12f05b5",
+      "block_number": 26121299,
+      "contract": "0x59e16fccd424cc24e280be16e11bcd56fb0ce547",
+      "cost_wei": "456304364875156",
+      "key": "1:0x2921530ff38202737a9f352d5669659e05655d491d0806ad8ac67106de5db29f:253",
+      "kind": "registration",
+      "labelhash": "0xd63a337f00a1af882687c1db83435839cbc2858ca00dc25e5689c52e06205bbc",
+      "log_index": 253,
+      "name": "1\u20e34\u20e36\u20e3.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "20b1727423606fa5ec7778f727696fce8869a962798ff99e0470b53f4497713b",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": "0x42e7bae80868fdf1458f39280e7057bfef46ba87",
+      "source_log": {
+        "address": "0x59e16fccd424cc24e280be16e11bcd56fb0ce547",
+        "blockHash": "0x49381d1d7ba677781c742a450059fb8f8195484fa78dd13402fa58fee12f05b5",
+        "blockNumber": "0x18e9453",
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000019f01a393ed940000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006b3959eb0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d000000000000000000000000000000000000000000000000000000000000000c31e283a334e283a336e283a30000000000000000000000000000000000000000",
+        "logIndex": "0xfd",
+        "removed": false,
+        "topics": [
+          "0xc2240194853531f1ae318dcef227de79c6ad0fd9d1b0e4fe08568415be2e08a5",
+          "0xd63a337f00a1af882687c1db83435839cbc2858ca00dc25e5689c52e06205bbc",
+          "0x00000000000000000000000042e7bae80868fdf1458f39280e7057bfef46ba87"
+        ],
+        "transactionHash": "0x2921530ff38202737a9f352d5669659e05655d491d0806ad8ac67106de5db29f"
+      },
+      "source_log_sha256": "98620c63b3c268b2fca54cfb3057e96b920bc6a9f6a3da1f32be52c1b903f7b6",
+      "timestamp": "2026-10-04T20:11:23Z",
+      "transaction_hash": "0x2921530ff38202737a9f352d5669659e05655d491d0806ad8ac67106de5db29f",
+      "transaction_initiator": null
     }
   ],
   "legacy_checkpoint_rescanned": false,
@@ -314399,56 +314505,56 @@
     "Caller-supplied referrer tags do not prove website use or paying-user identity."
   ],
   "mapping_source": "https://dune.com/queries/8064446",
-  "observed_at": "2026-10-04T17:35:53Z",
+  "observed_at": "2026-10-04T21:28:18Z",
   "referrer": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
   "retrieval": "blockscout_keyset_rpc_receipts",
-  "scan_from_block": 26118755,
+  "scan_from_block": 26120320,
   "scan_manifests": [
     {
       "contract": "0x59e16fccd424cc24e280be16e11bcd56fb0ce547",
       "cursor": null,
       "page": 1,
       "records": 50,
-      "sha256": "b93c0b31c0400668370cd3e8993827de03304ed354076322749e5bb3f75d3b6e"
+      "sha256": "b2fd1a15b1363b68ea8de56e25048e7037df16aaad4a834622fc149a68afaee6"
     },
     {
       "contract": "0x59e16fccd424cc24e280be16e11bcd56fb0ce547",
       "cursor": {
-        "block_number": 26119352,
-        "index": 381,
+        "block_number": 26120928,
+        "index": 1515,
         "items_count": 50
       },
       "page": 2,
       "records": 50,
-      "sha256": "def1b3c958a687be2044c26bb9539316931466a6f8cb489bdc39f1ccdff3ae10"
+      "sha256": "6724cbe0757fdb2d6ca1ef3412942d8060fd130c67212d895b0299c095484a36"
     },
     {
       "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
       "cursor": null,
       "page": 1,
       "records": 50,
-      "sha256": "27e033c6e713b9f74cf136cc2fe3646a23922f0bf52195489b10475a7149cc1f"
+      "sha256": "eb08103bd33927c48cfefa6dee93fa9438f50ffc325e3a518b334c32258d1f03"
     }
   ],
   "schema_version": 2,
   "source_sentinels": [
     {
       "contract": "0x59e16fccd424cc24e280be16e11bcd56fb0ce547",
-      "log_index": 445,
-      "receipt_sha256": "9245c45d5d9e1c321098c4652dbc4007aa829ae243c5cbb798db1dd7e0293483",
-      "transaction_hash": "0xf9ebf976bfd49bb01387fd4ea8131623c9df2d3d5db0934c9836c89d8ceab46d"
+      "log_index": 101,
+      "receipt_sha256": "ff50f1732d2465b6408bf783eff14be8cda8a09f275180183d3700dba614af78",
+      "transaction_hash": "0xa1bf363db2afc78a59110f47d95594d12780af516bc8388463b5b6d2433b1287"
     },
     {
       "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
-      "log_index": 1711,
-      "receipt_sha256": "9237856f1c464545c873d8a7456edf3d1445f8b0074dd18afed2001c06b00598",
-      "transaction_hash": "0xa002393071bc6035eb31efd1ac6f922850b2567ea6a2992c6da36a7701740c43"
+      "log_index": 1128,
+      "receipt_sha256": "cdeeb38cc58c46b11834fbb0032e8db5d9b16b2aabd2282bd52e03a36603b41a",
+      "transaction_hash": "0x838ccbce0949a1690d2785f4dae82e927cdbb75b96fc50603d9fe4d7bc8d057b"
     }
   ],
   "start": "2026-09-10T00:00:00Z",
   "start_block": 25943261,
-  "target_finalized_block": 26120447,
-  "through_block": 26120447,
-  "through_block_hash": "0x89be3138ae0f608c383c9cadb20dde8d11dc4a3611b6225fe148acf1b76630a8",
-  "through_timestamp": "2026-10-04T17:20:23Z"
+  "target_finalized_block": 26121594,
+  "through_block": 26121594,
+  "through_block_hash": "0x429546673c2c7953d15e97053b83c3905fc1d2b12b6a3a51be7ee1ebbdc9ece0",
+  "through_timestamp": "2026-10-04T21:10:47Z"
 }
