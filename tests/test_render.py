@@ -57,11 +57,29 @@ class TestRouting(unittest.TestCase):
 
 class TestLedgerPage(unittest.TestCase):
     def test_ledger_renders_verified_custody_totals(self):
-        html = R.render(ctx(), "/ledger")
-        self.assertIn("$500,000", html)
-        self.assertIn("$30,000", html)
-        self.assertIn("$470,000", html)
+        # Expected values come from the committed ledger, which the daily bot
+        # rewrites: pinning "$470,000" would fail the moment installment 2
+        # lands and stop every refresh job that runs the suite first.
+        c = ctx()
+        html = R.render(c, "/ledger")
+        summary = c["ledger"]["summary"]
+        for key in ("usdc_in", "usdc_out", "net_usdc"):
+            self.assertIn("$" + R._money(summary[key]), html)
         self.assertIn("marketplace payment", html)
+
+    def test_ledger_totals_follow_a_new_installment(self):
+        c = ctx()
+        c["ledger"]["events"].append({
+            "block_number": 26300000, "timestamp": "2026-10-30T15:00:00Z",
+            "tx_hash": "0x" + "a" * 64, "log_index": 1, "token": "USDC",
+            "amount": 30000, "direction": "out", "from": c["ledger"]["pod"],
+            "to": c["commitments"]["marketplace_award"]["recipient"],
+            "classification": "marketplace payment"})
+        s = c["ledger"]["summary"]
+        s["usdc_out"] += 30000
+        s["net_usdc"] -= 30000
+        html = R.render(c, "/ledger")
+        self.assertIn("$" + R._money(s["net_usdc"]), html)
 
     def test_ledger_links_transactions(self):
         html = R.render(ctx(), "/ledger")
@@ -169,11 +187,14 @@ class TestPerformanceEvidence(unittest.TestCase):
 
 class TestMarketplacePage(unittest.TestCase):
     def test_marketplace_award_is_first_class(self):
-        html = R.render(ctx(), "/marketplace")
+        c = ctx()
+        html = R.render(c, "/marketplace")
         self.assertIn("Nomentum Labs", html)
         self.assertIn("Grails", html)
         self.assertIn("$500,000", html)
-        self.assertIn("$30,000", html)
+        paid = sum(e["amount"] for e in c["ledger"]["events"]
+                   if e["classification"] == "marketplace payment")
+        self.assertIn("$" + R._money(paid), html)
 
     def test_conditional_stream_is_not_presented_as_live(self):
         html = R.render(ctx(), "/marketplace")
