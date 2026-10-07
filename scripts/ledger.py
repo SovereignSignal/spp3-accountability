@@ -336,11 +336,14 @@ def main(argv=None):
     C.LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
     new = json.dumps(doc, indent=2, sort_keys=True) + "\n"
     changed = comparable(old) != comparable(new)
+    published = None
     if changed:
         C.LEDGER_PATH.write_text(new)
         import stream_monitor
-        stream_monitor.publish(C.LEDGER_PATH, "chore(ledger): update on-chain financial history")
-    print("changed=%s via=%s" % (changed, client.last_endpoint))
+        published = stream_monitor.publish(C.LEDGER_PATH, "chore(ledger): update on-chain financial history")
+    print("changed=%s published=%s via=%s" % (changed, published, client.last_endpoint))
+    if published == "local":
+        return 3
     return 0 if healthy else 2
 
 

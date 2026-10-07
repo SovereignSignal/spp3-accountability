@@ -129,5 +129,29 @@ class TestLedger(unittest.TestCase):
         self.assertEqual(L._signed_word(word(123)), 123)
 
 
+class TestLedgerExit(unittest.TestCase):
+    """The ledger job runs in GitHub Actions, where a nonzero exit is the only
+    failure signal. A push that stays local must not exit 0."""
+
+    def run_main(self, published):
+        import tempfile
+        from unittest import mock
+        import stream_monitor
+        doc = {"through_block": 1, "financials": {},
+               "stream_history": {"all_reconciled": True, "unknown_flow_events": []}}
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.object(C, "LEDGER_PATH", Path(tmp) / "ledger.json"), \
+                mock.patch.object(L.chain, "Chain"), \
+                mock.patch.object(L, "build", return_value=doc), \
+                mock.patch.object(stream_monitor, "publish", return_value=published):
+            return L.main([])
+
+    def test_push_that_stays_local_fails_the_job(self):
+        self.assertEqual(self.run_main("local"), 3)
+
+    def test_pushed_change_succeeds(self):
+        self.assertEqual(self.run_main("pushed"), 0)
+
+
 if __name__ == "__main__":
     unittest.main()
