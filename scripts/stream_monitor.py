@@ -10,6 +10,7 @@ import argparse
 import json
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -225,22 +226,84 @@ def write_status(status, path):
     return True
 
 
-def publish(path, message):
-    """Commit and push the status file. Returns False if there was nothing
-    to commit. Never raises on a push failure: the alert is the product, and
-    a git outage must not suppress it."""
-    root = str(C.REPO_ROOT)
-    subprocess.run(["git", "-C", root, "add", str(path)], check=True)
-    r = subprocess.run(["git", "-C", root, "diff", "--cached", "--quiet"])
-    if r.returncode == 0:
-        return False
-    subprocess.run(["git", "-C", root, "commit", "-m", message], check=True)
-    try:
-        subprocess.run(["git", "-C", root, "push", "-q", "origin", "HEAD"],
-                       check=True)
-    except subprocess.CalledProcessError as e:
-        print("WARN: push failed (%s); commit is local" % e, file=sys.stderr)
-    return True
+UNCHANGED, PUSHED, LOCAL = "unchanged", "pushed", "local"
+PUSH_ATTEMPTS = 3
+GIT_TIMEOUT = 120
+
+# Paths nothing on the VM executes. Origin changes confined to these are
+# rebased onto automatically; anything else (scripts/, which cron runs with
+# the VM's secrets, or any path not listed) needs a human pull. Publishing a
+# status file must never deploy code.
+INERT_PREFIXES = ("data/", "site/", "docs/", "tests/", ".github/")
+INERT_ROOT_FILES = {"README.md", "railway.json", "requirements.txt", ".gitignore"}
+
+
+def _git(root, *args, check=True):
+    return subprocess.run(["git", "-C", root] + list(args), check=check,
+                          capture_output=True, text=True, timeout=GIT_TIMEOUT)
+
+
+def _incoming_code(root):
+    """Paths origin changed since our merge base that the VM could execute."""
+    names = _git(root, "diff", "--name-only", "HEAD...FETCH_HEAD").stdout.split()
+    return [n for n in names
+            if not n.startswith(INERT_PREFIXES) and n not in INERT_ROOT_FILES]
+
+
+def _sync(root, branch):
+    """Rebase onto the remote branch and push, retrying when another writer
+    lands in between. master has several writers (this VM's cron and the
+    GitHub Actions refresh jobs), so pushing without pulling is rejected."""
+    error = "no attempt made"
+    for attempt in range(PUSH_ATTEMPTS):
+        if attempt:
+            time.sleep(5 * attempt)
+        try:
+            _git(root, "fetch", "-q", "origin", branch)
+            code = _incoming_code(root)
+            if code:
+                return ("origin changed code this host runs (%s); review it, then "
+                        "git pull --rebase origin %s and push by hand"
+                        % (", ".join(code[:5]), branch))
+            _git(root, "rebase", "-q", "--autostash", "FETCH_HEAD")
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            # Leave the repo as it was: local commit intact, no rebase in
+            # progress, autostash restored. Harmless when no rebase started.
+            try:
+                _git(root, "rebase", "--abort", check=False)
+            except subprocess.TimeoutExpired:
+                pass
+            return "fetch or rebase failed: %s" % (getattr(e, "stderr", None) or str(e)).strip()
+        try:
+            _git(root, "push", "-q", "origin", "HEAD:" + branch)
+            return None
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            error = (getattr(e, "stderr", None) or str(e)).strip()
+    return "push rejected %d times: %s" % (PUSH_ATTEMPTS, error)
+
+
+def publish(path, message, root=None):
+    """Commit one file and push it. Returns UNCHANGED when there is nothing
+    to commit, PUSHED when the commit reached origin, LOCAL when it did not.
+    The commit is scoped to path so anything else staged never rides along.
+    Never raises on a sync failure (a broken local repo still raises on add or
+    commit). A LOCAL result is announced on Telegram, because the site only
+    shows what reaches origin."""
+    root = str(root or C.REPO_ROOT)
+    path = str(path)
+    _git(root, "add", "--", path)
+    if _git(root, "diff", "--cached", "--quiet", "--", path, check=False).returncode == 0:
+        return UNCHANGED
+    _git(root, "commit", "-q", "-m", message, "--", path)
+    branch = _git(root, "rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
+    error = "detached HEAD" if branch == "HEAD" else _sync(root, branch)
+    if error is None:
+        return PUSHED
+    print("WARN: publish failed (%s); commit is local" % error, file=sys.stderr)
+    from notify import send, escape_html
+    send("<b>[SPP3] publish failed</b>\n%s committed locally, not pushed: %s"
+         % (escape_html(Path(path).name), escape_html(error[:300])))
+    return LOCAL
 
 
 ALERT_FLAG = C.LOG_DIR / "stream-alert.flag"
@@ -324,10 +387,9 @@ def main(argv=None):
 
     C.LOG_DIR.mkdir(parents=True, exist_ok=True)
     changed = write_status(status, C.STATUS_PATH)
-    if changed:
-        publish(C.STATUS_PATH, "chore(streams): status %s at block %d"
-                % (status["overall"], block))
 
+    # Alert before publishing: a git sync can retry for minutes, and a stream
+    # fault must not wait on it.
     decision = alert_decision(problems, _load_alert_keys())
     if not args.no_notify:
         if decision["kind"] == "alert":
@@ -338,6 +400,10 @@ def main(argv=None):
         elif args.heartbeat:
             tg_send(_format_heartbeat(status))
     ALERT_FLAG.write_text(json.dumps({"keys": decision["keys"]}) + "\n")
+
+    if changed:
+        publish(C.STATUS_PATH, "chore(streams): status %s at block %d"
+                % (status["overall"], block))
 
     return 2 if status["overall"] == "critical" else 0
 
