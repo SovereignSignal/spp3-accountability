@@ -153,6 +153,9 @@ class Chain:
     def block_number(self):
         return decode_uint256(self._rpc("eth_blockNumber", []))
 
+    def code(self, address):
+        return self._rpc("eth_getCode", [address, "latest"])
+
     def event_logs(self, address, topics, from_block, to_block):
         params = [{"address": address, "topics": topics,
                    "fromBlock": hex(from_block), "toBlock": hex(to_block)}]
