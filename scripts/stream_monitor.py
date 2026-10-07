@@ -230,10 +230,24 @@ UNCHANGED, PUSHED, LOCAL = "unchanged", "pushed", "local"
 PUSH_ATTEMPTS = 3
 GIT_TIMEOUT = 120
 
+# Paths nothing on the VM executes. Origin changes confined to these are
+# rebased onto automatically; anything else (scripts/, which cron runs with
+# the VM's secrets, or any path not listed) needs a human pull. Publishing a
+# status file must never deploy code.
+INERT_PREFIXES = ("data/", "site/", "docs/", "tests/", ".github/")
+INERT_ROOT_FILES = {"README.md", "railway.json", "requirements.txt", ".gitignore"}
+
 
 def _git(root, *args, check=True):
     return subprocess.run(["git", "-C", root] + list(args), check=check,
                           capture_output=True, text=True, timeout=GIT_TIMEOUT)
+
+
+def _incoming_code(root):
+    """Paths origin changed since our merge base that the VM could execute."""
+    names = _git(root, "diff", "--name-only", "HEAD...FETCH_HEAD").stdout.split()
+    return [n for n in names
+            if not n.startswith(INERT_PREFIXES) and n not in INERT_ROOT_FILES]
 
 
 def _sync(root, branch):
@@ -245,7 +259,13 @@ def _sync(root, branch):
         if attempt:
             time.sleep(5 * attempt)
         try:
-            _git(root, "pull", "-q", "--rebase", "--autostash", "origin", branch)
+            _git(root, "fetch", "-q", "origin", branch)
+            code = _incoming_code(root)
+            if code:
+                return ("origin changed code this host runs (%s); review it, then "
+                        "git pull --rebase origin %s and push by hand"
+                        % (", ".join(code[:5]), branch))
+            _git(root, "rebase", "-q", "--autostash", "FETCH_HEAD")
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
             # Leave the repo as it was: local commit intact, no rebase in
             # progress, autostash restored. Harmless when no rebase started.
@@ -253,7 +273,7 @@ def _sync(root, branch):
                 _git(root, "rebase", "--abort", check=False)
             except subprocess.TimeoutExpired:
                 pass
-            return "pull --rebase failed: %s" % (getattr(e, "stderr", None) or str(e)).strip()
+            return "fetch or rebase failed: %s" % (getattr(e, "stderr", None) or str(e)).strip()
         try:
             _git(root, "push", "-q", "origin", "HEAD:" + branch)
             return None

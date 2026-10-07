@@ -110,6 +110,31 @@ class PublishTest(unittest.TestCase):
         self.assertEqual(git(self.vm, "diff", "HEAD", "--name-only"), "data/grails.json")
         self.assertEqual((self.vm / "data" / "grails.json").read_text(), '{"operator": "edit"}\n')
 
+    def test_origin_code_change_is_never_pulled_automatically(self):
+        # Cron executes scripts/ on the VM with its secrets. Code that lands on
+        # origin must reach the VM by a human pull, never as a side effect of
+        # publishing a status file.
+        write(self.bot / "scripts" / "stream_monitor.py", "print('from origin')\n")
+        git(self.bot, "add", ".")
+        git(self.bot, "commit", "-q", "-m", "code change")
+        git(self.bot, "push", "-q", "origin", "master")
+        status = self.vm / "data" / "status.json"
+        write(status, '{"block": 4}\n')
+        self.assertEqual(M.publish(status, "status", root=self.vm), M.LOCAL)
+        self.assertFalse((self.vm / "scripts").exists())
+        self.assertNotIn("status", self.origin_log())
+        self.assertIn("scripts/stream_monitor.py", self.sent.call_args[0][0])
+
+    def test_inert_paths_sync_automatically(self):
+        for rel in ("site/render.py", "docs/x.md", "README.md", ".github/workflows/x.yml"):
+            write(self.bot / rel, "x\n")
+        git(self.bot, "add", ".")
+        git(self.bot, "commit", "-q", "-m", "site and docs")
+        git(self.bot, "push", "-q", "origin", "master")
+        status = self.vm / "data" / "status.json"
+        write(status, '{"block": 5}\n')
+        self.assertEqual(M.publish(status, "status", root=self.vm), M.PUSHED)
+
     def test_detached_head_never_pushes(self):
         git(self.vm, "checkout", "-q", "--detach")
         status = self.vm / "data" / "status.json"
