@@ -4,7 +4,7 @@
     "basis": "award execution date; signing date not established",
     "boundary": "start_boundary_reached",
     "duplicates": 0,
-    "end": "2026-10-07T22:00:05Z",
+    "end": "2026-10-08T01:57:26Z",
     "independent_chain_coverage": false,
     "pages": 1,
     "source_manifests": [
@@ -12,7 +12,7 @@
         "page": 1,
         "records": 100,
         "reported_total": 987,
-        "sha256": "c4e87a312b93b691ef3039d1fd0cc26ad0abb23de449166c5e110f059817e0b2"
+        "sha256": "f510e530b393fadb0e1f9bec0509b1e4b91c1ebd68f11eb44b71bb2f238d44fa"
       }
     ],
     "start": "2026-09-10T00:00:00Z",
@@ -23,7 +23,7 @@
     "api_sales": 50,
     "candidate_sale_participants": 31,
     "candidate_secondary_buyers": 17,
-    "end_exclusive": "2026-10-07T22:00:05Z",
+    "end_exclusive": "2026-10-08T01:57:26Z",
     "exclusions": {
       "zero_value": 27
     },
@@ -36,7 +36,7 @@
     "start": "2026-09-10T00:00:00Z",
     "weth_volume": "5.513001"
   },
-  "observed_at": "2026-10-07T22:00:05Z",
+  "observed_at": "2026-10-08T01:57:26Z",
   "q1_2027": {
     "candidate_observations": null,
     "passed": null,
@@ -59,7 +59,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "ab125a4b96697944c2dc55002a717dbf2d0bdeb123593f5f85db9711d1b6bb44",
-      "last_observed_at": "2026-10-07T22:00:05Z",
+      "last_observed_at": "2026-10-08T01:57:26Z",
       "name": "mint.eth",
       "order_hash": "0x7277038f2eb94d80cd5c4535a215a9e2309c4332d99c6327f538945eca6d279b",
       "present_in_latest_scan": true,
@@ -67,7 +67,7 @@
         "attribution_verified": false,
         "block_hash": "0x7971d5e633c3fd6d80360dae7cd1256c2d74fffbc8225c0d916f60f62539bcf2",
         "block_number": 26097659,
-        "checked_at": "2026-10-07T22:00:05Z",
+        "checked_at": "2026-10-08T01:57:26Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -105,7 +105,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "ba5a0fdad42e1b3e90b48a16a4f2c92cdcdd3a8f4f9a25c87f46bead1129e834",
-      "last_observed_at": "2026-10-07T22:00:05Z",
+      "last_observed_at": "2026-10-08T01:57:26Z",
       "name": "10kftdao.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -113,7 +113,7 @@
         "attribution_verified": false,
         "block_hash": "0x5602ba084c9b131ff9715a5745b15b9fe1e6c7957e08994ed56c5d0f8b90c364",
         "block_number": 26060760,
-        "checked_at": "2026-10-07T22:00:05Z",
+        "checked_at": "2026-10-08T01:57:26Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -151,7 +151,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "36dd7754d54de21b089eb77500a76b65233d67440fb57fbb4ab4169c645b59db",
-      "last_observed_at": "2026-10-07T22:00:05Z",
+      "last_observed_at": "2026-10-08T01:57:26Z",
       "name": "pepechain.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -159,7 +159,7 @@
         "attribution_verified": false,
         "block_hash": "0xc62bb36dc229b8f1f5d24b46eba76aec17945546caf97348ccd1f6c538b3206f",
         "block_number": 26060756,
-        "checked_at": "2026-10-07T22:00:05Z",
+        "checked_at": "2026-10-08T01:57:26Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -197,7 +197,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "e5f95240c77c8fd785de02e5da8db1a762f569f8662c00c75f163b4a67c47208",
-      "last_observed_at": "2026-10-07T22:00:05Z",
+      "last_observed_at": "2026-10-08T01:57:26Z",
       "name": "metavsesvit.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -205,7 +205,7 @@
         "attribution_verified": false,
         "block_hash": "0xfcb60b24d790a5ef40e1d7ffc6a3e18fb164553753eb61f5e12e949b2c180ea8",
         "block_number": 26060750,
-        "checked_at": "2026-10-07T22:00:05Z",
+        "checked_at": "2026-10-08T01:57:26Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -243,7 +243,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "5fee4bdee84391814ce02f35df0b0227218540686ace3eb0b7a44d1ffc2a0330",
-      "last_observed_at": "2026-10-07T22:00:05Z",
+      "last_observed_at": "2026-10-08T01:57:26Z",
       "name": "sanjez.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -251,7 +251,7 @@
         "attribution_verified": false,
         "block_hash": "0xfcb60b24d790a5ef40e1d7ffc6a3e18fb164553753eb61f5e12e949b2c180ea8",
         "block_number": 26060750,
-        "checked_at": "2026-10-07T22:00:05Z",
+        "checked_at": "2026-10-08T01:57:26Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -289,7 +289,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "31a531c6e915f43b086410f691d1ac6930c7600280ca91b914f9eabb58555d5b",
-      "last_observed_at": "2026-10-07T22:00:05Z",
+      "last_observed_at": "2026-10-08T01:57:26Z",
       "name": "openbrowser.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -297,7 +297,7 @@
         "attribution_verified": false,
         "block_hash": "0x3a95613cac48882c60f69eae54018e97d2f193a05805b2f5b985007464ea8014",
         "block_number": 26060749,
-        "checked_at": "2026-10-07T22:00:05Z",
+        "checked_at": "2026-10-08T01:57:26Z",
         "sale_amount_verified": false,
         "status": "success"
       },
@@ -335,7 +335,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "9590225be81791a5fe6ecfe117ad47b03d55beb177e99cfe3fd8a51505f76cd0",
-      "last_observed_at": "2026-10-07T22:00:05Z",
+      "last_observed_at": "2026-10-08T01:57:26Z",
       "name": "iddao.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -376,7 +376,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "7ac1e2da742498e367a31285fa015cec49d76982af98d0d7f150d420c8f33c49",
-      "last_observed_at": "2026-10-07T22:00:05Z",
+      "last_observed_at": "2026-10-08T01:57:26Z",
       "name": "metamaskflask.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -417,7 +417,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "6f46c906b309798ccca0b4267cbc3b4ac4de31107e630280e560b12fc5f591a1",
-      "last_observed_at": "2026-10-07T22:00:05Z",
+      "last_observed_at": "2026-10-08T01:57:26Z",
       "name": "aigentid.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -458,7 +458,7 @@
       "currency": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "first_observed_at": "2026-10-03T20:39:36Z",
       "key": "46b00f68a51c51a7c30630a2051fd8209471c2cffe72e51fc35bb3de274b1aed",
-      "last_observed_at": "2026-10-07T22:00:05Z",
+      "last_observed_at": "2026-10-08T01:57:26Z",
       "name": "metafilter.eth",
       "order_hash": "",
       "present_in_latest_scan": true,
@@ -500,7 +500,7 @@
     "passed": null,
     "target_eth": 250
   },
-  "snapshot_id": "fe8b9e56d13ba316473cf9c257958456a9ca73ede074e68afcf9d1675b96ca89",
+  "snapshot_id": "0e183d932677804e45d0a8f55d5967b76ed358c9025bfcaa5a952ec80205ba34",
   "source": {
     "api": "https://api.grails.app/api/v1/analytics/sales",
     "documentation": "https://docs.grails.app/docs/api/analytics/sales",
