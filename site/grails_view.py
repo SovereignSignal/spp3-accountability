@@ -4,7 +4,10 @@ from html import escape
 import re
 
 TX = re.compile(r"0x[0-9a-f]{64}\Z")
-STALE_SECONDS = 3 * 3600
+# grails.yml is scheduled hourly, but GitHub delivers scheduled runs late: the
+# observed gap between runs is 4 to 8 hours. A 3-hour threshold showed a
+# healthy pipeline as stale for a large share of every day.
+STALE_SECONDS = 12 * 3600
 
 
 def esc(value):
@@ -32,8 +35,11 @@ def marketplace_summary(ctx):
     doc = ctx.get("grails") or {}
     body = "No successful measurement snapshot is available yet."
     if doc:
-        body = "%s API sales observed. Snapshot: %s. %s." % (
-            doc.get("observed", {}).get("api_sales", "Unknown"),
+        obs = doc.get("observed", {})
+        zero = (obs.get("exclusions") or {}).get("zero_value")
+        body = "%s API sale records observed%s. Snapshot: %s. %s." % (
+            obs.get("api_sales", "Unknown"),
+            (", %s of them zero-price and excluded from volume" % zero) if zero else "",
             doc.get("observed_at", "Unknown"),
             freshness(doc, ctx.get("now", datetime.now(timezone.utc).timestamp())))
     return ('<section><h2>Collected observations</h2><p class="prose">%s</p>'

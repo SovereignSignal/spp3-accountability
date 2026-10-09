@@ -249,7 +249,7 @@ class TestChainView(unittest.TestCase):
 
     def test_stale_and_mixed_snapshots_and_escaping(self):
         import grails_chain_view as V
-        c={'now':TIME+20000,'grails':{'snapshot_id':'new'},'grails_chain':{
+        c={'now':TIME+86400,'grails':{'snapshot_id':'new'},'grails_chain':{
             'observed_at':C.iso(TIME),'source_snapshot_id':'old','finalized_block':100,
             'recent_results':[{'name':'<script>bad</script>','transaction_hash':'javascript:alert(1)'}]}}
         h=V.chain_section(c)

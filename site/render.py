@@ -40,6 +40,11 @@ ACCENT = {
 # under /provider/. It lives in commitments.json rather than providers.json
 # because it has no stream for the monitor to check until its gate opens.
 MARKET_SLUG = "nomentum"
+
+# SPP3 Program Terms v1.0, as published with the Submission Timeline and
+# Artifacts post (discuss.ens.domains t/22309).
+PROGRAM_TERMS_URL = ("https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/"
+                     "bafybeidxywcqifpvkjyqjqouxptylitpexehgm6cynlig6kt3r23yatvra")
 ACCENT_FALLBACK = "#0080BC"
 
 # EP 6.42 top-level objective categories. providers.json stores the numbers
@@ -67,6 +72,23 @@ VERDICT_COPY = {
 
 def _esc(s):
     return html.escape(str(s))
+
+
+def _href(url):
+    """Escaped URL safe for an href, or None. Links reach the page from forum
+    posts, provider APIs and hand-kept data; escaping alone still lets a
+    javascript: URL through, so only web links and site paths qualify."""
+    u = str(url or "").strip()
+    if u.lower().startswith(("https://", "http://")) or (
+            u.startswith("/") and not u.startswith("//")):
+        return _esc(u)
+    return None
+
+
+def _link(url, text):
+    """An external link, or the bare text when the URL does not qualify."""
+    h = _href(url)
+    return ('<a href="%s" target="_blank" rel="noopener">%s</a>' % (h, text)) if h else text
 
 
 def _usd(wei_s):
@@ -138,6 +160,57 @@ def _when(days):
     if days < 0:
         return "overdue by %d days" % abs(round(days))
     return "in %d days" % round(days) if days >= 1 else "today"
+
+
+def _days_until(datestr, now):
+    """Whole UTC calendar days from today to datestr: 0 all day on the date."""
+    try:
+        start = _cal.timegm(_time.strptime(datestr, "%Y-%m-%d"))
+    except (ValueError, TypeError):
+        return None
+    return int((start - (now - now % 86400)) // 86400)
+
+
+def _in_days(d):
+    if d is None:
+        return ""
+    if d == 0:
+        return "today"
+    if d == 1:
+        return "tomorrow"
+    return ("in %d days" % d) if d > 0 else ("%d days ago" % -d)
+
+
+# A report due on D is on time all of D (UTC). report_watcher polls the forum
+# once a day at 15:10 UTC, so a report filed late on D is first seen on D+1;
+# that day reads "due yesterday" instead of accusing a provider who filed on
+# time. OVERDUE starts the day after the grace day.
+REPORT_GRACE_DAYS = 1
+
+
+def _report_state(due, now, filed):
+    """(state, text) for one provider-quarter: filed, upcoming, today, grace
+    or overdue. Every page that shows report status goes through here."""
+    if filed:
+        return "filed", "filed"
+    d = _days_until(due, now)
+    if d is None:
+        return "upcoming", ""
+    if d > 0:
+        return "upcoming", _in_days(d)
+    if d == 0:
+        return "today", "due today"
+    if d >= -REPORT_GRACE_DAYS:
+        return "grace", "due yesterday &middot; checking the forum"
+    return "overdue", "OVERDUE &middot; %d days late" % -d
+
+
+def _quarter_rows(ctx, slug):
+    """Every reporting quarter for one provider with its state."""
+    filed = {r.get("quarter"): r for r in _commit(ctx, slug).get("reports", [])}
+    return [(q,) + _report_state(q["report_due"], ctx["now"], q["quarter"] in filed)
+            + (filed.get(q["quarter"]),)
+            for q in ctx["commitments"].get("quarters", [])]
 
 
 def _ticker(rate, since, cls="tick"):
@@ -246,9 +319,11 @@ def _financial_award(ctx, slug):
 
 
 def _next_quarter(ctx):
+    """The reporting quarter still in play: due today or later, or inside
+    the grace day. On the due date itself this is still that quarter."""
     for q in ctx["commitments"].get("quarters", []):
-        d = _days_to(q["report_due"], ctx["now"])
-        if d is not None and d >= 0:
+        d = _days_until(q["report_due"], ctx["now"])
+        if d is not None and d >= -REPORT_GRACE_DAYS:
             return q, d
     return None, None
 
@@ -404,12 +479,16 @@ def page_providers(ctx):
                  'lists %s as cohort-selected, but there is no funded stream. EthID '
                  'declined publicly on 3 July 2026. The chain is authoritative here.</p>'
                  % _esc(", ".join(ghosts)))
-    first_q = (ctx["commitments"].get("quarters") or [{}])[0]
-    first_due = _fmt_iso_date(first_q.get("report_due") or "") or "&mdash;"
     rows = []
     for p in _funded(ctx):
         s = _stream_for(ctx, p["slug"]) or {}
         c = _commit(ctx, p["slug"])
+        pending = [r for r in _quarter_rows(ctx, p["slug"]) if r[1] != "filed"]
+        next_report = "&mdash;"
+        if pending:
+            q, state, _text, _r = pending[0]
+            next_report = _fmt_iso_date(q["report_due"]) + (
+                " &middot; <b>OVERDUE</b>" if state == "overdue" else "")
         rows.append(
             '<li class="app app--%s"><span class="app__name">'
             '<a href="/provider/%s">%s</a></span>'
@@ -422,7 +501,7 @@ def page_providers(ctx):
                 "live" if s.get("ok") else "FAULT",
                 ("%d proposed" % len(c.get("milestones", [])))
                 if c.get("milestones") else "not recorded",
-                _esc(first_due)))
+                next_report))
     market = ctx["commitments"].get("marketplace_award") or {}
     lede = ('<p class="lede">Four providers ratified by EP&nbsp;6.49 and funded '
             'on-chain since 1 August 2026.</p>')
@@ -445,7 +524,7 @@ def page_providers(ctx):
     return (lede + drift +
             '<section><ul class="apps"><li class="app app--head">'
             '<span>Provider</span><span>Award</span><span>Stream</span>'
-            '<span>Commitments</span><span>First report</span></li>%s</ul></section>'
+            '<span>Commitments</span><span>Next report</span></li>%s</ul></section>'
             % "\n".join(rows))
 
 
@@ -491,11 +570,16 @@ def page_provider(ctx, slug):
                 '<span class="ms__state">%s</span></li>' % (
                     _esc(m.get("title", "")),
                     _esc(" &middot; ".join(m.get("kpis") or [])) or "&mdash;",
-                    _esc(m.get("status", "not started")))
+                    # A delivery status shows only when it cites a source.
+                    # The old default, "not started" on every row, read as a
+                    # finding that named providers had not begun their work.
+                    _esc(m["status"]) if m.get("status") and m.get("status_source") else "")
                 for m in by_q[q])
             q_lbl = q
             if q == "2027Q3":
-                q_lbl = "2027Q3 (after the 12-month term)"
+                # The term runs 1 Aug 2026 to 31 Jul 2027, so July 2027 is its
+                # final month, not after it (Fluidkey's Month-12 KPIs land here).
+                q_lbl = "2027Q3 (July 2027, final month of the term; assessed at term reconciliation)"
             blocks.append('<div class="qgroup"><h3 class="qgroup__h">%s '
                           '<span>%d</span></h3><ul>%s</ul></div>'
                           % (_esc(q_lbl), len(by_q[q]), rows))
@@ -507,8 +591,9 @@ def page_provider(ctx, slug):
             'binding set is Award Notice Item 5, which is not yet in the committee '
             'workspace. Every entry was checked against a verbatim quote from the '
             'source document; none is committee-confirmed, and none counts toward the '
-            '80%% completion metric until reconciled.</p>%s' % (
-                len(ms), _esc(src or "#"), "".join(blocks)))
+            '80%% completion metric until reconciled. Delivery status is not assessed '
+            'here; see the provider\'s filed reports.</p>%s' % (
+                len(ms), _href(src) or "#", "".join(blocks)))
     else:
         milestones = (
             '<p class="empty">No commitments recorded yet.</p>'
@@ -518,26 +603,27 @@ def page_provider(ctx, slug):
             'denominator. An empty list here is an accurate statement of what is '
             'known, not a placeholder.</p>')
 
-    reports = c.get("reports", [])
-    if reports:
-        rrows = "".join('<li class="app"><span class="app__name">%s</span>'
-                        '<span class="app__gate">%s</span></li>'
-                        % (_esc(r.get("quarter", "")), _esc(r.get("url", "")))
-                        for r in reports)
-        reports_html = '<ul class="apps">%s</ul>' % rrows
-    else:
-        q, qdays = _next_quarter(ctx)
-        thread = c.get("report_thread", "")
-        watched = ('<p class="colnote">Its <a href="%s" target="_blank" '
-                   'rel="noopener">forum thread</a> is polled daily.</p>' % _esc(thread)
-                   if thread else
-                   '<p class="colnote">No forum thread is recorded, so nothing is being '
-                   'polled for this provider.</p>')
-        reports_html = ('<p class="empty">No reports filed.</p>'
-                        '<p class="colnote">First Quarterly Report covers %s and is due '
-                        '%s, %s. Not overdue.</p>' % (
-                            _esc(q["quarter"]), _esc(q["report_due"]), _when(qdays))
-                        if q else '<p class="empty">No reports filed.</p>') + watched
+    # Every quarter that is filed or has come due, plus the next one ahead.
+    shown, ahead = [], False
+    for q, state, text, rep_ in _quarter_rows(ctx, p["slug"]):
+        if state == "upcoming":
+            if ahead:
+                continue
+            ahead = True
+        cls = {"filed": "ok", "overdue": "fault"}.get(state, "wait")
+        val = _link(rep_.get("url"), "filed") if state == "filed" and rep_ else text
+        shown.append(
+            '<li class="check check--%s"><span class="check__label">%s'
+            '<span class="check__why">due %s</span></span>'
+            '<span class="check__val">%s</span></li>' % (
+                cls, _esc(q["quarter"]), _fmt_iso_date(q["report_due"]), val))
+    thread = c.get("report_thread", "")
+    watched = ('<p class="colnote">Its %s is polled daily.</p>' % _link(thread, "forum thread")
+               if thread else
+               '<p class="colnote">No forum thread is recorded, so nothing is being '
+               'polled for this provider.</p>')
+    reports_html = ('<ul>%s</ul>' % "\n".join(shown) if shown
+                    else '<p class="empty">No reporting quarters recorded.</p>') + watched
 
     hist = _history_for(ctx, p["slug"])
     if hist:
@@ -547,42 +633,37 @@ def page_provider(ctx, slug):
     else:
         delivered = _ticker(s.get("actual_wei_s", 0), epoch, "tick tick--hero")
 
+    # A filed quarterly report, shown as the provider filed it. The tracker is
+    # run by a committee member, so it makes no assessment here: no "verified"
+    # lists, no mapping of claims to milestones. That is the committee's call,
+    # and for a provider the operator is recused from, not the operator's.
     evidence_html = ""
-    evidence = (c.get("report_evidence") or {}).get("2026Q3")
-    if evidence:
+    for qk, evidence in sorted((c.get("report_evidence") or {}).items()):
         metrics = "".join(
             '<li class="check check--wait"><span class="check__label">%s'
-            '<span class="check__why">provider reported · not independently verified</span></span>'
+            '<span class="check__why">provider reported &middot; not independently verified</span></span>'
             '<span class="check__val">%s</span></li>' % (
                 _esc(x.get("label", "")), _esc(x.get("value", "")))
             for x in evidence.get("metrics") or [])
-        claims = "".join(
-            '<li class="check check--wait"><span class="check__label">%s'
-            '<span class="check__why">%s</span></span><span class="check__val">%s</span></li>' % (
-                _esc(x.get("milestone", "")), _esc(x.get("provider_claim", "")),
-                _esc(x.get("committee_status", "unreviewed")))
-            for x in evidence.get("milestone_claims") or [])
-        links = " · ".join(
-            '<a href="%s" target="_blank" rel="noopener">%s</a>' % (
-                _esc(x.get("url", "")), _esc(x.get("label", "")))
+        links = " &middot; ".join(
+            _link(x.get("url"), _esc(x.get("label", "")))
             for x in evidence.get("evidence") or [])
-        verified = "".join(
-            '<li class="check check--ok"><span class="check__label">%s'
-            '<span class="check__why">%s</span></span><span class="check__val">'
-            '<a href="%s" target="_blank" rel="noopener">%s</a></span></li>' % (
-                _esc(x.get("claim", "")), _esc(x.get("note", "")),
-                _esc(x.get("url", "")), _esc(x.get("status", "verified")))
-            for x in evidence.get("independent_verification") or [])
-        evidence_html = (
-            '<section><h2>Q3 evidence review</h2>'
-            '<p class="drift drift--info"><b>Provider report received; committee determination pending.</b> '
-            '%s Public artifacts can independently verify that work exists, but they do not by themselves '
-            'satisfy a binding Award Notice milestone.</p>'
-            '<h3>Independently verified artifacts</h3><ul>%s</ul>'
-            '<h3>Reported metrics, not independently verified</h3><ul>%s</ul>'
-            '<h3>Commitment mapping</h3><ul>%s</ul>'
-            '<p class="colnote">Provider evidence: %s</p></section>' % (
-                _esc(evidence.get("summary", "")), verified, metrics, claims, links))
+        notice = ('This tracker records what the provider filed and makes no '
+                  'assessment of it. Committee determination pending.')
+        if p.get("recusals"):
+            # ENS names stay lowercase, so the recusal leads its own sentence.
+            notice = "%s %s recused from %s. %s" % (
+                _esc(", ".join(p["recusals"])),
+                "is" if len(p["recusals"]) == 1 else "are", _esc(p["name"]), notice)
+        evidence_html += (
+            '<section><h2>%s report (provider-filed)</h2>'
+            '<p class="drift drift--info"><b>Provider-filed.</b> %s</p>'
+            '<p class="prose">%s%s</p>%s%s</section>' % (
+                _esc(qk), notice, _esc(evidence.get("summary", "")),
+                (' %s.' % _link(evidence["url"], "Read the report"))
+                if _href(evidence.get("url")) else "",
+                ('<h3>Reported metrics</h3><ul>%s</ul>' % metrics) if metrics else "",
+                ('<p class="colnote">Evidence the provider linked: %s</p>' % links) if links else ""))
 
     return (
         '<p class="lede">%s</p>'
@@ -638,8 +719,8 @@ def page_market_provider(ctx):
         value = ("current: %s" % _esc(current)) if current is not None else _esc(g.get("status", "pending"))
         source = ""
         if g.get("measurement_url"):
-            source = ' · <a href="%s" target="_blank" rel="noopener">%s</a>' % (
-                _esc(g.get("measurement_url", "")), _esc(g.get("measurement_source", "measurement source")))
+            source = ' · ' + _link(g.get("measurement_url"),
+                                   _esc(g.get("measurement_source", "measurement source")))
         gates.append(
             '<li class="check check--%s"><span class="check__label">$%s · %s'
             '<span class="check__why">%s · due %s%s</span></span><span class="check__val">%s</span></li>' % (
@@ -652,11 +733,17 @@ def page_market_provider(ctx):
     methodology = ""
     if method:
         methodology = (
-            '<h3>Measurement contract</h3><dl class="facts">'
+            '<h3>Tracker\'s reading of the gate terms</h3>'
+            '<p class="drift drift--info"><b>Not committee-adopted.</b> This is the '
+            'tracker\'s interpretation of the [7.1] marketplace RFP and the executable '
+            'proposal. The committee has not adopted it. Binding thresholds are set in '
+            'the Award Notice, which is not public.</p><dl class="facts">'
             '<dt>Q1 active wallets</dt><dd>%s</dd>'
             '<dt>Wallet dedupe</dt><dd>%s</dd>'
             '<dt>Term secondary volume</dt><dd>%s</dd>'
-            '<dt>Open parameter</dt><dd>%s; %s</dd>'
+            '<dt>Open questions</dt><dd>which wallet role counts and which actions '
+            'qualify; the term-end measurement window; anti-wash filters (%s); '
+            'minimum value (%s)</dd>'
             '</dl>' % (
                 _esc(active.get("method", "")), _esc(active.get("dedupe", "")),
                 _esc(secondary.get("method", "")),
@@ -701,8 +788,8 @@ def page_market_provider(ctx):
             _money(m.get("conditional_stream_usd", 0)), _esc(m.get("conditional_stream_status", "")),
             _money(m.get("performance_reserve_usd", 0)), _money(gated),
             _money(m.get("conditional_stream_usd", 0)), gates_html, _esc(m.get("scope", "")),
-            _esc(m.get("award_forum", "")), _esc(m.get("executable_forum", "")),
-            _esc(m.get("transaction_forum", ""))))
+            _href(m.get("award_forum")) or "#", _href(m.get("executable_forum")) or "#",
+            _href(m.get("transaction_forum")) or "#"))
 
 
 def page_ledger(ctx):
@@ -831,7 +918,7 @@ def page_streams(ctx):
                     _esc(s["address"]), _esc(_short(s["address"])),
                     (" &middot; flowing since " + _fmt_short(fs)) if fs else "",
                     pct, _money(_usd(s["expected_wei_s"])),
-                    ('<span class="tick tick--row">$%s</span><span class="stream__meta"> delivered since SPP3 start</span>' %
+                    ('<span class="tick tick--row">%s</span><span class="stream__meta"> delivered since SPP3 start</span>' %
                      _money(_history_for(ctx, s["slug"]).get("delivered_usd", 0), 2)
                      if _history_for(ctx, s["slug"]) else
                      _ticker(s["actual_wei_s"], max(fs, epoch), "tick tick--row"))))
@@ -883,8 +970,7 @@ def _thread_rows(ctx, funded):
         if url:
             state = "ok"
             why = "polled daily for filed reports"
-            val = ('<a href="%s" target="_blank" rel="noopener">forum thread</a>'
-                   % _esc(url))
+            val = _link(url, "forum thread")
         else:
             state, why, val = "wait", "no thread recorded", "not watched"
         out.append(
@@ -899,16 +985,16 @@ def page_reports(ctx):
     funded = _funded(ctx)
     rows = []
     for q in ctx["commitments"].get("quarters", []):
-        d = _days_to(q["report_due"], ctx["now"])
         filed = sum(1 for p in funded
                     if any(r.get("quarter") == q["quarter"]
                            for r in _commit(ctx, p["slug"]).get("reports", [])))
-        if d is not None and d < 0 and filed < len(funded):
-            state, val = "fault", "%d of %d filed &middot; OVERDUE" % (filed, len(funded))
-        elif filed == len(funded):
+        due_state, due_text = _report_state(q["report_due"], ctx["now"], False)
+        if filed == len(funded):
             state, val = "ok", "%d of %d filed" % (filed, len(funded))
+        elif due_state == "overdue":
+            state, val = "fault", "%d of %d filed &middot; OVERDUE" % (filed, len(funded))
         else:
-            state, val = "wait", "%d of %d filed &middot; %s" % (filed, len(funded), _when(d))
+            state, val = "wait", "%d of %d filed &middot; %s" % (filed, len(funded), due_text)
         rows.append(
             '<li class="check check--%s"><span class="check__label">%s'
             '<span class="check__why">quarter ends %s, report due %s</span></span>'
@@ -943,13 +1029,13 @@ def page_calendar(ctx):
              if m.get("track") != "rfp"]
     nxt = None
     for m in shown:
-        d = _days_to(m["date"], ctx["now"])
+        d = _days_until(m["date"], ctx["now"])
         if not (m.get("done") or (d is not None and d < 0)):
             nxt = m
             break
     items = []
     for m in shown:
-        d = _days_to(m["date"], ctx["now"])
+        d = _days_until(m["date"], ctx["now"])
         past = m.get("done") or (d is not None and d < 0)
         items.append(
             '<li class="mile mile--%s%s"><span class="mile__date">%s</span>'
@@ -958,9 +1044,12 @@ def page_calendar(ctx):
                 "past" if past else m.get("track", ""),
                 " mile--next" if (nxt is m) else "", _esc(m["date"]),
                 _esc(m["label"]), _esc(m.get("track", "")),
-                "" if past else _when(d)))
-    return ('<p class="lede">Cohort obligations through the end of term, fixed by '
-            'EP&nbsp;6.49 and Program Terms clauses 4.4 and 6.1&ndash;6.5.</p>'
+                "" if past else _in_days(d)))
+    return ('<p class="lede">Obligations through the end of term. Report and '
+            'reconciliation dates come from the <a href="%s" target="_blank" '
+            'rel="noopener">Program Terms</a> (clauses 6.3 and 6.4); committee dates '
+            'from EP&nbsp;6.42, which gives a quarter or a month rather than a day, '
+            'so those rows mark the latest date.</p>' % PROGRAM_TERMS_URL +
             '<section><ul class="miles">%s</ul></section>' % "\n".join(items))
 
 

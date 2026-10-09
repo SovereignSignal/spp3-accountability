@@ -22,11 +22,15 @@ Excluded on purpose:
     amounts. Process state, not a public accountability record.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-sys.path.insert(0, "/home/ubuntu/RFP-Workspace/scripts")
+# The committee pipeline client lives in the RFP workspace checked out beside
+# this one on the committee host.
+sys.path.insert(0, str(Path(os.environ.get("RFP_WORKSPACE",
+                                           str(Path.home() / "RFP-Workspace"))) / "scripts"))
 
 import acct_config as C  # noqa: E402
 

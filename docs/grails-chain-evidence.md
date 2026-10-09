@@ -18,7 +18,7 @@ Distinct registered owners are reported separately. Neither ownership nor the tr
 
 ## Publication
 
-The existing hourly workflow collects API data, verifies chain evidence, runs tests and commits the files together. Raw receipts, blocks and log pages are retained as workflow artifacts for 90 days. Canonical event records and their hashes persist in Git. No chain calls occur while serving pages. Missing evidence is unavailable; mismatched or old snapshots receive an explicit warning.
+The existing scheduled workflow (hourly on paper, every 4 to 8 hours in practice) collects API data, verifies chain evidence, runs tests and commits the files together. Raw receipts, blocks and log pages are retained as workflow artifacts for 90 days. Canonical event records and their hashes persist in Git. No chain calls occur while serving pages. Missing evidence is unavailable; mismatched or old snapshots receive an explicit warning.
 
 Endpoints: `/grails-chain.json`, `/grails-settlements.json`, `/grails-registrar.json`. The existing Measurements page displays the independent checks alongside API observations.
 

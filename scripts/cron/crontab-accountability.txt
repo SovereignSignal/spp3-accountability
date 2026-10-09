@@ -1,51 +1,27 @@
-# SPP3 accountability cron. MERGED FILE: contains the RFP intake lines too.
-# `crontab <file>` REPLACES the entire user crontab, so this single file is
-# the only thing that may be installed.
+# SPP3 accountability cron: TEMPLATE, not an installable crontab.
 #
-# Install:  crontab /home/ubuntu/Accountability-Workspace/scripts/cron/crontab-accountability.txt
-# Inspect:  crontab -l
+# The committee host's crontab is shared with jobs that are not part of this
+# repository, and `crontab <file>` replaces the WHOLE user crontab. Never
+# install this file directly. Merge these lines into `crontab -l` on the host,
+# replacing WORKSPACE with the path of this checkout, and keep the merged file
+# on the host, outside the repository.
+#
+#   crontab -l > /tmp/current && $EDITOR /tmp/current && crontab /tmp/current
 
-SHELL=/bin/bash
-PATH=/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin
-HOME=/home/ubuntu
 MAILTO=""
 
-# --- Marketplace RFP intake: RETIRED 2026-08-27 ---
-# The round is over: Nomentum Labs selected, all nine applications resolved.
-# gate/evaluator queues have read 0 rows since the Aug 5 close; digest and
-# coverage were still paging Telegram about a finished round. Lines are kept
-# commented rather than deleted so the harness can be restored verbatim if a
-# second RFP is ever run. Restore: uncomment, `crontab <this file>`.
-# The @SPP3_1_bot poller (rfp-bot.service, user unit) was stopped and disabled
-# the same day. Prior live crontab: .cron-logs/crontab.backup-20260827-220058.txt
-# 5,35 * * * * /home/ubuntu/RFP-Workspace/scripts/gate.py --auto >> /home/ubuntu/RFP-Workspace/.cron-logs/gate.log 2>&1
-# 15 * * * * /home/ubuntu/RFP-Workspace/scripts/evaluator.py --auto >> /home/ubuntu/RFP-Workspace/.cron-logs/evaluator.log 2>&1
-# 0 14 * * * /home/ubuntu/RFP-Workspace/scripts/digest.py >> /home/ubuntu/RFP-Workspace/.cron-logs/digest.log 2>&1
-# 0 23 * * * /home/ubuntu/RFP-Workspace/scripts/digest.py >> /home/ubuntu/RFP-Workspace/.cron-logs/digest.log 2>&1
-# 0 16 * * * /home/ubuntu/RFP-Workspace/scripts/coverage.py --auto --notify >> /home/ubuntu/RFP-Workspace/.cron-logs/coverage.log 2>&1
+# Daily stream health at 15:00 UTC. Alerts only on change.
+0 15 * * * WORKSPACE/scripts/stream_monitor.py >> WORKSPACE/.cron-logs/streams.log 2>&1
 
-# --- SPP3 accountability ---
-# Daily stream health at 15:00 UTC (8am PT). Alerts only on change.
-0 15 * * * /home/ubuntu/Accountability-Workspace/scripts/stream_monitor.py >> /home/ubuntu/Accountability-Workspace/.cron-logs/streams.log 2>&1
-# Weekly heartbeat Mondays 15:05 UTC. Silence from a dead monitor and silence
+# Weekly heartbeat, Mondays 15:05 UTC. Silence from a dead monitor and silence
 # from a healthy system are otherwise indistinguishable.
-5 15 * * 1 /home/ubuntu/Accountability-Workspace/scripts/stream_monitor.py --heartbeat >> /home/ubuntu/Accountability-Workspace/.cron-logs/streams.log 2>&1
+5 15 * * 1 WORKSPACE/scripts/stream_monitor.py --heartbeat >> WORKSPACE/.cron-logs/streams.log 2>&1
 
-# Notion board export (RFP applications + cohort pipeline), daily at 15:20 UTC.
-# Was every 30 min at :20/:50 for the intake round; the board stopped moving when
-# the RFP closed 2026-08-27, so a half-hourly poll of static data was pure noise.
-# Field whitelist; individual scores and contact details never leave Notion.
-20 15 * * * /home/ubuntu/Accountability-Workspace/scripts/notion_export.py >> /home/ubuntu/Accountability-Workspace/.cron-logs/notion.log 2>&1
+# Quarterly report watcher, daily 15:10 UTC. Polls each provider's public forum
+# thread, records reports that have landed, and nudges the committee privately
+# before a due date passes. Never posts anywhere public.
+10 15 * * * WORKSPACE/scripts/report_watcher.py >> WORKSPACE/.cron-logs/reports.log 2>&1
 
-# Quarterly report watcher — daily 15:10 UTC, after the stream check.
-# Polls each provider's public forum thread (no credentials; Discourse serves
-# topic JSON openly), records reports that have landed, and nudges the
-# committee privately before a due date passes. Never posts anywhere public.
-10 15 * * * /home/ubuntu/Accountability-Workspace/scripts/report_watcher.py >> /home/ubuntu/Accountability-Workspace/.cron-logs/reports.log 2>&1
-
-# --- Not owned by this workspace, preserved here so it survives installs ---
-# The SPP3 brain-lane producer (added 2026-08-12, ~/bin/spp3-brain-daily) feeds
-# Sov's vault. It is not part of this system, but `crontab <file>` replaces the
-# WHOLE user crontab, so anything missing from this file gets deleted. Always
-# diff against `crontab -l` before installing, and add whatever you find.
-40 12 * * * /home/ubuntu/bin/spp3-brain-daily >/dev/null 2>>/home/ubuntu/.brain-capture-cron.err
+# Committee pipeline export, daily 15:20 UTC. Field whitelist; individual
+# scores and contact details never leave Notion.
+20 15 * * * WORKSPACE/scripts/notion_export.py >> WORKSPACE/.cron-logs/notion.log 2>&1

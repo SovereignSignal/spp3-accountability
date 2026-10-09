@@ -129,7 +129,8 @@ class TestHistoricalFinancials(unittest.TestCase):
 
     def test_stream_page_uses_event_derived_delivery(self):
         html = R.render(self.enriched(), "/streams")
-        self.assertIn("$123,456.78", html)
+        # The "$" is drawn by .tick--row::before, not printed.
+        self.assertIn('tick--row">123,456.78', html)
         self.assertIn("delivered since SPP3 start", html)
 
     def test_provider_page_uses_event_derived_delivery(self):
@@ -157,31 +158,57 @@ class TestPerformanceEvidence(unittest.TestCase):
 
     def test_marketplace_exposes_gate_methodology_without_inventing_filters(self):
         html = R.render(ctx(), "/provider/nomentum")
-        self.assertIn("Measurement contract", html)
+        self.assertNotIn("Measurement contract", html)
+        self.assertIn("Tracker's reading of the gate terms", html)
+        self.assertIn("Not committee-adopted", html)
         self.assertIn("Count distinct wallet addresses", html)
         self.assertIn("anti-wash", html)
         self.assertIn("minimum-value", html)
         self.assertIn("must be frozen", html)
 
-    def test_namespace_separates_verified_artifacts_from_unverified_metrics(self):
+    def test_recused_providers_report_is_shown_as_filed_not_assessed(self):
+        # The operator is recused from Namespace. The page shows what Namespace
+        # filed and makes no assessment: no "verified" list, no claim mapping.
         html = R.render(ctx(), "/provider/namespace")
-        self.assertIn("Independently verified artifacts", html)
-        self.assertIn("ENSv2 onchain subname infrastructure exists on Sepolia", html)
-        self.assertIn("Reported metrics, not independently verified", html)
-        self.assertIn("24.5M+", html)
-
-    def test_namespace_q3_claims_are_not_presented_as_verified(self):
-        html = R.render(ctx(), "/provider/namespace")
-        self.assertIn("Q3 evidence review", html)
-        self.assertIn("Provider report received; committee determination pending", html)
+        self.assertIn("2026Q3 report (provider-filed)", html)
+        self.assertIn("sovereignsignal.eth is recused from Namespace", html)
+        self.assertIn("makes no assessment", html)
         self.assertIn("871,975", html)
+        self.assertIn("provider reported &middot; not independently verified", html)
         self.assertIn("ENSv2 Sepolia demo", html)
-        self.assertIn("unreviewed", html)
+        for phrase in ("Independently verified", "Commitment mapping", "evidence review",
+                       "unreviewed", "check--ok\"><span class=\"check__label\">ENSv2"):
+            self.assertNotIn(phrase, html)
 
     def test_other_providers_do_not_get_namespace_evidence(self):
         html = R.render(ctx(), "/provider/goldsky")
-        self.assertNotIn("Q3 evidence review", html)
+        self.assertNotIn("provider-filed", html)
         self.assertNotIn("871,975", html)
+
+    def test_no_milestone_carries_an_unsourced_status(self):
+        c = ctx()
+        for slug in ("namespace", "goldsky", "unruggable", "fluidkey"):
+            html = R.render(c, "/provider/" + slug)
+            self.assertNotIn(">not started<", html, slug)
+        c["commitments"]["providers"]["goldsky"]["milestones"][0].update(
+            status="delivered", status_source="https://discuss.ens.domains/t/1")
+        self.assertIn(">delivered<", R.render(c, "/provider/goldsky"))
+
+    def test_data_links_never_carry_script_urls(self):
+        # Report URLs come from provider-edited forum posts via report_watcher.
+        c = ctx()
+        g = c["commitments"]["providers"]["goldsky"]
+        g["reports"] = [{"quarter": "2026Q3", "url": "javascript:alert(1)//t/x/1/2"}]
+        g["report_thread"] = "JavaScript:alert(2)"
+        c["commitments"]["providers"]["namespace"]["report_evidence"]["2026Q3"]["evidence"].append(
+            {"label": "x", "url": " javascript:alert(3)"})
+        for path in ("/provider/goldsky", "/provider/namespace", "/reports"):
+            html = R.render(c, path).lower()
+            self.assertNotIn('href="javascript', html, path)
+            self.assertNotIn('href=" javascript', html, path)
+        self.assertEqual(R._href("https://discuss.ens.domains/t/1"), "https://discuss.ens.domains/t/1")
+        for bad in ("javascript:x", "data:text/html,x", "//evil.example", "vbscript:x", "\x01javascript:x"):
+            self.assertIsNone(R._href(bad), bad)
 
 
 
@@ -373,10 +400,58 @@ class TestProviderPage(unittest.TestCase):
         self.assertIn("sovereignsignal.eth", html)
         self.assertIn("another member signs off", html)
 
-    def test_reports_section_says_not_overdue(self):
+    def test_reports_section_never_asserts_not_overdue(self):
+        # The old block printed "Not overdue" from the *next* quarter, which
+        # kept saying it after a deadline had passed and /reports said OVERDUE.
         html = R.render(ctx(), "/provider/unruggable")
-        self.assertIn("No reports filed", html)
-        self.assertIn("Not overdue", html)
+        self.assertNotIn("Not overdue", html)
+        self.assertIn("2026Q3", html)
+
+
+def at(iso):
+    import calendar as _c, time as _t
+    return _c.timegm(_t.strptime(iso, "%Y-%m-%dT%H:%M:%SZ"))
+
+
+class TestReportDeadlines(unittest.TestCase):
+    """Q3 2026 reports are due 30 Oct (clause 6.3). On time all that day;
+    one grace day for the once-a-day forum poll; OVERDUE from 1 Nov."""
+
+    def page(self, iso, path):
+        c = ctx(now=at(iso))
+        return R.render(c, path)
+
+    def test_due_day_is_never_overdue(self):
+        for iso in ("2026-10-30T00:00:01Z", "2026-10-30T23:59:59Z"):
+            self.assertNotIn("OVERDUE", self.page(iso, "/reports"), iso)
+            self.assertNotIn("OVERDUE", self.page(iso, "/provider/goldsky"), iso)
+            self.assertIn("due today", self.page(iso, "/provider/goldsky"), iso)
+
+    def test_grace_day_waits_for_the_forum_poll(self):
+        html = self.page("2026-10-31T12:00:00Z", "/reports")
+        self.assertNotIn("OVERDUE", html)
+        self.assertIn("due yesterday", html)
+
+    def test_overdue_after_grace_on_every_page(self):
+        iso = "2026-11-01T00:00:01Z"
+        self.assertIn("OVERDUE", self.page(iso, "/reports"))
+        self.assertIn("OVERDUE", self.page(iso, "/provider/goldsky"))
+        self.assertIn("OVERDUE", self.page(iso, "/providers"))
+
+    def test_filed_report_is_never_overdue_and_links(self):
+        c = ctx(now=at("2027-02-05T00:00:00Z"))
+        ns = c["commitments"]["providers"]["namespace"]
+        filed = {r["quarter"] for r in ns.get("reports", [])}
+        self.assertIn("2026Q3", filed)
+        html = R.render(c, "/provider/namespace")
+        q3 = html[html.index(">2026Q3<"):html.index(">2026Q4<")]
+        self.assertNotIn("OVERDUE", q3)
+        self.assertIn(">filed</a>", q3)
+        self.assertIn("OVERDUE", html[html.index(">2026Q4<"):])
+
+    def test_home_keeps_q3_as_next_obligation_through_grace(self):
+        self.assertIn("2026Q3", self.page("2026-10-31T12:00:00Z", "/"))
+        self.assertIn("2026Q4", self.page("2026-11-01T00:00:01Z", "/"))
 
 
 class TestReportsPage(unittest.TestCase):
@@ -646,9 +721,29 @@ class TestPublicShare(unittest.TestCase):
         self.assertIn('property="og:title"', html)
         self.assertIn('rel="icon" href="/favicon.svg"', html)
 
-    def test_fluidkey_post_term_milestones_are_labelled(self):
+    def test_fluidkey_month_12_milestones_are_inside_the_term(self):
+        # Term is 1 Aug 2026 to 31 Jul 2027; Month 12 is July 2027.
         html = R.render(ctx(), "/provider/fluidkey")
-        self.assertIn("after the 12-month term", html)
+        self.assertIn("final month of the term", html)
+        self.assertNotIn("after the 12-month term", html)
+
+    def test_streams_page_prints_one_dollar_sign(self):
+        # .tick--row::before supplies the "$"; a literal one doubled it.
+        html = R.render(ctx(), "/streams")
+        self.assertNotIn('tick--row">$', html)
+        self.assertIn(".tick--row::before{content:\"$\"", html)
+
+    def test_calendar_follows_the_program_terms(self):
+        html = R.render(ctx(), "/calendar")
+        for date, text in (("2027-03-01", "annual reconciliation"),
+                           ("2027-07-30", "Q2 2027 reports due"),
+                           ("2027-09-29", "End-of-term reconciliation")):
+            self.assertIn(date, html)
+            self.assertIn(text, html)
+        self.assertNotIn("reconciliation window opens", html)
+        self.assertNotIn("clauses 4.4", html)
+        self.assertNotIn("2026-12-15", html)
+        self.assertIn(R.PROGRAM_TERMS_URL, html)
 
 
 if __name__ == "__main__":

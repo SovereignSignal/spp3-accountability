@@ -151,9 +151,29 @@ class TestDueState(unittest.TestCase):
         self.assertEqual(n["code"], "report_overdue")
         self.assertEqual(n["severity"], "critical")
 
+    def _at(self, iso):
+        import calendar, time as _t
+        now = calendar.timegm(_t.strptime(iso, "%Y-%m-%dT%H:%M:%SZ"))
+        return W.build_state(self.PROVIDERS, self.COMMITS, now,
+                             fetcher=lambda ref: "## Reports\n* **Q3 2026** — [Pending](https://x/t/#)\n")
+
+    def test_due_day_and_grace_day_are_not_overdue(self):
+        # Due 30 Oct: on time all day; the daily poll sees a late-day filing
+        # on 31 Oct, so that day must not page the committee as overdue.
+        for iso in ("2026-10-30T23:59:59Z", "2026-10-31T23:59:59Z"):
+            self.assertEqual(self._at(iso)[0]["quarters"][0]["state"], "due soon", iso)
+        self.assertEqual(self._at("2026-11-01T00:00:01Z")[0]["quarters"][0]["state"], "overdue")
+
+    def test_only_forum_topics_count_as_filed(self):
+        # The URL becomes a link on the public tracker.
+        self.assertTrue(W.is_filed("https://discuss.ens.domains/t/slug/22/3"))
+        for url in ("javascript:alert(1)//t/x/123/4", "https://evil.example/t/a/1",
+                    "https://discuss.ens.domains.evil.example/t/a/1", "http://discuss.ens.domains/t/a/1"):
+            self.assertFalse(W.is_filed(url), url)
+
     def test_a_filed_report_is_never_overdue(self):
         st = self._state("2026-11-05",
-                         "## Reports\n* **Q3 2026** — [Posted](https://x/t/slug/22/3)\n")
+                         "## Reports\n* **Q3 2026** — [Posted](https://discuss.ens.domains/t/slug/22/3)\n")
         self.assertEqual(st[0]["quarters"][0]["state"], "filed")
         self.assertEqual(W.nudges(st), [])
 

@@ -32,3 +32,31 @@ class TestEvidenceCopy(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestZeroPriceRecords(unittest.TestCase):
+    """27 of the API's records are zero-price transfers through other
+    contracts. Shown unexplained, they read as sales that never settled."""
+
+    def test_headline_counts_zero_price_records_separately(self):
+        doc = {'now': 1791058211, 'grails': {'observed_at': '2026-10-03T20:10:11Z',
+               'observed': {'api_sales': 52, 'exclusions': {'zero_value': 27}}}}
+        html = G.marketplace_summary(doc)
+        self.assertIn('52 API sale records observed, 27 of them zero-price and excluded from volume', html)
+
+    def test_zero_price_rows_are_labelled_not_unsettled(self):
+        import grails_chain_view as V
+        tx = '0x' + 'a' * 64
+        doc = {'now': 1791058211, 'grails': {'snapshot_id': 's'}, 'grails_chain': {
+            'observed_at': '2026-10-03T20:10:11Z', 'source_snapshot_id': 's',
+            'settlements': {'statuses': {'matched': 1, 'no_matching_fill': 1}},
+            'recent_results': [
+                {'name': 'free.eth', 'transaction_hash': tx, 'amount_raw': '0',
+                 'settlement': {'status': 'no_matching_fill'}},
+                {'name': 'paid.eth', 'transaction_hash': tx, 'amount_raw': '5',
+                 'settlement': {'status': 'no_matching_fill'}}]}}
+        html = V.chain_section(doc)
+        self.assertIn('zero price, excluded', html)
+        self.assertIn('not counted in totals', html)
+        # A priced record with no fill is still reported as unmatched.
+        self.assertIn('>no_matching_fill</span>', html)
