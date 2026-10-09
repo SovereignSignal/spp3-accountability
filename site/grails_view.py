@@ -35,8 +35,11 @@ def marketplace_summary(ctx):
     doc = ctx.get("grails") or {}
     body = "No successful measurement snapshot is available yet."
     if doc:
-        body = "%s API sales observed. Snapshot: %s. %s." % (
-            doc.get("observed", {}).get("api_sales", "Unknown"),
+        obs = doc.get("observed", {})
+        zero = (obs.get("exclusions") or {}).get("zero_value")
+        body = "%s API sale records observed%s. Snapshot: %s. %s." % (
+            obs.get("api_sales", "Unknown"),
+            (", %s of them zero-price and excluded from volume" % zero) if zero else "",
             doc.get("observed_at", "Unknown"),
             freshness(doc, ctx.get("now", datetime.now(timezone.utc).timestamp())))
     return ('<section><h2>Collected observations</h2><p class="prose">%s</p>'

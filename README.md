@@ -12,10 +12,8 @@ The site is a read-only renderer over committed evidence. HTTP requests do not m
 
 Public surfaces:
 
-- **Overview**: SPP3 program state and funded entities.
-- **Providers**: award scope, provisional commitments, reports and evidence review.
-- **Marketplace**: Nomentum Labs / Grails award structure and release gates.
-- **Measurements**: Grails observations, settlement checks, registrar coverage and measurement limitations.
+- **Overview**: SPP3 program state and the five funded providers.
+- **Providers**: each provider's award, scope, provisional commitments and filed reports. Nomentum Labs (Grails), selected through the marketplace RFP, is one of them: its page at `/provider/nomentum` carries the award structure and release gates, and `/provider/nomentum/measurements` the Grails observations, settlement checks, registrar coverage and measurement limits.
 - **Ledger**: unified program financial position from discrete USDC transfers plus continuous USDCx delivery.
 - **Streams**: live Superfluid rate health and event-derived delivered amounts.
 - **Reports**: quarterly filing status.
@@ -55,7 +53,7 @@ Alert state is keyed by distinct fault, so a new fault is not hidden by an older
 
 The ledger combines two independent event classes:
 
-- **USDC custody**: every USDC transfer into/out of `stream.mg.wg.ens.eth`.
+- **USDC custody**: every USDC transfer into or out of `stream.mg.wg.ens.eth` from block 25,650,000 (SPP3 start). The pod's $731.93 balance from before then is outside the ledger, so net USDC can differ from the pod balance by that amount.
 - **USDCx delivery**: Superfluid stream history checkpointed against CFA state and incrementally updated from `FlowUpdated` events.
 
 The historical bootstrap is valid because each current SPP3 stream's CFA `lastUpdated` was at or before the 1 Aug 2026 SPP3 epoch. Future rate changes, stops and restarts are ingested incrementally and reconciled against live CFA reads.
@@ -88,7 +86,7 @@ The Grails workflow:
 - fails closed on incomplete traversal, conflicting source data, invalid bootstrap evidence or unavailable required verification;
 - publishes a new committed snapshot only after verification.
 
-The on-chain ledger workflow refreshes its checkpoint and publishes only verified changes.
+The on-chain ledger workflow publishes only when every stream's event-derived rate matches a live CFA read and no flow event is unexplained. Otherwise it exits non-zero, prints the mismatch and keeps the previous checkpoint, so the gap is rescanned on the next run. Checkpoints stop 64 blocks short of the head.
 
 Railway auto-deploys `master`.
 
@@ -97,7 +95,7 @@ Railway auto-deploys `master`.
 | File | Source | Hand-edit? |
 |---|---|---|
 | `data/providers.json` | human-maintained program config | yes, then test |
-| `data/commitments.json` | human-maintained award/evidence model | yes, then test |
+| `data/commitments.json` | human-maintained award/evidence model; `report_watcher.py` also appends filed reports and pushes | yes, after pulling, then test |
 | `data/calendar.json` | human-maintained program calendar | yes |
 | `data/streams/status.json` | stream monitor | never |
 | `data/onchain/ledger.json` | Ethereum ledger workflow | never |
@@ -108,14 +106,15 @@ Railway auto-deploys `master`.
 
 ```bash
 python3 -m unittest discover -s tests -v
+PORT=8080 python3 site/server.py
 
 python3 scripts/stream_monitor.py --dry-run
-python3 scripts/stream_monitor.py
-python3 scripts/stream_monitor.py --heartbeat
-
+python3 scripts/report_watcher.py --dry-run
 python3 scripts/ledger.py --dry-run
 python3 scripts/grails_measurements.py --output-dir /tmp/grails-check --raw-dir /tmp/grails-raw
 ```
+
+These write nothing and send nothing. Without `--dry-run`, the monitor, watcher and ledger commit to `master`, push, and can send Telegram alerts: run them that way only on the committee host or in CI.
 
 The project intentionally remains Python standard-library only.
 
@@ -141,7 +140,3 @@ These are documented gaps, not bugs:
 - authoritative Grails fill-venue evidence for the current API-origin records.
 
 Until those inputs exist, corresponding gate/milestone results remain pending.
-
-## Production verification
-
-As of **2026-10-03**, CI, the production Grails refresh, Railway deployment, health endpoint, on-chain ledger, registrar evidence and public measurement surfaces were verified after the final implementation pass.

@@ -76,7 +76,13 @@ def chain_section(ctx):
         st = row.get('settlement', {}).get('status', 'unavailable')
         venue = row.get('venue') or {}
         venue_note = (' · fill venue: '+esc(venue.get('filled_via') or 'unknown')+' (app report)') if venue else ''
-        recent.append('<li class="check check--'+('ok' if st == 'matched' else 'wait')+'"><span class="check__label">'+esc(row.get('name', ''))+'<span class="check__why">'+link+venue_note+'</span></span><span class="check__val">'+esc(st)+'</span></li>')
+        shown = st
+        if st == 'no_matching_fill' and str(row.get('amount_raw')) == '0':
+            # Zero-price API records (transfers through other contracts) have no
+            # Seaport fill to match; unexplained, they read as unsettled sales.
+            shown = 'zero price, excluded'
+            venue_note += ' · API price 0; settled outside the Seaport check; not counted in totals'
+        recent.append('<li class="check check--'+('ok' if st == 'matched' else 'wait')+'"><span class="check__label">'+esc(row.get('name', ''))+'<span class="check__why">'+link+venue_note+'</span></span><span class="check__val">'+esc(shown)+'</span></li>')
     method = ''
     if r.get('retrieval'):
         method = ('<p class="drift drift--info"><b>Coverage basis:</b> '+esc(r.get('completeness_basis', 'unavailable'))+
@@ -84,7 +90,7 @@ def chain_section(ctx):
                   'The index supplies completeness; receipts supply event integrity.</p>')
     return ('<section><h2>Independent on-chain checks</h2><p class="drift drift--info">'+esc(note)+' Checked '+esc(doc.get('observed_at'))+'; finalized block '+esc(doc.get('finalized_block'))+'.</p>'
             '<p class="prose">A matched sale has an allowlisted Seaport fill, matching ENS asset, participants, fee-inclusive amount and NFT transfer. Grails venue attribution remains API-reported. No gate is approved.</p>'
-            '<ul>'+''.join(rows)+'</ul><p class="colnote">Settlement outcomes: '+statuses+'</p>'+venue_section(doc)+
+            '<ul>'+''.join(rows)+'</ul><p class="colnote">Settlement outcomes: '+statuses+'. no_matching_fill covers zero-price API records, which settle outside the Seaport check and are not counted in any total.</p>'+venue_section(doc)+
             '<h3>ENS registrations and renewals</h3><p class="prose">Coverage: '+esc(r.get('coverage', 'unavailable'))+'. '+esc(r.get('start', ''))+' through '+esc(r.get('through_timestamp', ''))+'.</p>'+method+
             '<p class="prose">'+esc(r.get('registrations', 'unavailable'))+' registrations; '+esc(r.get('renewals', 'unavailable'))+' renewals; '+esc(r.get('distinct_registered_owners', 'unavailable'))+' distinct registered owners. On-chain protocol revenue in this scanned range: '+esc(amount(r.get('protocol_revenue_wei')))+' ETH.</p>'
             '<p class="colnote">Covers the two configured ENSv1 referral contracts. These events carry the Grails referrer tag. An owner or transaction initiator is not a verified paying user. Backfill totals are partial until coverage is current. USD revenue, signing baseline and official gate results remain unavailable.</p>'
