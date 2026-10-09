@@ -164,9 +164,16 @@ class TestDueState(unittest.TestCase):
             self.assertEqual(self._at(iso)[0]["quarters"][0]["state"], "due soon", iso)
         self.assertEqual(self._at("2026-11-01T00:00:01Z")[0]["quarters"][0]["state"], "overdue")
 
+    def test_only_forum_topics_count_as_filed(self):
+        # The URL becomes a link on the public tracker.
+        self.assertTrue(W.is_filed("https://discuss.ens.domains/t/slug/22/3"))
+        for url in ("javascript:alert(1)//t/x/123/4", "https://evil.example/t/a/1",
+                    "https://discuss.ens.domains.evil.example/t/a/1", "http://discuss.ens.domains/t/a/1"):
+            self.assertFalse(W.is_filed(url), url)
+
     def test_a_filed_report_is_never_overdue(self):
         st = self._state("2026-11-05",
-                         "## Reports\n* **Q3 2026** — [Posted](https://x/t/slug/22/3)\n")
+                         "## Reports\n* **Q3 2026** — [Posted](https://discuss.ens.domains/t/slug/22/3)\n")
         self.assertEqual(st[0]["quarters"][0]["state"], "filed")
         self.assertEqual(W.nudges(st), [])
 

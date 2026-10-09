@@ -40,6 +40,7 @@ LIST_RE = re.compile(r"^\s*[*\-+]\s+")
 HEADING_RE = re.compile(r"^\s*#{1,6}\s")
 REPORTS_HEADING_RE = re.compile(r"^\s*#{1,6}\s.*\breports\b", re.I)
 # A real reference is /t/<slug>/<id> or /t/<id>, optionally /<post_no>.
+FORUM_ORIGIN = "https://discuss.ens.domains"
 REAL_TOPIC_RE = re.compile(r"/t/(?:[^/\s]+/)?\d+(?:/\d+)?")
 
 STATE_PATH = C.LOG_DIR / "reports-state.json"
@@ -71,6 +72,10 @@ def normalise_quarter(text):
 def is_filed(url):
     """True when the link points at a real topic rather than a placeholder."""
     if not url:
+        return False
+    # Forum topics only. The URL is published as a link on the tracker, so a
+    # thread edit pointing anywhere else (or at javascript:) is not a filing.
+    if not url.strip().startswith(FORUM_ORIGIN + "/"):
         return False
     return bool(REAL_TOPIC_RE.search(url))
 

@@ -69,6 +69,23 @@ def _esc(s):
     return html.escape(str(s))
 
 
+def _href(url):
+    """Escaped URL safe for an href, or None. Links reach the page from forum
+    posts, provider APIs and hand-kept data; escaping alone still lets a
+    javascript: URL through, so only web links and site paths qualify."""
+    u = str(url or "").strip()
+    if u.lower().startswith(("https://", "http://")) or (
+            u.startswith("/") and not u.startswith("//")):
+        return _esc(u)
+    return None
+
+
+def _link(url, text):
+    """An external link, or the bare text when the URL does not qualify."""
+    h = _href(url)
+    return ('<a href="%s" target="_blank" rel="noopener">%s</a>' % (h, text)) if h else text
+
+
 def _usd(wei_s):
     return wei_s * SECONDS_PER_YEAR / 10**18
 
@@ -548,7 +565,10 @@ def page_provider(ctx, slug):
                 '<span class="ms__state">%s</span></li>' % (
                     _esc(m.get("title", "")),
                     _esc(" &middot; ".join(m.get("kpis") or [])) or "&mdash;",
-                    _esc(m.get("status", "not started")))
+                    # A delivery status shows only when it cites a source.
+                    # The old default, "not started" on every row, read as a
+                    # finding that named providers had not begun their work.
+                    _esc(m["status"]) if m.get("status") and m.get("status_source") else "")
                 for m in by_q[q])
             q_lbl = q
             if q == "2027Q3":
@@ -564,8 +584,9 @@ def page_provider(ctx, slug):
             'binding set is Award Notice Item 5, which is not yet in the committee '
             'workspace. Every entry was checked against a verbatim quote from the '
             'source document; none is committee-confirmed, and none counts toward the '
-            '80%% completion metric until reconciled.</p>%s' % (
-                len(ms), _esc(src or "#"), "".join(blocks)))
+            '80%% completion metric until reconciled. Delivery status is not assessed '
+            'here; see the provider\'s filed reports.</p>%s' % (
+                len(ms), _href(src) or "#", "".join(blocks)))
     else:
         milestones = (
             '<p class="empty">No commitments recorded yet.</p>'
@@ -583,17 +604,14 @@ def page_provider(ctx, slug):
                 continue
             ahead = True
         cls = {"filed": "ok", "overdue": "fault"}.get(state, "wait")
-        val = ('<a href="%s" target="_blank" rel="noopener">filed</a>'
-               % _esc(rep_.get("url", "")) if state == "filed" and rep_.get("url")
-               else text)
+        val = _link(rep_.get("url"), "filed") if state == "filed" and rep_ else text
         shown.append(
             '<li class="check check--%s"><span class="check__label">%s'
             '<span class="check__why">due %s</span></span>'
             '<span class="check__val">%s</span></li>' % (
                 cls, _esc(q["quarter"]), _fmt_iso_date(q["report_due"]), val))
     thread = c.get("report_thread", "")
-    watched = ('<p class="colnote">Its <a href="%s" target="_blank" '
-               'rel="noopener">forum thread</a> is polled daily.</p>' % _esc(thread)
+    watched = ('<p class="colnote">Its %s is polled daily.</p>' % _link(thread, "forum thread")
                if thread else
                '<p class="colnote">No forum thread is recorded, so nothing is being '
                'polled for this provider.</p>')
@@ -608,42 +626,37 @@ def page_provider(ctx, slug):
     else:
         delivered = _ticker(s.get("actual_wei_s", 0), epoch, "tick tick--hero")
 
+    # A filed quarterly report, shown as the provider filed it. The tracker is
+    # run by a committee member, so it makes no assessment here: no "verified"
+    # lists, no mapping of claims to milestones. That is the committee's call,
+    # and for a provider the operator is recused from, not the operator's.
     evidence_html = ""
-    evidence = (c.get("report_evidence") or {}).get("2026Q3")
-    if evidence:
+    for qk, evidence in sorted((c.get("report_evidence") or {}).items()):
         metrics = "".join(
             '<li class="check check--wait"><span class="check__label">%s'
-            '<span class="check__why">provider reported · not independently verified</span></span>'
+            '<span class="check__why">provider reported &middot; not independently verified</span></span>'
             '<span class="check__val">%s</span></li>' % (
                 _esc(x.get("label", "")), _esc(x.get("value", "")))
             for x in evidence.get("metrics") or [])
-        claims = "".join(
-            '<li class="check check--wait"><span class="check__label">%s'
-            '<span class="check__why">%s</span></span><span class="check__val">%s</span></li>' % (
-                _esc(x.get("milestone", "")), _esc(x.get("provider_claim", "")),
-                _esc(x.get("committee_status", "unreviewed")))
-            for x in evidence.get("milestone_claims") or [])
-        links = " · ".join(
-            '<a href="%s" target="_blank" rel="noopener">%s</a>' % (
-                _esc(x.get("url", "")), _esc(x.get("label", "")))
+        links = " &middot; ".join(
+            _link(x.get("url"), _esc(x.get("label", "")))
             for x in evidence.get("evidence") or [])
-        verified = "".join(
-            '<li class="check check--ok"><span class="check__label">%s'
-            '<span class="check__why">%s</span></span><span class="check__val">'
-            '<a href="%s" target="_blank" rel="noopener">%s</a></span></li>' % (
-                _esc(x.get("claim", "")), _esc(x.get("note", "")),
-                _esc(x.get("url", "")), _esc(x.get("status", "verified")))
-            for x in evidence.get("independent_verification") or [])
-        evidence_html = (
-            '<section><h2>Q3 evidence review</h2>'
-            '<p class="drift drift--info"><b>Provider report received; committee determination pending.</b> '
-            '%s Public artifacts can independently verify that work exists, but they do not by themselves '
-            'satisfy a binding Award Notice milestone.</p>'
-            '<h3>Independently verified artifacts</h3><ul>%s</ul>'
-            '<h3>Reported metrics, not independently verified</h3><ul>%s</ul>'
-            '<h3>Commitment mapping</h3><ul>%s</ul>'
-            '<p class="colnote">Provider evidence: %s</p></section>' % (
-                _esc(evidence.get("summary", "")), verified, metrics, claims, links))
+        notice = ('This tracker records what the provider filed and makes no '
+                  'assessment of it. Committee determination pending.')
+        if p.get("recusals"):
+            # ENS names stay lowercase, so the recusal leads its own sentence.
+            notice = "%s %s recused from %s. %s" % (
+                _esc(", ".join(p["recusals"])),
+                "is" if len(p["recusals"]) == 1 else "are", _esc(p["name"]), notice)
+        evidence_html += (
+            '<section><h2>%s report (provider-filed)</h2>'
+            '<p class="drift drift--info"><b>Provider-filed.</b> %s</p>'
+            '<p class="prose">%s%s</p>%s%s</section>' % (
+                _esc(qk), notice, _esc(evidence.get("summary", "")),
+                (' %s.' % _link(evidence["url"], "Read the report"))
+                if _href(evidence.get("url")) else "",
+                ('<h3>Reported metrics</h3><ul>%s</ul>' % metrics) if metrics else "",
+                ('<p class="colnote">Evidence the provider linked: %s</p>' % links) if links else ""))
 
     return (
         '<p class="lede">%s</p>'
@@ -699,8 +712,8 @@ def page_market_provider(ctx):
         value = ("current: %s" % _esc(current)) if current is not None else _esc(g.get("status", "pending"))
         source = ""
         if g.get("measurement_url"):
-            source = ' · <a href="%s" target="_blank" rel="noopener">%s</a>' % (
-                _esc(g.get("measurement_url", "")), _esc(g.get("measurement_source", "measurement source")))
+            source = ' · ' + _link(g.get("measurement_url"),
+                                   _esc(g.get("measurement_source", "measurement source")))
         gates.append(
             '<li class="check check--%s"><span class="check__label">$%s · %s'
             '<span class="check__why">%s · due %s%s</span></span><span class="check__val">%s</span></li>' % (
@@ -713,11 +726,17 @@ def page_market_provider(ctx):
     methodology = ""
     if method:
         methodology = (
-            '<h3>Measurement contract</h3><dl class="facts">'
+            '<h3>Tracker\'s reading of the gate terms</h3>'
+            '<p class="drift drift--info"><b>Not committee-adopted.</b> This is the '
+            'tracker\'s interpretation of the [7.1] marketplace RFP and the executable '
+            'proposal. The committee has not adopted it. Binding thresholds are set in '
+            'the Award Notice, which is not public.</p><dl class="facts">'
             '<dt>Q1 active wallets</dt><dd>%s</dd>'
             '<dt>Wallet dedupe</dt><dd>%s</dd>'
             '<dt>Term secondary volume</dt><dd>%s</dd>'
-            '<dt>Open parameter</dt><dd>%s; %s</dd>'
+            '<dt>Open questions</dt><dd>which wallet role counts and which actions '
+            'qualify; the term-end measurement window; anti-wash filters (%s); '
+            'minimum value (%s)</dd>'
             '</dl>' % (
                 _esc(active.get("method", "")), _esc(active.get("dedupe", "")),
                 _esc(secondary.get("method", "")),
@@ -762,8 +781,8 @@ def page_market_provider(ctx):
             _money(m.get("conditional_stream_usd", 0)), _esc(m.get("conditional_stream_status", "")),
             _money(m.get("performance_reserve_usd", 0)), _money(gated),
             _money(m.get("conditional_stream_usd", 0)), gates_html, _esc(m.get("scope", "")),
-            _esc(m.get("award_forum", "")), _esc(m.get("executable_forum", "")),
-            _esc(m.get("transaction_forum", ""))))
+            _href(m.get("award_forum")) or "#", _href(m.get("executable_forum")) or "#",
+            _href(m.get("transaction_forum")) or "#"))
 
 
 def page_ledger(ctx):
@@ -944,8 +963,7 @@ def _thread_rows(ctx, funded):
         if url:
             state = "ok"
             why = "polled daily for filed reports"
-            val = ('<a href="%s" target="_blank" rel="noopener">forum thread</a>'
-                   % _esc(url))
+            val = _link(url, "forum thread")
         else:
             state, why, val = "wait", "no thread recorded", "not watched"
         out.append(

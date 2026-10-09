@@ -147,7 +147,7 @@
       }
     },
     "measurement_methodology": {
-      "authority": "[7.1] SPP3 Marketplace RFP + executed Nomentum award",
+      "authority": "Tracker interpretation of [7.1] SPP3 Marketplace RFP + executed Nomentum award; draft, not committee-adopted. Binding thresholds are set in the Award Notice.",
       "q1_revenue": {
         "window": "2027-01-01 through 2027-03-31",
         "comparator": "at or above signing baseline",
@@ -169,7 +169,7 @@
           "Grails public completed-sales API",
           "Grails attribution queries / Ethereum registrar events"
         ],
-        "status": "method defined; automated collector pending"
+        "status": "draft method, not committee-adopted; automated collector pending"
       },
       "term_revenue_pace": {
         "measurement_at": "term end",
@@ -209,8 +209,7 @@
           "depends_on_external": null,
           "quote": "ENSv2-compatible smart contracts for activation and minting of subnames deployed on Sepolia.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ENSv2 Onchain Subnames Indexing Infrastructure Available",
@@ -219,18 +218,16 @@
           "depends_on_external": null,
           "quote": "Public API endpoint available for querying indexed activation and subname data.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Mainnet Launch & Integrations (ENSv2 subname contracts)",
           "target_quarter": "2026Q4",
           "kpis": [],
           "depends_on_external": "ensv2-mainnet",
-          "quote": "We can’t launch this without ENSv2 official contracts on mainnet.",
+          "quote": "We can\u2019t launch this without ENSv2 official contracts on mainnet.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Web Application Support for ENSv2 Subnames",
@@ -239,8 +236,7 @@
           "depends_on_external": "ensv2-mainnet",
           "quote": "Existing application updated to support ENSv2 activation, minting, and renewal workflows.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "New version of Mint Manager SDK Release",
@@ -249,8 +245,7 @@
           "depends_on_external": "ensv2-mainnet",
           "quote": "SDK updated to support ENSv2 activation, minting, and management workflows.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ENS component support for new subname issuing functionality",
@@ -259,8 +254,7 @@
           "depends_on_external": "ensv2-mainnet",
           "quote": "Support for new functionality added into ENS components",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "subname.dev: Core Protocol Infrastructure released on Sepolia",
@@ -269,8 +263,7 @@
           "depends_on_external": null,
           "quote": "ENSv2-compatible registry contracts supporting permissions, subregistries, and delegated management functionality deployed on Sepolia.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "subname.dev: Shared Indexing Infrastructure Available",
@@ -279,8 +272,7 @@
           "depends_on_external": null,
           "quote": "Production-ready indexer for contracts deployed through subname.dev.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "subname.dev: Managed CCIP Gateway Released",
@@ -289,8 +281,7 @@
           "depends_on_external": null,
           "quote": "Shared CCIP gateway service developed and hosted for projects using subname.dev.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "subname.dev: L2 Support Released",
@@ -299,8 +290,7 @@
           "depends_on_external": null,
           "quote": "subname.dev infrastructure deployed and operational on major Ethereum L2 networks.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "subname.dev: Self-Service Platform & SDK Release",
@@ -309,8 +299,7 @@
           "depends_on_external": null,
           "quote": "Web application released allowing users to deploy and configure a complete naming system without manual contract deployment.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ens.fun: Core Protocol Development & ENS Integration on Testnet",
@@ -319,8 +308,7 @@
           "depends_on_external": null,
           "quote": "Smart contracts for ENS-linked token creation",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ens.fun: Token Launch Platform (Frontend + Backend) on Testnet",
@@ -329,8 +317,7 @@
           "depends_on_external": null,
           "quote": "ens.fun web application.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ens.fun: Mainnet Launch & Ecosystem Adoption",
@@ -339,20 +326,18 @@
           "depends_on_external": null,
           "quote": "Mainnet deployment.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Monthly outreach to 50-75 organizations",
           "target_quarter": null,
           "kpis": [
-            "50–75 organizations contacted per month"
+            "50\u201375 organizations contacted per month"
           ],
           "depends_on_external": null,
-          "quote": "Identify and reach out to 50–75 organizations every month across Web2 and Web3",
+          "quote": "Identify and reach out to 50\u201375 organizations every month across Web2 and Web3",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "High-value partnerships with key industry players",
@@ -363,8 +348,7 @@
           "depends_on_external": null,
           "quote": "10 high-value partnerships with key industry players",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Custom subname minting services deployed for clients",
@@ -375,8 +359,7 @@
           "depends_on_external": null,
           "quote": "5 custom subname minting services deployed for clients",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Subname registrations live with a major wallet",
@@ -387,8 +370,7 @@
           "depends_on_external": null,
           "quote": "Subname registrations live with 1 major wallets",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Subnames enabled for new rollups/L2s",
@@ -399,8 +381,7 @@
           "depends_on_external": null,
           "quote": "Subnames enabled for 2 new rollups/L2s",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Subname registrations live with a payment-related app",
@@ -411,8 +392,7 @@
           "depends_on_external": null,
           "quote": "Subname registrations live with 1 payment-related apps",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Subname-as-a-service launched with a RaaS provider",
@@ -423,8 +403,7 @@
           "depends_on_external": null,
           "quote": "Subname-as-a-service launched with 1 RaaS provider",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Subname-as-a-service launched with a WaaS provider",
@@ -435,8 +414,7 @@
           "depends_on_external": null,
           "quote": "Subname-as-a-service launched with 1 WaaS provider",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Agents named through Namera",
@@ -447,8 +425,7 @@
           "depends_on_external": null,
           "quote": "10k agents (sub)named through Namera.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Web3 Enterprise client qualified and closed with ENS BD team",
@@ -459,8 +436,7 @@
           "depends_on_external": null,
           "quote": "1 Web3 Enterprise clients qualified and closed alongside the ENS BD team",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Web2 FinTech Enterprise client qualified and closed with ENS BD team",
@@ -471,8 +447,7 @@
           "depends_on_external": null,
           "quote": "1 Web2 FinTech Enterprise clients qualified and closed alongside the ENS BD team",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         }
       ],
       "reports": [
@@ -565,68 +540,6 @@
               "kind": "code",
               "supports": []
             }
-          ],
-          "milestone_claims": [
-            {
-              "milestone": "ENSv2 Onchain Subnames Infrastructure Development",
-              "provider_claim": "substantial progress",
-              "evidence_labels": [
-                "ENSv2 Sepolia demo",
-                "ENSv2 readiness forum post"
-              ],
-              "committee_status": "unreviewed"
-            },
-            {
-              "milestone": "ENSv2 Onchain Subnames Indexing Infrastructure Available",
-              "provider_claim": "not clearly evidenced in Q3 report",
-              "evidence_labels": [],
-              "committee_status": "unreviewed"
-            },
-            {
-              "milestone": "ENS component support for new subname issuing functionality",
-              "provider_claim": "ENS Components 2.0.0 released; additional ENSv2 compatibility underway",
-              "evidence_labels": [
-                "ENS Components 2.0.0"
-              ],
-              "committee_status": "unreviewed"
-            }
-          ],
-          "independent_verification": [
-            {
-              "claim": "ENSv2 onchain subname infrastructure exists on Sepolia",
-              "status": "verified public artifact",
-              "source": "ENS Forum development thread",
-              "url": "https://discuss.ens.domains/t/onchain-subnames-on-ensv2/22353",
-              "note": "Namespace publicly documented the ENSv2 subname demo and activation/minting flow on Aug 12."
-            },
-            {
-              "claim": "ENS Forge is an open-source ENSv1/ENSv2 SDK",
-              "status": "verified public artifact",
-              "source": "ENS Forum + npm",
-              "url": "https://discuss.ens.domains/t/ensforge-a-unified-typescript-sdk-for-ensv1-and-ensv2/22409",
-              "note": "Public release documents V1/V2 routing, writes, batching, migration and Sepolia ENSv2 support."
-            },
-            {
-              "claim": "ENS Components has public ENSv2 tooling",
-              "status": "verified public artifact",
-              "source": "npm package",
-              "url": "https://www.npmjs.com/package/@thenamespace/ens-components-v2",
-              "note": "Public package supports ENSv2 Sepolia; this verifies shipped tooling, not the binding milestone."
-            },
-            {
-              "claim": "Avatar/header metadata service is public and supports smart-wallet signature verification",
-              "status": "verified public artifact",
-              "source": "ENS Forum / public GitHub",
-              "url": "https://github.com/thenamespace/metadata-service",
-              "note": "Public documentation describes SIWE plus EIP-1271/EIP-6492 support."
-            }
-          ],
-          "unverified_claims": [
-            "871,975 total subnames issued",
-            "24.5M+ ENS resolutions processed",
-            "248 active namespaces",
-            "108 L2 registries deployed",
-            "15 high-value companies in active conversations"
           ]
         }
       }
@@ -645,8 +558,7 @@
           "depends_on_external": null,
           "quote": "pipeline ingests all v1 events and writes to any sink",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Pipeline indexes ENS v2 on Sepolia with dynamic registry expansion verified",
@@ -655,8 +567,7 @@
           "depends_on_external": null,
           "quote": "Pipeline also correctly indexes ENS v2 on Sepolia with dynamic registry expansion verified.",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Full unified API live on Sepolia and/or Mainnet, GraphQL and REST endpoints",
@@ -665,8 +576,7 @@
           "depends_on_external": null,
           "quote": "full unified API on Sepolia and/or Mainnet if available, GraphQL and REST endpoints live",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Hosted public endpoint with SLA commitment",
@@ -677,8 +587,7 @@
           "depends_on_external": null,
           "quote": "Hosted public endpoint with SLA commitment (99.5% uptime, with defined incident response)",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Mainnet launch support: BatchRegistrar burst processing, post-launch debugging, ABI updates",
@@ -689,8 +598,7 @@
           "depends_on_external": "ensv2-mainnet",
           "quote": "Mainnet launch support: BatchRegistrar burst processing, post-launch debugging, any ENS contract ABI updates handled within 72 hours of notice",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Multi-chain deployment (Base, Linea, Optimism, Arbitrum, Scroll)",
@@ -699,8 +607,7 @@
           "depends_on_external": null,
           "quote": "Multi-chain deployment (Base, Linea, Optimism, Arbitrum, Scroll)",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Open-source release of @goldsky/ens-plugin crate with documentation",
@@ -709,8 +616,7 @@
           "depends_on_external": null,
           "quote": "Open-source release of the @goldsky/ens-plugin crate with documentation",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         }
       ],
       "reports": [],
@@ -731,8 +637,7 @@
           "depends_on_external": null,
           "quote": "Launch of ENS8004.xyz enabling ENS names to function as ERC-8004 agent identities",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Continued development of ERC-8217 and supporting infrastructure for ENS-controlled agent records",
@@ -741,8 +646,7 @@
           "depends_on_external": null,
           "quote": "Continued development of ERC-8217 and supporting infrastructure enabling ENS-controlled agent records",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ENS Agent identity tooling expanded across supported chains and ecosystems",
@@ -751,8 +655,7 @@
           "depends_on_external": null,
           "quote": "ENS Agent identity tooling expanded across supported chains and ecosystems",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Advancement of ERC-8121 and trust infrastructure for ENS-based agents and context data",
@@ -761,8 +664,7 @@
           "depends_on_external": null,
           "quote": "Advancement of ERC-8121 and trust infrastructure for ENS-based agents and context data",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ENS Package Standard and DataURL infrastructure advanced with ETH.limo",
@@ -771,8 +673,7 @@
           "depends_on_external": null,
           "quote": "ENS Package Standard and DataURL infrastructure advanced in collaboration with ETH.limo",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Demonstration of verifiable agent identity, reputation, and data infrastructure on ENS",
@@ -781,8 +682,7 @@
           "depends_on_external": null,
           "quote": "Demonstration of verifiable agent identity, reputation, and data infrastructure built on ENS",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "EICC established with founding governance framework, charter, bylaws, and board structure",
@@ -791,8 +691,7 @@
           "depends_on_external": null,
           "quote": "EICC established with founding governance framework, charter, bylaws, and board structure",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "on.eth governance framework operational, with public procedures and transparency mechanisms",
@@ -801,8 +700,7 @@
           "depends_on_external": null,
           "quote": "on.eth governance framework operational, including public procedures and transparency mechanisms",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Assignment & Disputes Policy v1.0 published following community review",
@@ -811,8 +709,7 @@
           "depends_on_external": null,
           "quote": "Assignment & Disputes Policy v1.0 published following community review",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Migration framework for existing chain metadata completed and executed in staged batches",
@@ -821,8 +718,7 @@
           "depends_on_external": null,
           "quote": "Migration framework for existing chain metadata completed and executed in staged batches",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Expanded registry coverage and onboarding processes established for new chains",
@@ -831,8 +727,7 @@
           "depends_on_external": null,
           "quote": "Expanded registry coverage and onboarding processes established for new chains",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Independent security audit of on.eth resolver infrastructure completed and published",
@@ -841,8 +736,7 @@
           "depends_on_external": null,
           "quote": "Independent security audit of on.eth resolver infrastructure completed and published",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Long-term governance and sustainability framework for EICC and on.eth published",
@@ -851,8 +745,7 @@
           "depends_on_external": null,
           "quote": "Long-term governance and sustainability framework for EICC and on.eth published",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         }
       ],
       "reports": [],
@@ -873,8 +766,7 @@
           "depends_on_external": null,
           "quote": "Public RFC posted to the ENS forum for community feedback",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ENSIP for stealth address resolution submitted to ensdomains/ensips",
@@ -883,8 +775,7 @@
           "depends_on_external": null,
           "quote": "ENSIP for stealth address resolution submitted to ensdomains/ensips and opened for community discussion",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ERC-6538 bridge smart contract architecture specification published",
@@ -893,8 +784,7 @@
           "depends_on_external": null,
           "quote": "ERC-6538 bridge smart contract architecture specification published",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Verifier contract architecture specification published",
@@ -903,8 +793,7 @@
           "depends_on_external": null,
           "quote": "Verifier contract architecture specification published",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ENSIP advanced to Last Call (or beyond)",
@@ -913,8 +802,7 @@
           "depends_on_external": null,
           "quote": "ENSIP advanced to Last Call (or beyond), subject to community process",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Resolver kit beta published to npm",
@@ -923,8 +811,7 @@
           "depends_on_external": null,
           "quote": "Resolver kit beta published to npm (extends fluidkey-stealth-account-kit with the ENSIP-compliant resolver interface)",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ERC-6538 bridge smart contract deployed to testnet",
@@ -933,8 +820,7 @@
           "depends_on_external": null,
           "quote": "ERC-6538 bridge smart contract deployed to testnet",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Onchain verifier deployed to testnet",
@@ -943,8 +829,7 @@
           "depends_on_external": null,
           "quote": "Onchain verifier deployed to testnet",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Audits complete, public report released",
@@ -953,8 +838,7 @@
           "depends_on_external": null,
           "quote": "Audits complete, public report released",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "ERC-6538 contract deployed to mainnet and L2s",
@@ -963,8 +847,7 @@
           "depends_on_external": null,
           "quote": "ERC-6538 contract deployed to mainnet and L2s",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Verifier deployed to mainnet",
@@ -973,8 +856,7 @@
           "depends_on_external": null,
           "quote": "Verifier deployed to mainnet",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Fluidkey reference integration live across subname and BYO .eth flows",
@@ -983,8 +865,7 @@
           "depends_on_external": null,
           "quote": "Fluidkey reference integration live across both flows - subname issuance and bring-your-own .eth domain",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Integration guide published",
@@ -993,8 +874,7 @@
           "depends_on_external": null,
           "quote": "Integration guide published",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "Adoption report published (subnames, BYO names, transactions, installs/forks)",
@@ -1003,8 +883,7 @@
           "depends_on_external": null,
           "quote": "Adoption report published: subnames issued, BYO .eth names connected, stealth-resolved transactions, kit installs and forks",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         },
         {
           "title": "30,000+ ENS names using the stealth address verification module",
@@ -1015,8 +894,7 @@
           "depends_on_external": null,
           "quote": "+30,000 ENS names use the stealth address verification module, verifiable onchain, by month 12",
           "source": "application",
-          "confirmed": false,
-          "status": "not started"
+          "confirmed": false
         }
       ],
       "reports": [],

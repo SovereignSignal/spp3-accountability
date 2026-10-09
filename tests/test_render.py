@@ -157,31 +157,57 @@ class TestPerformanceEvidence(unittest.TestCase):
 
     def test_marketplace_exposes_gate_methodology_without_inventing_filters(self):
         html = R.render(ctx(), "/provider/nomentum")
-        self.assertIn("Measurement contract", html)
+        self.assertNotIn("Measurement contract", html)
+        self.assertIn("Tracker's reading of the gate terms", html)
+        self.assertIn("Not committee-adopted", html)
         self.assertIn("Count distinct wallet addresses", html)
         self.assertIn("anti-wash", html)
         self.assertIn("minimum-value", html)
         self.assertIn("must be frozen", html)
 
-    def test_namespace_separates_verified_artifacts_from_unverified_metrics(self):
+    def test_recused_providers_report_is_shown_as_filed_not_assessed(self):
+        # The operator is recused from Namespace. The page shows what Namespace
+        # filed and makes no assessment: no "verified" list, no claim mapping.
         html = R.render(ctx(), "/provider/namespace")
-        self.assertIn("Independently verified artifacts", html)
-        self.assertIn("ENSv2 onchain subname infrastructure exists on Sepolia", html)
-        self.assertIn("Reported metrics, not independently verified", html)
-        self.assertIn("24.5M+", html)
-
-    def test_namespace_q3_claims_are_not_presented_as_verified(self):
-        html = R.render(ctx(), "/provider/namespace")
-        self.assertIn("Q3 evidence review", html)
-        self.assertIn("Provider report received; committee determination pending", html)
+        self.assertIn("2026Q3 report (provider-filed)", html)
+        self.assertIn("sovereignsignal.eth is recused from Namespace", html)
+        self.assertIn("makes no assessment", html)
         self.assertIn("871,975", html)
+        self.assertIn("provider reported &middot; not independently verified", html)
         self.assertIn("ENSv2 Sepolia demo", html)
-        self.assertIn("unreviewed", html)
+        for phrase in ("Independently verified", "Commitment mapping", "evidence review",
+                       "unreviewed", "check--ok\"><span class=\"check__label\">ENSv2"):
+            self.assertNotIn(phrase, html)
 
     def test_other_providers_do_not_get_namespace_evidence(self):
         html = R.render(ctx(), "/provider/goldsky")
-        self.assertNotIn("Q3 evidence review", html)
+        self.assertNotIn("provider-filed", html)
         self.assertNotIn("871,975", html)
+
+    def test_no_milestone_carries_an_unsourced_status(self):
+        c = ctx()
+        for slug in ("namespace", "goldsky", "unruggable", "fluidkey"):
+            html = R.render(c, "/provider/" + slug)
+            self.assertNotIn(">not started<", html, slug)
+        c["commitments"]["providers"]["goldsky"]["milestones"][0].update(
+            status="delivered", status_source="https://discuss.ens.domains/t/1")
+        self.assertIn(">delivered<", R.render(c, "/provider/goldsky"))
+
+    def test_data_links_never_carry_script_urls(self):
+        # Report URLs come from provider-edited forum posts via report_watcher.
+        c = ctx()
+        g = c["commitments"]["providers"]["goldsky"]
+        g["reports"] = [{"quarter": "2026Q3", "url": "javascript:alert(1)//t/x/1/2"}]
+        g["report_thread"] = "JavaScript:alert(2)"
+        c["commitments"]["providers"]["namespace"]["report_evidence"]["2026Q3"]["evidence"].append(
+            {"label": "x", "url": " javascript:alert(3)"})
+        for path in ("/provider/goldsky", "/provider/namespace", "/reports"):
+            html = R.render(c, path).lower()
+            self.assertNotIn('href="javascript', html, path)
+            self.assertNotIn('href=" javascript', html, path)
+        self.assertEqual(R._href("https://discuss.ens.domains/t/1"), "https://discuss.ens.domains/t/1")
+        for bad in ("javascript:x", "data:text/html,x", "//evil.example", "vbscript:x", "\x01javascript:x"):
+            self.assertIsNone(R._href(bad), bad)
 
 
 
