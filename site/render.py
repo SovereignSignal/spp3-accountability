@@ -140,6 +140,57 @@ def _when(days):
     return "in %d days" % round(days) if days >= 1 else "today"
 
 
+def _days_until(datestr, now):
+    """Whole UTC calendar days from today to datestr: 0 all day on the date."""
+    try:
+        start = _cal.timegm(_time.strptime(datestr, "%Y-%m-%d"))
+    except (ValueError, TypeError):
+        return None
+    return int((start - (now - now % 86400)) // 86400)
+
+
+def _in_days(d):
+    if d is None:
+        return ""
+    if d == 0:
+        return "today"
+    if d == 1:
+        return "tomorrow"
+    return ("in %d days" % d) if d > 0 else ("%d days ago" % -d)
+
+
+# A report due on D is on time all of D (UTC). report_watcher polls the forum
+# once a day at 15:10 UTC, so a report filed late on D is first seen on D+1;
+# that day reads "due yesterday" instead of accusing a provider who filed on
+# time. OVERDUE starts the day after the grace day.
+REPORT_GRACE_DAYS = 1
+
+
+def _report_state(due, now, filed):
+    """(state, text) for one provider-quarter: filed, upcoming, today, grace
+    or overdue. Every page that shows report status goes through here."""
+    if filed:
+        return "filed", "filed"
+    d = _days_until(due, now)
+    if d is None:
+        return "upcoming", ""
+    if d > 0:
+        return "upcoming", _in_days(d)
+    if d == 0:
+        return "today", "due today"
+    if d >= -REPORT_GRACE_DAYS:
+        return "grace", "due yesterday &middot; checking the forum"
+    return "overdue", "OVERDUE &middot; %d days late" % -d
+
+
+def _quarter_rows(ctx, slug):
+    """Every reporting quarter for one provider with its state."""
+    filed = {r.get("quarter"): r for r in _commit(ctx, slug).get("reports", [])}
+    return [(q,) + _report_state(q["report_due"], ctx["now"], q["quarter"] in filed)
+            + (filed.get(q["quarter"]),)
+            for q in ctx["commitments"].get("quarters", [])]
+
+
 def _ticker(rate, since, cls="tick"):
     return ('<span class="%s" data-rate="%d" data-since="%d">'
             '<span class="acc__whole">0</span><span class="acc__frac">.00</span>'
@@ -246,9 +297,11 @@ def _financial_award(ctx, slug):
 
 
 def _next_quarter(ctx):
+    """The reporting quarter still in play: due today or later, or inside
+    the grace day. On the due date itself this is still that quarter."""
     for q in ctx["commitments"].get("quarters", []):
-        d = _days_to(q["report_due"], ctx["now"])
-        if d is not None and d >= 0:
+        d = _days_until(q["report_due"], ctx["now"])
+        if d is not None and d >= -REPORT_GRACE_DAYS:
             return q, d
     return None, None
 
@@ -404,12 +457,16 @@ def page_providers(ctx):
                  'lists %s as cohort-selected, but there is no funded stream. EthID '
                  'declined publicly on 3 July 2026. The chain is authoritative here.</p>'
                  % _esc(", ".join(ghosts)))
-    first_q = (ctx["commitments"].get("quarters") or [{}])[0]
-    first_due = _fmt_iso_date(first_q.get("report_due") or "") or "&mdash;"
     rows = []
     for p in _funded(ctx):
         s = _stream_for(ctx, p["slug"]) or {}
         c = _commit(ctx, p["slug"])
+        pending = [r for r in _quarter_rows(ctx, p["slug"]) if r[1] != "filed"]
+        next_report = "&mdash;"
+        if pending:
+            q, state, _text, _r = pending[0]
+            next_report = _fmt_iso_date(q["report_due"]) + (
+                " &middot; <b>OVERDUE</b>" if state == "overdue" else "")
         rows.append(
             '<li class="app app--%s"><span class="app__name">'
             '<a href="/provider/%s">%s</a></span>'
@@ -422,7 +479,7 @@ def page_providers(ctx):
                 "live" if s.get("ok") else "FAULT",
                 ("%d proposed" % len(c.get("milestones", [])))
                 if c.get("milestones") else "not recorded",
-                _esc(first_due)))
+                next_report))
     market = ctx["commitments"].get("marketplace_award") or {}
     lede = ('<p class="lede">Four providers ratified by EP&nbsp;6.49 and funded '
             'on-chain since 1 August 2026.</p>')
@@ -445,7 +502,7 @@ def page_providers(ctx):
     return (lede + drift +
             '<section><ul class="apps"><li class="app app--head">'
             '<span>Provider</span><span>Award</span><span>Stream</span>'
-            '<span>Commitments</span><span>First report</span></li>%s</ul></section>'
+            '<span>Commitments</span><span>Next report</span></li>%s</ul></section>'
             % "\n".join(rows))
 
 
@@ -518,26 +575,30 @@ def page_provider(ctx, slug):
             'denominator. An empty list here is an accurate statement of what is '
             'known, not a placeholder.</p>')
 
-    reports = c.get("reports", [])
-    if reports:
-        rrows = "".join('<li class="app"><span class="app__name">%s</span>'
-                        '<span class="app__gate">%s</span></li>'
-                        % (_esc(r.get("quarter", "")), _esc(r.get("url", "")))
-                        for r in reports)
-        reports_html = '<ul class="apps">%s</ul>' % rrows
-    else:
-        q, qdays = _next_quarter(ctx)
-        thread = c.get("report_thread", "")
-        watched = ('<p class="colnote">Its <a href="%s" target="_blank" '
-                   'rel="noopener">forum thread</a> is polled daily.</p>' % _esc(thread)
-                   if thread else
-                   '<p class="colnote">No forum thread is recorded, so nothing is being '
-                   'polled for this provider.</p>')
-        reports_html = ('<p class="empty">No reports filed.</p>'
-                        '<p class="colnote">First Quarterly Report covers %s and is due '
-                        '%s, %s. Not overdue.</p>' % (
-                            _esc(q["quarter"]), _esc(q["report_due"]), _when(qdays))
-                        if q else '<p class="empty">No reports filed.</p>') + watched
+    # Every quarter that is filed or has come due, plus the next one ahead.
+    shown, ahead = [], False
+    for q, state, text, rep_ in _quarter_rows(ctx, p["slug"]):
+        if state == "upcoming":
+            if ahead:
+                continue
+            ahead = True
+        cls = {"filed": "ok", "overdue": "fault"}.get(state, "wait")
+        val = ('<a href="%s" target="_blank" rel="noopener">filed</a>'
+               % _esc(rep_.get("url", "")) if state == "filed" and rep_.get("url")
+               else text)
+        shown.append(
+            '<li class="check check--%s"><span class="check__label">%s'
+            '<span class="check__why">due %s</span></span>'
+            '<span class="check__val">%s</span></li>' % (
+                cls, _esc(q["quarter"]), _fmt_iso_date(q["report_due"]), val))
+    thread = c.get("report_thread", "")
+    watched = ('<p class="colnote">Its <a href="%s" target="_blank" '
+               'rel="noopener">forum thread</a> is polled daily.</p>' % _esc(thread)
+               if thread else
+               '<p class="colnote">No forum thread is recorded, so nothing is being '
+               'polled for this provider.</p>')
+    reports_html = ('<ul>%s</ul>' % "\n".join(shown) if shown
+                    else '<p class="empty">No reporting quarters recorded.</p>') + watched
 
     hist = _history_for(ctx, p["slug"])
     if hist:
@@ -899,16 +960,16 @@ def page_reports(ctx):
     funded = _funded(ctx)
     rows = []
     for q in ctx["commitments"].get("quarters", []):
-        d = _days_to(q["report_due"], ctx["now"])
         filed = sum(1 for p in funded
                     if any(r.get("quarter") == q["quarter"]
                            for r in _commit(ctx, p["slug"]).get("reports", [])))
-        if d is not None and d < 0 and filed < len(funded):
-            state, val = "fault", "%d of %d filed &middot; OVERDUE" % (filed, len(funded))
-        elif filed == len(funded):
+        due_state, due_text = _report_state(q["report_due"], ctx["now"], False)
+        if filed == len(funded):
             state, val = "ok", "%d of %d filed" % (filed, len(funded))
+        elif due_state == "overdue":
+            state, val = "fault", "%d of %d filed &middot; OVERDUE" % (filed, len(funded))
         else:
-            state, val = "wait", "%d of %d filed &middot; %s" % (filed, len(funded), _when(d))
+            state, val = "wait", "%d of %d filed &middot; %s" % (filed, len(funded), due_text)
         rows.append(
             '<li class="check check--%s"><span class="check__label">%s'
             '<span class="check__why">quarter ends %s, report due %s</span></span>'
@@ -943,13 +1004,13 @@ def page_calendar(ctx):
              if m.get("track") != "rfp"]
     nxt = None
     for m in shown:
-        d = _days_to(m["date"], ctx["now"])
+        d = _days_until(m["date"], ctx["now"])
         if not (m.get("done") or (d is not None and d < 0)):
             nxt = m
             break
     items = []
     for m in shown:
-        d = _days_to(m["date"], ctx["now"])
+        d = _days_until(m["date"], ctx["now"])
         past = m.get("done") or (d is not None and d < 0)
         items.append(
             '<li class="mile mile--%s%s"><span class="mile__date">%s</span>'
@@ -958,7 +1019,7 @@ def page_calendar(ctx):
                 "past" if past else m.get("track", ""),
                 " mile--next" if (nxt is m) else "", _esc(m["date"]),
                 _esc(m["label"]), _esc(m.get("track", "")),
-                "" if past else _when(d)))
+                "" if past else _in_days(d)))
     return ('<p class="lede">Cohort obligations through the end of term, fixed by '
             'EP&nbsp;6.49 and Program Terms clauses 4.4 and 6.1&ndash;6.5.</p>'
             '<section><ul class="miles">%s</ul></section>' % "\n".join(items))

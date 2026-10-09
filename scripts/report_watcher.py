@@ -44,6 +44,10 @@ REAL_TOPIC_RE = re.compile(r"/t/(?:[^/\s]+/)?\d+(?:/\d+)?")
 
 STATE_PATH = C.LOG_DIR / "reports-state.json"
 DUE_SOON_DAYS = 7
+# Same rule as the site (render.REPORT_GRACE_DAYS): a report is on time all of
+# its due date in UTC, and this job polls once a day, so the day after reads as
+# due rather than overdue. Overdue starts the day after that.
+REPORT_GRACE_DAYS = 1
 
 
 # ---------------------------------------------------------------- parsing
@@ -170,10 +174,10 @@ def build_state(providers, commitments, now, fetcher=None):
         rows = []
         for q in quarters:
             qk, due = q["quarter"], q["report_due"]
-            days = (_due_ts(due) - now) / 86400.0
+            days = int((_due_ts(due) - (now - now % 86400)) // 86400)
             if qk in found:
                 state = "filed"
-            elif days < 0:
+            elif days < -REPORT_GRACE_DAYS:
                 state = "overdue"
             elif days <= DUE_SOON_DAYS:
                 state = "due soon"

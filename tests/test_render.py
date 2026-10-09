@@ -373,10 +373,58 @@ class TestProviderPage(unittest.TestCase):
         self.assertIn("sovereignsignal.eth", html)
         self.assertIn("another member signs off", html)
 
-    def test_reports_section_says_not_overdue(self):
+    def test_reports_section_never_asserts_not_overdue(self):
+        # The old block printed "Not overdue" from the *next* quarter, which
+        # kept saying it after a deadline had passed and /reports said OVERDUE.
         html = R.render(ctx(), "/provider/unruggable")
-        self.assertIn("No reports filed", html)
-        self.assertIn("Not overdue", html)
+        self.assertNotIn("Not overdue", html)
+        self.assertIn("2026Q3", html)
+
+
+def at(iso):
+    import calendar as _c, time as _t
+    return _c.timegm(_t.strptime(iso, "%Y-%m-%dT%H:%M:%SZ"))
+
+
+class TestReportDeadlines(unittest.TestCase):
+    """Q3 2026 reports are due 30 Oct (clause 6.3). On time all that day;
+    one grace day for the once-a-day forum poll; OVERDUE from 1 Nov."""
+
+    def page(self, iso, path):
+        c = ctx(now=at(iso))
+        return R.render(c, path)
+
+    def test_due_day_is_never_overdue(self):
+        for iso in ("2026-10-30T00:00:01Z", "2026-10-30T23:59:59Z"):
+            self.assertNotIn("OVERDUE", self.page(iso, "/reports"), iso)
+            self.assertNotIn("OVERDUE", self.page(iso, "/provider/goldsky"), iso)
+            self.assertIn("due today", self.page(iso, "/provider/goldsky"), iso)
+
+    def test_grace_day_waits_for_the_forum_poll(self):
+        html = self.page("2026-10-31T12:00:00Z", "/reports")
+        self.assertNotIn("OVERDUE", html)
+        self.assertIn("due yesterday", html)
+
+    def test_overdue_after_grace_on_every_page(self):
+        iso = "2026-11-01T00:00:01Z"
+        self.assertIn("OVERDUE", self.page(iso, "/reports"))
+        self.assertIn("OVERDUE", self.page(iso, "/provider/goldsky"))
+        self.assertIn("OVERDUE", self.page(iso, "/providers"))
+
+    def test_filed_report_is_never_overdue_and_links(self):
+        c = ctx(now=at("2027-02-05T00:00:00Z"))
+        ns = c["commitments"]["providers"]["namespace"]
+        filed = {r["quarter"] for r in ns.get("reports", [])}
+        self.assertIn("2026Q3", filed)
+        html = R.render(c, "/provider/namespace")
+        q3 = html[html.index(">2026Q3<"):html.index(">2026Q4<")]
+        self.assertNotIn("OVERDUE", q3)
+        self.assertIn(">filed</a>", q3)
+        self.assertIn("OVERDUE", html[html.index(">2026Q4<"):])
+
+    def test_home_keeps_q3_as_next_obligation_through_grace(self):
+        self.assertIn("2026Q3", self.page("2026-10-31T12:00:00Z", "/"))
+        self.assertIn("2026Q4", self.page("2026-11-01T00:00:01Z", "/"))
 
 
 class TestReportsPage(unittest.TestCase):
