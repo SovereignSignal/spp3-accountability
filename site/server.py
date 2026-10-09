@@ -31,18 +31,24 @@ CHAIN_FEEDS = {
 }
 
 
-def _marketplace(ctx):
-    return R.page_marketplace(ctx) + G.marketplace_summary(ctx)
+MARKET_PAGE = "/provider/" + R.MARKET_SLUG
+MEASUREMENTS_PAGE = MARKET_PAGE + "/measurements"
+# The marketplace winner was briefly its own top-level section. Old links keep
+# working; the provider page is the one place it lives now.
+REDIRECTS = {"/marketplace": MARKET_PAGE, "/marketplace/measurements": MEASUREMENTS_PAGE}
+
+
+def _market_provider(ctx):
+    body = R.page_market_provider(ctx)
+    return None if body is None else body + G.marketplace_summary(ctx)
 
 
 def _measurements(ctx):
     return H.chain_section(ctx) + G.page_measurements(ctx)
 
 
-R.ROUTES["/marketplace"] = ("Marketplace", _marketplace)
-R.ROUTES["/marketplace/measurements"] = ("Grails measurements", _measurements)
-if not any(path == "/marketplace/measurements" for path, _ in R.NAV):
-    R.NAV.insert(3, ("/marketplace/measurements", "Measurements"))
+R.ROUTES[MARKET_PAGE] = ("Nomentum Labs", _market_provider)
+R.ROUTES[MEASUREMENTS_PAGE] = ("Grails measurements", _measurements)
 
 
 def _optional(path):
@@ -101,7 +107,12 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?", 1)[0].rstrip("/") or "/"
         try:
-            if path == "/status.json":
+            if path in REDIRECTS:
+                self.send_response(301)
+                self.send_header("Location", REDIRECTS[path])
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+            elif path == "/status.json":
                 self._send(200, STATUS.read_text(), "application/json")
             elif path == "/ledger.json":
                 self._send(200, LEDGER.read_text(), "application/json")
