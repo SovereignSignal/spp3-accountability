@@ -27,7 +27,7 @@ def ctx(now=None):
     }
 
 
-ALL_PAGES = ["/", "/providers", "/marketplace", "/ledger", "/streams", "/reports", "/calendar",
+ALL_PAGES = ["/", "/providers", "/provider/nomentum", "/ledger", "/streams", "/reports", "/calendar",
              "/provider/namespace", "/provider/goldsky",
              "/provider/unruggable", "/provider/fluidkey"]
 
@@ -141,7 +141,7 @@ class TestHistoricalFinancials(unittest.TestCase):
 
 class TestPerformanceEvidence(unittest.TestCase):
     def test_marketplace_renders_all_release_gates_as_pending(self):
-        html = R.render(ctx(), "/marketplace")
+        html = R.render(ctx(), "/provider/nomentum")
         for text in ("ENSv2 readiness", "Attributed protocol revenue",
                      "Distinct value-transacting wallets",
                      "Filtered secondary volume"):
@@ -150,13 +150,13 @@ class TestPerformanceEvidence(unittest.TestCase):
         self.assertNotIn(">verified</span>", html)
 
     def test_grails_gates_link_independent_measurement_sources(self):
-        html = R.render(ctx(), "/marketplace")
+        html = R.render(ctx(), "/provider/nomentum")
         self.assertIn("dune.com/queries/8064446", html)
         self.assertIn("api.grails.app/api/v1/leaderboard", html)
         self.assertIn("must be frozen before the secondary-volume gate can be scored", html)
 
     def test_marketplace_exposes_gate_methodology_without_inventing_filters(self):
-        html = R.render(ctx(), "/marketplace")
+        html = R.render(ctx(), "/provider/nomentum")
         self.assertIn("Measurement contract", html)
         self.assertIn("Count distinct wallet addresses", html)
         self.assertIn("anti-wash", html)
@@ -188,7 +188,7 @@ class TestPerformanceEvidence(unittest.TestCase):
 class TestMarketplacePage(unittest.TestCase):
     def test_marketplace_award_is_first_class(self):
         c = ctx()
-        html = R.render(c, "/marketplace")
+        html = R.render(c, "/provider/nomentum")
         self.assertIn("Nomentum Labs", html)
         self.assertIn("Grails", html)
         self.assertIn("$500,000", html)
@@ -197,14 +197,29 @@ class TestMarketplacePage(unittest.TestCase):
         self.assertIn("$" + R._money(paid), html)
 
     def test_conditional_stream_is_not_presented_as_live(self):
-        html = R.render(ctx(), "/marketplace")
+        html = R.render(ctx(), "/provider/nomentum")
         self.assertIn("not opened", html)
         self.assertIn("not represented as live", html)
 
-    def test_overview_links_marketplace(self):
-        html = R.render(ctx(), "/")
-        self.assertIn('href="/marketplace"', html)
-        self.assertIn("Marketplace award", html)
+    def test_marketplace_winner_is_a_provider_not_a_section(self):
+        # Owner direction 2026-10-09: the RFP winner is a provider like the
+        # cohort, so it lives under Providers, not in its own nav section.
+        c = ctx()
+        for path in ALL_PAGES:
+            html = R.render(c, path)
+            self.assertNotIn('href="/marketplace"', html, path)
+            self.assertNotIn(">Marketplace</a>", html, path)
+        home = R.render(c, "/")
+        self.assertIn('href="/provider/nomentum"', home)
+        self.assertNotIn("Marketplace award", home)
+        providers = R.render(c, "/providers")
+        self.assertIn('href="/provider/nomentum">Nomentum Labs</a>', providers)
+        self.assertIn("Five providers", providers)
+
+    def test_nomentum_page_sits_under_providers(self):
+        html = R.render(ctx(), "/provider/nomentum")
+        self.assertIn('class="nav__link is-active" href="/providers"', html)
+        self.assertIn("<title>Nomentum Labs ·", html)
 
 
 class TestScope(unittest.TestCase):
@@ -264,8 +279,10 @@ class TestCohortAuthority(unittest.TestCase):
         # EthID declined 2026-07-03; the Pipeline DB still says "Cohort selected".
         html = R.render(ctx(), "/providers")
         rows = re.findall(r'app__name"><a[^>]*>([^<]+)</a>', html)
+        # Nomentum Labs is the marketplace RFP winner, listed as a provider.
         self.assertEqual(sorted(rows),
-                         ["Fluidkey", "Goldsky", "Namespace", "Unruggable"])
+                         ["Fluidkey", "Goldsky", "Namespace", "Nomentum Labs", "Unruggable"])
+        self.assertNotIn("EthID", rows)
 
     def test_drift_is_surfaced_when_the_board_disagrees_with_the_chain(self):
         # Written against a synthetic ghost, not against EthID. The original

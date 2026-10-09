@@ -37,7 +37,7 @@ def marketplace_summary(ctx):
             doc.get("observed_at", "Unknown"),
             freshness(doc, ctx.get("now", datetime.now(timezone.utc).timestamp())))
     return ('<section><h2>Collected observations</h2><p class="prose">%s</p>'
-            '<p class="prose"><a href="/marketplace/measurements">Open Grails measurements and transaction evidence</a>'
+            '<p class="prose"><a href="/provider/nomentum/measurements">Open Grails measurements and transaction evidence</a>'
             '</p><p class="colnote">Read-only observations. No gate is approved or paid by this collector.</p></section>' % esc(body))
 
 
@@ -46,7 +46,7 @@ def page_measurements(ctx):
     intro = ('<h2>API-reported observations</h2><p class="lede">These Grails API buyer and volume '
              'counts are provisional. The API collector receipt checks below establish transaction success only. '
              'Independent settlement and registrar checks are reported separately.</p>'
-             '<p class="prose"><a href="/marketplace">Back to Marketplace</a> · '
+             '<p class="prose"><a href="/provider/nomentum">Back to Nomentum Labs</a> · '
              '<a href="/grails.json">Snapshot JSON</a> · <a href="/grails-sales.json">Sale evidence JSON</a></p>')
     if not doc:
         return intro + '<p class="drift">Collector data unavailable. This is not a zero-sales observation.</p>'

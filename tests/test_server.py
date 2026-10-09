@@ -18,6 +18,25 @@ class TestPublicSurface(unittest.TestCase):
         self.assertIn("<svg", S.FAVICON_SVG)
         self.assertIn("#1B5CF0", S.FAVICON_SVG)
 
+    def test_old_marketplace_links_redirect_to_the_provider_page(self):
+        import threading
+        import urllib.request
+        from http.server import ThreadingHTTPServer
+        srv = ThreadingHTTPServer(("127.0.0.1", 0), S.Handler)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        self.addCleanup(srv.shutdown)
+
+        class NoFollow(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, *a, **k):
+                return None
+        opener = urllib.request.build_opener(NoFollow)
+        base = "http://127.0.0.1:%d" % srv.server_address[1]
+        for old, new in [("/marketplace", "/provider/nomentum"),
+                         ("/marketplace/measurements", "/provider/nomentum/measurements")]:
+            with self.assertRaises(urllib.error.HTTPError) as cm:
+                opener.open(base + old)
+            self.assertEqual((cm.exception.code, cm.exception.headers["Location"]), (301, new))
+
     def test_board_json_is_not_a_public_route(self):
         # Committee process flags used to be served verbatim at /board.json.
         src = Path(S.__file__).read_text()

@@ -21,7 +21,7 @@ import time as _time
 
 SECONDS_PER_YEAR = 31_536_000
 
-NAV = [("/", "Overview"), ("/providers", "Providers"), ("/marketplace", "Marketplace"),
+NAV = [("/", "Overview"), ("/providers", "Providers"),
        ("/ledger", "Ledger"), ("/streams", "Streams"), ("/reports", "Reports"), ("/calendar", "Calendar")]
 
 # Each provider gets an identity hue, used on its card, its flow edge and its
@@ -33,7 +33,13 @@ ACCENT = {
     "unruggable": "#093C52",   # brand Midnight Blue; old #1B5CF0 read as the
                                # ENS-blue site accent after the retheme
     "fluidkey": "#A8399B",
+    "nomentum": "#4A5A8A",
 }
+
+# The marketplace RFP winner is a provider like the cohort, with its own page
+# under /provider/. It lives in commitments.json rather than providers.json
+# because it has no stream for the monitor to check until its gate opens.
+MARKET_SLUG = "nomentum"
 ACCENT_FALLBACK = "#0080BC"
 
 # EP 6.42 top-level objective categories. providers.json stores the numbers
@@ -333,8 +339,16 @@ def page_home(ctx):
         for p in funded)
 
     market = ctx["commitments"].get("marketplace_award", {})
+    if market:
+        cohort_cards += (
+            '\n<a class="card card--ok" href="/provider/%s" style="--accent:%s">'
+            '<span class="card__label">%s</span>'
+            '<span class="card__amt">$%s<i> award</i></span>'
+            '<span class="card__detail">%s</span></a>' % (
+                MARKET_SLUG, accent(MARKET_SLUG), _esc(market.get("name", "")),
+                _money(market.get("award_usd", 0)),
+                _esc(_clip(market.get("scope") or "", 130))))
     sections = [
-        ("/marketplace", "Marketplace", "The executed SPP3 marketplace award, payment structure, and current funding state."),
         ("/ledger", "On-chain ledger", "Every USDC movement into and out of the Stream Management Pod, derived from Ethereum logs."),
         ("/streams", "Streams", "Every payment stream, checked daily against "
          "Ethereum mainnet at the rates ratified in EP 6.49."),
@@ -351,17 +365,6 @@ def page_home(ctx):
         '<span class="card__detail">%s</span></a>' % (href, _esc(t), _esc(d))
         for href, t, d in sections)
 
-    market_card = ""
-    if market:
-        market_fin = _financial_award(ctx, market.get("slug", "nomentum")) or {}
-        paid = market_fin.get("delivered_usd", market.get("paid_usdc", 0))
-        market_card = (
-            '<section><h2>Marketplace award</h2><a class="card card--ok" href="/marketplace">'
-            '<span class="card__label">%s · %s</span><span class="card__amt">$%s<i> award</i></span>'
-            '<span class="card__detail">$%s paid · milestone-gated funding</span></a></section>' % (
-                _esc(market.get("name", "")), _esc(market.get("product", "")),
-                _money(market.get("award_usd", 0)), _money(paid)))
-
     next_obligation = (_esc("Quarterly Reports for %s, due %s" % (
         q["quarter"], _fmt_iso_date(q["report_due"]))) if q else "term reconciliation")
 
@@ -373,22 +376,24 @@ def page_home(ctx):
         'domains/t/22086" target="_blank" rel="noopener">EP&nbsp;6.42</a> and its '
         'cohort ratified on-chain by <a href="https://discuss.ens.domains/t/22237" '
         'target="_blank" rel="noopener">EP&nbsp;6.49</a>: <b>$%s a year</b> across '
-        'four providers on a twelve-month term. Providers owe public quarterly '
-        'reports on the ENS Forum; funding flows as continuous streams the DAO '
-        'can verify on-chain. Stream rates are read from Ethereum. Scopes are '
-        'quoted from EP&nbsp;6.49. Commitments are taken from each provider\'s '
-        'application until Award Notice Item 5 is confirmed.</p>'
+        'four providers on a twelve-month term, paid as continuous streams the '
+        'DAO can verify on-chain. A fifth provider, %s, was selected through '
+        'the SPP3 marketplace RFP for up to $%s, paid in installments and '
+        'milestone gates. Providers report quarterly on the ENS Forum. Stream '
+        'rates are read from Ethereum. Scopes are quoted from EP&nbsp;6.49. '
+        'Commitments are taken from each provider\'s application until Award '
+        'Notice Item 5 is confirmed.</p>'
         '%s'
         '<div class="factrow"><div><i>Term</i><b>1 Aug 2026 &ndash; 31 Jul 2027</b></div>'
         '<div><i>Next obligation</i><b>%s</b></div>'
         '<div><i>Committee</i><b>coltron.eth (Chair), sovereignsignal.eth, '
         'austingriffith.eth, abdullahumar.eth; gregskril.eth (ENS Labs, non-compensated)</b></div>'
         '</div></div>'
-        '<section><h2>The cohort</h2><div class="cards cards--cohort">%s</div></section>'
-        '%s'
+        '<section><h2>Providers</h2><div class="cards cards--cohort">%s</div></section>'
         '<section><h2>On this site</h2><div class="cards">%s</div></section>' % (
-            _money(total), _term_timeline(ctx), next_obligation,
-            cohort_cards, market_card, site_cards))
+            _money(total), _esc(market.get("name", "Nomentum Labs")),
+            _money(market.get("award_usd", 0)), _term_timeline(ctx), next_obligation,
+            cohort_cards, site_cards))
 
 
 def page_providers(ctx):
@@ -418,8 +423,26 @@ def page_providers(ctx):
                 ("%d proposed" % len(c.get("milestones", [])))
                 if c.get("milestones") else "not recorded",
                 _esc(first_due)))
-    return ('<p class="lede">Four providers ratified by EP&nbsp;6.49 and funded '
-            'on-chain since 1 August 2026.</p>' + drift +
+    market = ctx["commitments"].get("marketplace_award") or {}
+    lede = ('<p class="lede">Four providers ratified by EP&nbsp;6.49 and funded '
+            'on-chain since 1 August 2026.</p>')
+    if market:
+        gates = len(market.get("performance_gates") or []) + (1 if market.get("stream_gate") else 0)
+        rows.append(
+            '<li class="app app--gated"><span class="app__name">'
+            '<a href="/provider/%s">%s</a></span>'
+            '<span class="app__req">$%s</span>'
+            '<span class="app__gate">gated</span>'
+            '<span class="app__state">%d release gates</span>'
+            '<span class="app__score">&mdash;</span></li>' % (
+                MARKET_SLUG, _esc(market.get("name", "")),
+                _money(market.get("award_usd", 0)), gates))
+        lede = ('<p class="lede">Five providers: four ratified by EP&nbsp;6.49 and '
+                'streamed on-chain since 1 August 2026, and %s, selected through the '
+                'SPP3 marketplace RFP and executed on %s. Its funding is paid in '
+                'installments and released by gates, so it has no stream yet.</p>'
+                % (_esc(market.get("name", "")), _fmt_iso_date(market.get("executed_date", ""))))
+    return (lede + drift +
             '<section><ul class="apps"><li class="app app--head">'
             '<span>Provider</span><span>Award</span><span>Stream</span>'
             '<span>Commitments</span><span>First report</span></li>%s</ul></section>'
@@ -581,10 +604,12 @@ def page_provider(ctx, slug):
 
 
 
-def page_marketplace(ctx):
+def page_market_provider(ctx):
+    """Provider page for the marketplace RFP winner. Same place in the site as
+    the cohort's pages; different funding shape, so different facts."""
     m = ctx["commitments"].get("marketplace_award") or {}
     if not m:
-        return '<p class="empty">No marketplace award recorded.</p>'
+        return None
     payments = [e for e in (ctx.get("ledger") or {}).get("events", [])
                 if e.get("classification") == "marketplace payment"]
     paid = sum(float(e.get("amount", 0)) for e in payments)
@@ -646,8 +671,9 @@ def page_marketplace(ctx):
         '</section>' % ("\n".join(gates), methodology)) if gates else ""
 
     return (
-        '<p class="lede">SPP3 also includes a marketplace award selected through the '
-        'committee RFP and executed on-chain after the original four-provider cohort.</p>'
+        '<p class="lede">Selected through the SPP3 marketplace RFP and executed '
+        'on-chain after the four-provider cohort. Funding is paid in installments '
+        'and released by milestone gates rather than a continuous stream.</p>'
         '<div class="hero hero--sm"><p class="eyebrow">%s · %s</p>'
         '<p class="lead">$%s award</p></div>'
         '<section><h2>Current funding state</h2><dl class="facts">'
@@ -722,15 +748,16 @@ def page_ledger(ctx):
             '<div><i>Authorized</i><b>$%s</b></div>'
             '<div><i>Actually delivered</i><b>$%s</b></div>'
             '<div><i>Streaming now</i><b>$%s/yr</b></div>'
-            '<div><i>Marketplace held</i><b>$%s</b></div>'
+            '<div><i>Held for %s</i><b>$%s</b></div>'
             '</div><ul>%s</ul>'
             '<p class="colnote">Continuous delivery is reconstructed from Superfluid '
-            'FlowUpdated events. Discrete marketplace payments come from USDC Transfer '
+            'FlowUpdated events. Installment payments come from USDC Transfer '
             'events. These are separate event streams reconciled at the same Ethereum block.</p>'
             '</section>' % (
                 _money(fin.get("authorized_usd", 0)),
                 _money(fin.get("delivered_usd", 0), 2),
                 _money(fin.get("currently_streaming_annual_usd", 0)),
+                _esc((ctx["commitments"].get("marketplace_award") or {}).get("name", "Nomentum Labs")),
                 _money(fin.get("marketplace_held_usd", 0)),
                 "\n".join(award_rows)))
     else:
@@ -933,15 +960,14 @@ def page_calendar(ctx):
                 _esc(m["label"]), _esc(m.get("track", "")),
                 "" if past else _when(d)))
     return ('<p class="lede">Cohort obligations through the end of term, fixed by '
-            'EP&nbsp;6.49 and Program Terms clauses 4.4 and 6.1&ndash;6.5. '
-            'Marketplace RFP dates are tracked separately and are not shown here.</p>'
+            'EP&nbsp;6.49 and Program Terms clauses 4.4 and 6.1&ndash;6.5.</p>'
             '<section><ul class="miles">%s</ul></section>' % "\n".join(items))
 
 
 ROUTES = {
     "/": ("Overview", page_home),
     "/providers": ("Providers", page_providers),
-    "/marketplace": ("Marketplace", page_marketplace),
+    "/provider/" + MARKET_SLUG: ("Nomentum Labs", page_market_provider),
     "/ledger": ("On-chain ledger", page_ledger),
     "/streams": ("Streams", page_streams),
     "/reports": ("Reports", page_reports),
@@ -1011,27 +1037,30 @@ def _verdict(ctx):
 
 def render(ctx, path="/"):
     """Dispatch. Returns None for an unknown path so the server can 404."""
-    if path.startswith("/provider/"):
+    if path in ROUTES:
+        title, builder = ROUTES[path]
+        body = builder(ctx)
+    elif path.startswith("/provider/"):
         slug = path[len("/provider/"):].strip("/")
         body = page_provider(ctx, slug)
-        if body is None:
-            return None
-        p = next(x for x in _funded(ctx) if x["slug"] == slug)
-        title, active = p["name"], "/providers"
-        main_style = ' style="--accent:%s;--flow:%s"' % (accent(slug), accent(slug))
-    elif path in ROUTES:
-        title, builder = ROUTES[path]
-        body, active = builder(ctx), path
-        main_style = ""
+        title = next((x["name"] for x in _funded(ctx) if x["slug"] == slug), "")
     else:
         return None
+    if body is None:
+        return None
+    if path.startswith("/provider/"):
+        slug = path.split("/")[2]
+        active = "/providers"
+        main_style = ' style="--accent:%s;--flow:%s"' % (accent(slug), accent(slug))
+    else:
+        active, main_style = path, ""
 
     return ("<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
             "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n"
             "<title>" + _esc(title) + " · ENS SPP3 accountability</title>\n"
             "<meta name=\"description\" content=\"Public accountability record for "
-            "the ENS SPP3 cohort: four providers, $1,690,000 a year, streams verified "
-            "on Ethereum, quarterly reports on the ENS Forum.\">\n"
+            "ENS SPP3: five service providers, funding verified on Ethereum, "
+            "quarterly reports on the ENS Forum.\">\n"
             "<meta property=\"og:title\" content=\"" + _esc(title)
             + " · ENS SPP3 accountability\">\n"
             "<meta property=\"og:description\" content=\"The public record of the "
