@@ -1,6 +1,6 @@
 {
   "_generated": false,
-  "_source": "EP 6.49 (ratified cohort recommendation), [7.1] Marketplace RFP as passed on Snapshot 2026-07-19, and SPP3 Program Terms v1.0 clauses 4.4 and 6.1-6.5. Stream dates verified on-chain. Marketplace execution/payment status updated from ENS Forum MetaGov transaction index 2026-10-03.",
+  "_source": "EP 6.49 (ratified cohort recommendation); EP 6.42 for committee dates (given as a quarter or month, so approximate); SPP3 Program Terms v1.0 clauses 6.3 (quarterly reports) and 6.4 (annual and end-of-term reconciliation), published with t/22309; [7.1] Marketplace RFP; stream dates verified on-chain; Nomentum execution and payments from the MetaGov transaction index.",
   "milestones": [
     {
       "date": "2026-07-16",
@@ -35,19 +35,19 @@
     {
       "date": "2026-09-10",
       "label": "Nomentum Labs marketplace award executed on-chain; $500,000 moved to the Stream Management Pod",
-      "track": "marketplace",
+      "track": "nomentum",
+      "done": true
+    },
+    {
+      "date": "2026-09-30",
+      "label": "Q3 2026 ends",
+      "track": "reporting",
       "done": true
     },
     {
       "date": "2026-09-30",
       "label": "Nomentum Labs installment 1 paid: $30,000 USDC",
-      "track": "marketplace",
-      "done": true
-    },
-    {
-      "date": "2026-09-30",
-      "label": "Q3 ends",
-      "track": "reporting",
+      "track": "nomentum",
       "done": true
     },
     {
@@ -57,20 +57,26 @@
       "done": false
     },
     {
-      "date": "2026-12-15",
-      "label": "Committee mid-cycle update, Q4 2026",
-      "track": "committee",
-      "done": false
-    },
-    {
       "date": "2026-12-31",
-      "label": "Q4 ends",
+      "label": "Q4 2026 ends",
       "track": "reporting",
       "done": false
     },
     {
+      "date": "2026-12-31",
+      "label": "Committee mid-cycle update due by end of Q4 2026 (EP 6.42 gives the quarter, not a date)",
+      "track": "committee",
+      "done": false
+    },
+    {
       "date": "2027-01-30",
-      "label": "Q4 reports due; annual reconciliation window opens (clause 6.4)",
+      "label": "Q4 2026 reports due (clause 6.3)",
+      "track": "reporting",
+      "done": false
+    },
+    {
+      "date": "2027-03-01",
+      "label": "2026 annual reconciliation due, within 60 days of year end (clause 6.4)",
       "track": "reporting",
       "done": false
     },
@@ -82,26 +88,44 @@
     },
     {
       "date": "2027-04-30",
-      "label": "Q1 2027 reports due",
+      "label": "Q1 2027 reports due (clause 6.3)",
       "track": "reporting",
       "done": false
     },
     {
       "date": "2027-05-31",
-      "label": "Committee cycle closes",
+      "label": "Committee cycle closes (EP 6.42: May 2027)",
       "track": "committee",
       "done": false
     },
     {
       "date": "2027-06-30",
-      "label": "End-of-cycle retrospective due, within 30 days of close",
+      "label": "Q2 2027 ends",
+      "track": "reporting",
+      "done": false
+    },
+    {
+      "date": "2027-06-30",
+      "label": "Committee end-of-cycle retrospective due, within 30 days of cycle close (EP 6.42)",
       "track": "committee",
       "done": false
     },
     {
+      "date": "2027-07-30",
+      "label": "Q2 2027 reports due (clause 6.3)",
+      "track": "reporting",
+      "done": false
+    },
+    {
       "date": "2027-07-31",
-      "label": "Twelve-month term ends; final reports and term reconciliation",
+      "label": "Twelve-month term ends",
       "track": "cohort",
+      "done": false
+    },
+    {
+      "date": "2027-09-29",
+      "label": "End-of-term reconciliation due, within 60 days of term end (clause 6.4)",
+      "track": "reporting",
       "done": false
     }
   ]

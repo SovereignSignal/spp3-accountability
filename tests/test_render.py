@@ -129,7 +129,8 @@ class TestHistoricalFinancials(unittest.TestCase):
 
     def test_stream_page_uses_event_derived_delivery(self):
         html = R.render(self.enriched(), "/streams")
-        self.assertIn("$123,456.78", html)
+        # The "$" is drawn by .tick--row::before, not printed.
+        self.assertIn('tick--row">123,456.78', html)
         self.assertIn("delivered since SPP3 start", html)
 
     def test_provider_page_uses_event_derived_delivery(self):
@@ -720,9 +721,29 @@ class TestPublicShare(unittest.TestCase):
         self.assertIn('property="og:title"', html)
         self.assertIn('rel="icon" href="/favicon.svg"', html)
 
-    def test_fluidkey_post_term_milestones_are_labelled(self):
+    def test_fluidkey_month_12_milestones_are_inside_the_term(self):
+        # Term is 1 Aug 2026 to 31 Jul 2027; Month 12 is July 2027.
         html = R.render(ctx(), "/provider/fluidkey")
-        self.assertIn("after the 12-month term", html)
+        self.assertIn("final month of the term", html)
+        self.assertNotIn("after the 12-month term", html)
+
+    def test_streams_page_prints_one_dollar_sign(self):
+        # .tick--row::before supplies the "$"; a literal one doubled it.
+        html = R.render(ctx(), "/streams")
+        self.assertNotIn('tick--row">$', html)
+        self.assertIn(".tick--row::before{content:\"$\"", html)
+
+    def test_calendar_follows_the_program_terms(self):
+        html = R.render(ctx(), "/calendar")
+        for date, text in (("2027-03-01", "annual reconciliation"),
+                           ("2027-07-30", "Q2 2027 reports due"),
+                           ("2027-09-29", "End-of-term reconciliation")):
+            self.assertIn(date, html)
+            self.assertIn(text, html)
+        self.assertNotIn("reconciliation window opens", html)
+        self.assertNotIn("clauses 4.4", html)
+        self.assertNotIn("2026-12-15", html)
+        self.assertIn(R.PROGRAM_TERMS_URL, html)
 
 
 if __name__ == "__main__":

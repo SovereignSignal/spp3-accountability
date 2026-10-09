@@ -4,6 +4,8 @@ import re
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
+from grails_view import STALE_SECONDS
+
 
 def esc(v):
     return html.escape(str(v))
@@ -51,7 +53,7 @@ def chain_section(ctx):
         parsed = datetime.fromisoformat(doc['observed_at'].replace('Z', '+00:00'))
         ts = parsed.timestamp()
         age = ctx.get('now', ts) - ts
-        stale = parsed.tzinfo is None or age > 3 * 3600 or age < -60
+        stale = parsed.tzinfo is None or age > STALE_SECONDS or age < -60
     except (ValueError, KeyError, TypeError, AttributeError):
         stale = True
     synced = bool(doc.get('source_snapshot_id')) and doc.get('source_snapshot_id') == (ctx.get('grails') or {}).get('snapshot_id')

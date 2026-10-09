@@ -1,6 +1,6 @@
 # Grails observation collector
 
-Read-only, hourly at :17 UTC via `.github/workflows/grails.yml`. The site serves committed snapshots, with no requests to Grails or Ethereum during page rendering.
+Read-only, scheduled hourly at :17 UTC via `.github/workflows/grails.yml`; GitHub delivers scheduled runs every 4 to 8 hours in practice. The site serves committed snapshots, with no requests to Grails or Ethereum during page rendering.
 
 ## Sources and authority
 
@@ -31,6 +31,6 @@ The observed window shows API sales, distinct secondary-sale buyers, buyer-plus-
 Run: `python scripts/grails_measurements.py --output-dir /tmp/grails-check --raw-dir /tmp/grails-raw`
 Offline tests: `python -m unittest discover -s tests -v`
 
-The successful workflow commits both JSON files atomically in one Git commit and triggers Railway through the existing source integration. A failed collection keeps last-good data and produces a failed GitHub run. The measurements UI marks snapshots stale after three hours. `/grails.json` and `/grails-sales.json` return HTTP 503 when no valid snapshot exists. Verify snapshot_id equality when joining the feeds.
+The successful workflow commits both JSON files atomically in one Git commit and triggers Railway through the existing source integration. A failed collection keeps last-good data and produces a failed GitHub run. The measurements UI marks snapshots stale after twelve hours. `/grails.json` and `/grails-sales.json` return HTTP 503 when no valid snapshot exists. Verify snapshot_id equality when joining the feeds.
 
 Next: independently match Seaport fills and amounts, add Grails-attributed registration/renewal events, and reconcile those observations against a committee-approved measurement specification.

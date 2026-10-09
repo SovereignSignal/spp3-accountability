@@ -4,7 +4,10 @@ from html import escape
 import re
 
 TX = re.compile(r"0x[0-9a-f]{64}\Z")
-STALE_SECONDS = 3 * 3600
+# grails.yml is scheduled hourly, but GitHub delivers scheduled runs late: the
+# observed gap between runs is 4 to 8 hours. A 3-hour threshold showed a
+# healthy pipeline as stale for a large share of every day.
+STALE_SECONDS = 12 * 3600
 
 
 def esc(value):

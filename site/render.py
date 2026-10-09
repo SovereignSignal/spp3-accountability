@@ -40,6 +40,11 @@ ACCENT = {
 # under /provider/. It lives in commitments.json rather than providers.json
 # because it has no stream for the monitor to check until its gate opens.
 MARKET_SLUG = "nomentum"
+
+# SPP3 Program Terms v1.0, as published with the Submission Timeline and
+# Artifacts post (discuss.ens.domains t/22309).
+PROGRAM_TERMS_URL = ("https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/"
+                     "bafybeidxywcqifpvkjyqjqouxptylitpexehgm6cynlig6kt3r23yatvra")
 ACCENT_FALLBACK = "#0080BC"
 
 # EP 6.42 top-level objective categories. providers.json stores the numbers
@@ -572,7 +577,9 @@ def page_provider(ctx, slug):
                 for m in by_q[q])
             q_lbl = q
             if q == "2027Q3":
-                q_lbl = "2027Q3 (after the 12-month term)"
+                # The term runs 1 Aug 2026 to 31 Jul 2027, so July 2027 is its
+                # final month, not after it (Fluidkey's Month-12 KPIs land here).
+                q_lbl = "2027Q3 (July 2027, final month of the term; assessed at term reconciliation)"
             blocks.append('<div class="qgroup"><h3 class="qgroup__h">%s '
                           '<span>%d</span></h3><ul>%s</ul></div>'
                           % (_esc(q_lbl), len(by_q[q]), rows))
@@ -911,7 +918,7 @@ def page_streams(ctx):
                     _esc(s["address"]), _esc(_short(s["address"])),
                     (" &middot; flowing since " + _fmt_short(fs)) if fs else "",
                     pct, _money(_usd(s["expected_wei_s"])),
-                    ('<span class="tick tick--row">$%s</span><span class="stream__meta"> delivered since SPP3 start</span>' %
+                    ('<span class="tick tick--row">%s</span><span class="stream__meta"> delivered since SPP3 start</span>' %
                      _money(_history_for(ctx, s["slug"]).get("delivered_usd", 0), 2)
                      if _history_for(ctx, s["slug"]) else
                      _ticker(s["actual_wei_s"], max(fs, epoch), "tick tick--row"))))
@@ -1038,8 +1045,11 @@ def page_calendar(ctx):
                 " mile--next" if (nxt is m) else "", _esc(m["date"]),
                 _esc(m["label"]), _esc(m.get("track", "")),
                 "" if past else _in_days(d)))
-    return ('<p class="lede">Cohort obligations through the end of term, fixed by '
-            'EP&nbsp;6.49 and Program Terms clauses 4.4 and 6.1&ndash;6.5.</p>'
+    return ('<p class="lede">Obligations through the end of term. Report and '
+            'reconciliation dates come from the <a href="%s" target="_blank" '
+            'rel="noopener">Program Terms</a> (clauses 6.3 and 6.4); committee dates '
+            'from EP&nbsp;6.42, which gives a quarter or a month rather than a day, '
+            'so those rows mark the latest date.</p>' % PROGRAM_TERMS_URL +
             '<section><ul class="miles">%s</ul></section>' % "\n".join(items))
 
 
