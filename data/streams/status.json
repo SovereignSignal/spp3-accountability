@@ -1,8 +1,8 @@
 {
   "_generated": true,
   "_source": "stream_monitor.py",
-  "block_number": 26177172,
-  "checked_at": "2026-10-12T15:05:01Z",
+  "block_number": 26184326,
+  "checked_at": "2026-10-13T15:00:01Z",
   "net_flow": {
     "expected_net_wei_s": -67497852409250,
     "known_out_wei_s": 101788432267884318,
@@ -67,13 +67,13 @@
     }
   ],
   "runway": {
-    "combined_days": 567.4365586097485,
+    "combined_days": 566.4400308319708,
     "daily_burn_wei": 8788688733497045875200,
     "level": "ok",
     "ok": true,
-    "pod_usdcx": 209038886500291201479208,
+    "pod_usdcx": 209033074935198765054208,
     "timelock_usdc": 4459705936067,
-    "timelock_usdcx": 527317353560833272380028
+    "timelock_usdcx": 518559181107660869025228
   },
   "streams": [
     {
