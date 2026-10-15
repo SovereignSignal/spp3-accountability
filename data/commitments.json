@@ -748,7 +748,12 @@
           "confirmed": false
         }
       ],
-      "reports": [],
+      "reports": [
+        {
+          "quarter": "2026Q3",
+          "url": "https://discuss.ens.domains/t/unruggable-spp3-quarterly-reports/22361/2?u=premm.eth"
+        }
+      ],
       "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafybeiedajocrvgfnj3y6ec2mrqyt62d46uiyfb6xyqraxyyosvto5tmyq",
       "report_thread": "https://discuss.ens.domains/t/unruggable-spp3-quarterly-reports/22361"
     },
