@@ -484508,6 +484508,461 @@
       "timestamp": "2026-10-18T05:39:47Z",
       "transaction_hash": "0xed446c4c455290e977bed6c73900ce97ec021b796b26076e4bec908b356d79bc",
       "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x40445cebd0516f07c13790b0d9e3826fcae8e3f41bc8bafa6d9fae0cec8725d2",
+      "block_number": 26217590,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "5459269309579433",
+      "key": "1:0x98d238841b54e65aaf61de41ee2abc814e5e211307e77b1c4f4963a89494ae27:640",
+      "kind": "renewal",
+      "labelhash": "0xe958c6e942d1fad6614c7e375056da2935516e2307a98bed6337bdbdded53e5f",
+      "log_index": 640,
+      "name": "\ud83d\ude18\ud83d\ude18\ud83d\ude18\ud83d\ude18.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "d86d5a1271b8b9f20210db46816939941e50c4d3afe28f2a614c6e24e840fdd1",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x40445cebd0516f07c13790b0d9e3826fcae8e3f41bc8bafa6d9fae0cec8725d2",
+        "blockNumber": "0x1900c76",
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000013652d2fee40a90000000000000000000000000000000000000000000000000000000000278d000000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d0000000000000000000000000000000000000000000000000000000000000010f09f9898f09f9898f09f9898f09f989800000000000000000000000000000000",
+        "logIndex": "0x280",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0xe958c6e942d1fad6614c7e375056da2935516e2307a98bed6337bdbdded53e5f"
+        ],
+        "transactionHash": "0x98d238841b54e65aaf61de41ee2abc814e5e211307e77b1c4f4963a89494ae27"
+      },
+      "source_log_sha256": "419d8f60f81c098d2b65ae3b19366035edba27ddc3fc2fef16c903e0e8fd2e84",
+      "timestamp": "2026-10-18T06:15:23Z",
+      "transaction_hash": "0x98d238841b54e65aaf61de41ee2abc814e5e211307e77b1c4f4963a89494ae27",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x40445cebd0516f07c13790b0d9e3826fcae8e3f41bc8bafa6d9fae0cec8725d2",
+      "block_number": 26217590,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "5459269309579433",
+      "key": "1:0x98d238841b54e65aaf61de41ee2abc814e5e211307e77b1c4f4963a89494ae27:643",
+      "kind": "renewal",
+      "labelhash": "0x948bbcec2e4511b071c11727814c65d8baf4c3f0e02778ea624821c7751f058e",
+      "log_index": 643,
+      "name": "\ud83c\udde6\ud83c\uddea\ud83c\udde6\ud83c\uddea.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "d86d5a1271b8b9f20210db46816939941e50c4d3afe28f2a614c6e24e840fdd1",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x40445cebd0516f07c13790b0d9e3826fcae8e3f41bc8bafa6d9fae0cec8725d2",
+        "blockNumber": "0x1900c76",
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000013652d2fee40a90000000000000000000000000000000000000000000000000000000000278d000000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d0000000000000000000000000000000000000000000000000000000000000010f09f87a6f09f87aaf09f87a6f09f87aa00000000000000000000000000000000",
+        "logIndex": "0x283",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0x948bbcec2e4511b071c11727814c65d8baf4c3f0e02778ea624821c7751f058e"
+        ],
+        "transactionHash": "0x98d238841b54e65aaf61de41ee2abc814e5e211307e77b1c4f4963a89494ae27"
+      },
+      "source_log_sha256": "63098a9cf10740da9beeb03f5c0852e358b9367a7aedfb276fb376f05c3e22ce",
+      "timestamp": "2026-10-18T06:15:23Z",
+      "transaction_hash": "0x98d238841b54e65aaf61de41ee2abc814e5e211307e77b1c4f4963a89494ae27",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0xcd5114c48d93f2f349f0a5dc082546dab98fe7d2112e31de38d2abe3b75cc034",
+      "block_number": 26217595,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "5459269309579433",
+      "key": "1:0x61e7a0f66afeb7952b5127396e54d261387a453c61589fe1a5e8050a9c9f6a34:1399",
+      "kind": "renewal",
+      "labelhash": "0x333d118607e0916b64e3f61761d02ff4f5a55e5747138750d1ab9ce391a40e6a",
+      "log_index": 1399,
+      "name": "8003.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "7a2bf8b9d547b0864b9da2b21021da259915acec4fe221cc7f0d40d257997433",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0xcd5114c48d93f2f349f0a5dc082546dab98fe7d2112e31de38d2abe3b75cc034",
+        "blockNumber": "0x1900c7b",
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000013652d2fee40a90000000000000000000000000000000000000000000000000000000000278d000000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000043830303300000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0x577",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0x333d118607e0916b64e3f61761d02ff4f5a55e5747138750d1ab9ce391a40e6a"
+        ],
+        "transactionHash": "0x61e7a0f66afeb7952b5127396e54d261387a453c61589fe1a5e8050a9c9f6a34"
+      },
+      "source_log_sha256": "14989dd9c79b6e03d0d093c603dbcee9efd15fc46e5a060026976cfdbbb33bee",
+      "timestamp": "2026-10-18T06:16:23Z",
+      "transaction_hash": "0x61e7a0f66afeb7952b5127396e54d261387a453c61589fe1a5e8050a9c9f6a34",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0xf022b70a2b65254053cd387a4f06c17c72da8658e108d641d7d097d4bf4ad839",
+      "block_number": 26217598,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "1023612995547354",
+      "key": "1:0xf822af06d9ccbfb69b529e932682ecb74432eaf021dc719c07a6895812a494d5:372",
+      "kind": "renewal",
+      "labelhash": "0x5a741b86d6a9f24bbe65d111415ef765902e9656ad3106625250e4bf1451c4af",
+      "log_index": 372,
+      "name": "069000.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "8962fce9d9336937cdc426a8aaa42de84b2363d6af56c5e9979677bcb41d6122",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0xf022b70a2b65254053cd387a4f06c17c72da8658e108d641d7d097d4bf4ad839",
+        "blockNumber": "0x1900c7e",
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000003a2f878fcb0da0000000000000000000000000000000000000000000000000000000000ed4e000000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000063036393030300000000000000000000000000000000000000000000000000000",
+        "logIndex": "0x174",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0x5a741b86d6a9f24bbe65d111415ef765902e9656ad3106625250e4bf1451c4af"
+        ],
+        "transactionHash": "0xf822af06d9ccbfb69b529e932682ecb74432eaf021dc719c07a6895812a494d5"
+      },
+      "source_log_sha256": "d5e8ed3a59bb5470c720d0de196a5e82bc51d69d7202798e5dcbc7fa01b0be20",
+      "timestamp": "2026-10-18T06:16:59Z",
+      "transaction_hash": "0xf822af06d9ccbfb69b529e932682ecb74432eaf021dc719c07a6895812a494d5",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+      "block_number": 26218385,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "911092741275969",
+      "key": "1:0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8:158",
+      "kind": "renewal",
+      "labelhash": "0x4d2b6d729f8529c51459e56a5a0f0fd210ca98e3e0178af6f38af6399dc175ec",
+      "log_index": 158,
+      "name": "6005.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "fa6021ce4e0d271c6fdf8d82c8154f37f205585af425e2635a9cbb5b8f528eca",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+        "blockNumber": "0x1900f91",
+        "data": "0x000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000033ca24f33814100000000000000000000000000000000000000000000000000000000000697800000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000043630303500000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0x9e",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0x4d2b6d729f8529c51459e56a5a0f0fd210ca98e3e0178af6f38af6399dc175ec"
+        ],
+        "transactionHash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8"
+      },
+      "source_log_sha256": "68d7807fd72f251e45a28761550cd30853ed21628ec61838f724945efd4e9d6e",
+      "timestamp": "2026-10-18T08:55:11Z",
+      "transaction_hash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+      "block_number": 26218385,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "911092741275969",
+      "key": "1:0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8:161",
+      "kind": "renewal",
+      "labelhash": "0xea6db32309eb62922aa46738b492c9b0e3c63fe5606be519dc64f1fe4033ff5c",
+      "log_index": 161,
+      "name": "0504.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "fa6021ce4e0d271c6fdf8d82c8154f37f205585af425e2635a9cbb5b8f528eca",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+        "blockNumber": "0x1900f91",
+        "data": "0x000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000033ca24f33814100000000000000000000000000000000000000000000000000000000000697800000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000043035303400000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0xa1",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0xea6db32309eb62922aa46738b492c9b0e3c63fe5606be519dc64f1fe4033ff5c"
+        ],
+        "transactionHash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8"
+      },
+      "source_log_sha256": "49dbb563a602f2e0cfffdeac72ae4f00541d86169ce2fba867f760434cb254a9",
+      "timestamp": "2026-10-18T08:55:11Z",
+      "transaction_hash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+      "block_number": 26218385,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "911092741275969",
+      "key": "1:0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8:164",
+      "kind": "renewal",
+      "labelhash": "0x8bf337c626ef40d06f00d15dfb9b0a1495cac52258e3d0a84f8f447d1b1b07f2",
+      "log_index": 164,
+      "name": "0206.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "fa6021ce4e0d271c6fdf8d82c8154f37f205585af425e2635a9cbb5b8f528eca",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+        "blockNumber": "0x1900f91",
+        "data": "0x000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000033ca24f33814100000000000000000000000000000000000000000000000000000000000697800000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000043032303600000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0xa4",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0x8bf337c626ef40d06f00d15dfb9b0a1495cac52258e3d0a84f8f447d1b1b07f2"
+        ],
+        "transactionHash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8"
+      },
+      "source_log_sha256": "a46e3cd57ec0959cdd3939c1fbd103135817869eb0feb6332275c08467f52963",
+      "timestamp": "2026-10-18T08:55:11Z",
+      "transaction_hash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+      "block_number": 26218385,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "911092741275969",
+      "key": "1:0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8:167",
+      "kind": "renewal",
+      "labelhash": "0x64d76a016e7cd22e518fbd5915305ca01fb6861e7b42e5872fdb824269f3a05c",
+      "log_index": 167,
+      "name": "0107.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "fa6021ce4e0d271c6fdf8d82c8154f37f205585af425e2635a9cbb5b8f528eca",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+        "blockNumber": "0x1900f91",
+        "data": "0x000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000033ca24f33814100000000000000000000000000000000000000000000000000000000000697800000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000043031303700000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0xa7",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0x64d76a016e7cd22e518fbd5915305ca01fb6861e7b42e5872fdb824269f3a05c"
+        ],
+        "transactionHash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8"
+      },
+      "source_log_sha256": "f3d5365b5633c2f1c17bab5aca33ee3513163c74e1d3aefc259d95f3f176e065",
+      "timestamp": "2026-10-18T08:55:11Z",
+      "transaction_hash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+      "block_number": 26218385,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "911092741275969",
+      "key": "1:0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8:170",
+      "kind": "renewal",
+      "labelhash": "0xe49fc48b0c09e6350b68020ca3dd16ee56b49496490c55c6333b5e0c8ee7420b",
+      "log_index": 170,
+      "name": "0340.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "fa6021ce4e0d271c6fdf8d82c8154f37f205585af425e2635a9cbb5b8f528eca",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+        "blockNumber": "0x1900f91",
+        "data": "0x000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000033ca24f33814100000000000000000000000000000000000000000000000000000000000697800000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000043033343000000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0xaa",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0xe49fc48b0c09e6350b68020ca3dd16ee56b49496490c55c6333b5e0c8ee7420b"
+        ],
+        "transactionHash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8"
+      },
+      "source_log_sha256": "9909e67f2b7e43b8dc242448bbcdd0ec509d0b29eb328f13bf6e648874fccbc1",
+      "timestamp": "2026-10-18T08:55:11Z",
+      "transaction_hash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+      "block_number": 26218385,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "911092741275969",
+      "key": "1:0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8:173",
+      "kind": "renewal",
+      "labelhash": "0xb2eb6c15bae4009d1a4cd669a5261bb15316fd54e42a54624b3813c7204ab9bd",
+      "log_index": 173,
+      "name": "0108.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "fa6021ce4e0d271c6fdf8d82c8154f37f205585af425e2635a9cbb5b8f528eca",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+        "blockNumber": "0x1900f91",
+        "data": "0x000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000033ca24f33814100000000000000000000000000000000000000000000000000000000000697800000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000043031303800000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0xad",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0xb2eb6c15bae4009d1a4cd669a5261bb15316fd54e42a54624b3813c7204ab9bd"
+        ],
+        "transactionHash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8"
+      },
+      "source_log_sha256": "c7f4ad810ef0e31d73c0741b884216efc951f8751ec75b8b725f217c68db045e",
+      "timestamp": "2026-10-18T08:55:11Z",
+      "transaction_hash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+      "block_number": 26218385,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "911092741275969",
+      "key": "1:0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8:176",
+      "kind": "renewal",
+      "labelhash": "0xa3b05de834413759c94b8c7d4ebe26dbaaef17cd032cb1d86cd57d4c90f2d1f2",
+      "log_index": 176,
+      "name": "0828.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "fa6021ce4e0d271c6fdf8d82c8154f37f205585af425e2635a9cbb5b8f528eca",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+        "blockNumber": "0x1900f91",
+        "data": "0x000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000033ca24f33814100000000000000000000000000000000000000000000000000000000000697800000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000043038323800000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0xb0",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0xa3b05de834413759c94b8c7d4ebe26dbaaef17cd032cb1d86cd57d4c90f2d1f2"
+        ],
+        "transactionHash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8"
+      },
+      "source_log_sha256": "2c06792e76713712fd879a229ac3a1cd2ef3f3e9bae364bcb00aa9f0bafdb5f6",
+      "timestamp": "2026-10-18T08:55:11Z",
+      "transaction_hash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+      "block_number": 26218385,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "911092741275969",
+      "key": "1:0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8:179",
+      "kind": "renewal",
+      "labelhash": "0x554c46e96817775b8989ddc254d554940ba2015f43972fccfc1ecb50653ca381",
+      "log_index": 179,
+      "name": "1117.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "fa6021ce4e0d271c6fdf8d82c8154f37f205585af425e2635a9cbb5b8f528eca",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0x53f878de382d704fa3558115ec9a24895721f78cd5644e9f5c9096f24d053093",
+        "blockNumber": "0x1900f91",
+        "data": "0x000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000033ca24f33814100000000000000000000000000000000000000000000000000000000000697800000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000043131313700000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0xb3",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0x554c46e96817775b8989ddc254d554940ba2015f43972fccfc1ecb50653ca381"
+        ],
+        "transactionHash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8"
+      },
+      "source_log_sha256": "7f63b8cf3deb261a7e7b9e333bdb19c872e12c4ceb396628045be8c67c56a181",
+      "timestamp": "2026-10-18T08:55:11Z",
+      "transaction_hash": "0x306eed3d7a56e04fc1e2fdf79d90bf0988e2af317c99e361de54f5ceb50731f8",
+      "transaction_initiator": null
+    },
+    {
+      "ambiguous_duplicate": false,
+      "block_hash": "0xa59149e79ffffcd3339db7219871064b9f96da37c346e47cc4d93fc931737ac8",
+      "block_number": 26218915,
+      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+      "cost_wei": "10863602406440771",
+      "key": "1:0x47e621b728d89231d3b9d49fac2c032d1b0561b0b32806ae2c16886547e09e9b:205",
+      "kind": "renewal",
+      "labelhash": "0xeaa8d3b8c081acf74d73ac720cca9b05bf6c34a9791d4dc9b35a0af6f2532a1b",
+      "log_index": 205,
+      "name": "1950.eth",
+      "payer_verified": false,
+      "receipt_event_verified": true,
+      "receipt_sha256": "bf36280572f514d14ee0d7a444f85fa4ce5b0efcff713b79ad2a8898d57a786d",
+      "referrer_tag": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
+      "referrer_tag_verified": true,
+      "registered_owner": null,
+      "source_log": {
+        "address": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
+        "blockHash": "0xa59149e79ffffcd3339db7219871064b9f96da37c346e47cc4d93fc931737ac8",
+        "blockNumber": "0x19011a3",
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000002698638a6abf4300000000000000000000000000000000000000000000000000000000004f1a000000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d00000000000000000000000000000000000000000000000000000000000000043139353000000000000000000000000000000000000000000000000000000000",
+        "logIndex": "0xcd",
+        "removed": false,
+        "topics": [
+          "0xbdc63144ed642739de589db600d0c625e01c4994358ad6591b3f6e424ea59945",
+          "0xeaa8d3b8c081acf74d73ac720cca9b05bf6c34a9791d4dc9b35a0af6f2532a1b"
+        ],
+        "transactionHash": "0x47e621b728d89231d3b9d49fac2c032d1b0561b0b32806ae2c16886547e09e9b"
+      },
+      "source_log_sha256": "f324cc4e3cb651df0624289162517d069323a8e81560011db867fbd7fbf42ba4",
+      "timestamp": "2026-10-18T10:41:35Z",
+      "transaction_hash": "0x47e621b728d89231d3b9d49fac2c032d1b0561b0b32806ae2c16886547e09e9b",
+      "transaction_initiator": null
     }
   ],
   "legacy_checkpoint_rescanned": false,
@@ -484517,111 +484972,56 @@
     "Caller-supplied referrer tags do not prove website use or paying-user identity."
   ],
   "mapping_source": "https://dune.com/queries/8064446",
-  "observed_at": "2026-10-18T05:56:09Z",
+  "observed_at": "2026-10-18T11:09:39Z",
   "referrer": "0x0000000000000000000000007e491cde0fbf08e51f54c4fb6b9e24afbd18966d",
   "retrieval": "blockscout_keyset_rpc_receipts",
-  "scan_from_block": 26215836,
+  "scan_from_block": 26217300,
   "scan_manifests": [
     {
       "contract": "0x59e16fccd424cc24e280be16e11bcd56fb0ce547",
       "cursor": null,
       "page": 1,
       "records": 50,
-      "sha256": "1274bb987a17e555a5c1568786785959b5dab2ce4ec578f05a1abac35b533a7f"
-    },
-    {
-      "contract": "0x59e16fccd424cc24e280be16e11bcd56fb0ce547",
-      "cursor": {
-        "block_number": 26215924,
-        "index": 2584,
-        "items_count": 50
-      },
-      "page": 2,
-      "records": 50,
-      "sha256": "edde13f84dfaf74c62723059bfeb9d7b9b35cbebf8b7c50d187269c96858728e"
+      "sha256": "cd3d4a7bec1d81b0883355e026b9063b44f829b5f9e934ae5aa3d2257359cd98"
     },
     {
       "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
       "cursor": null,
       "page": 1,
       "records": 50,
-      "sha256": "274526850d8a6d310bead0520b216e0958258497eb382058ac539b9048540707"
+      "sha256": "6a8f1d4edde7e185aecb8a5856d56551bf577062811000c4c23bb77740edd67b"
     },
     {
       "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
       "cursor": {
-        "block_number": 26216354,
-        "index": 680,
+        "block_number": 26217386,
+        "index": 648,
         "items_count": 50
       },
       "page": 2,
       "records": 50,
-      "sha256": "fa663fbe5503dd55e9e68f43cabc565f30faf46da1d4753cc68ee14d8aee2bba"
-    },
-    {
-      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
-      "cursor": {
-        "block_number": 26216153,
-        "index": 440,
-        "items_count": 50
-      },
-      "page": 3,
-      "records": 50,
-      "sha256": "2492a474db6e1ab37ea9c1e6f1b2d81dd4882c39d1eea87c375cb730a751426e"
-    },
-    {
-      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
-      "cursor": {
-        "block_number": 26216103,
-        "index": 839,
-        "items_count": 50
-      },
-      "page": 4,
-      "records": 50,
-      "sha256": "dd5e8c855a21f453cad92c63704526d8e0bf37a45ac1c270538f4e767b4c2f6d"
-    },
-    {
-      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
-      "cursor": {
-        "block_number": 26216067,
-        "index": 587,
-        "items_count": 50
-      },
-      "page": 5,
-      "records": 50,
-      "sha256": "d21acde091eb813eee90a85bd1c0b514ae51fed62c321c8a3038806879b40012"
-    },
-    {
-      "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
-      "cursor": {
-        "block_number": 26216051,
-        "index": 132,
-        "items_count": 50
-      },
-      "page": 6,
-      "records": 50,
-      "sha256": "3c12ca2b382d26982c05bd3a3b043a8ae41f292dc455bf5b48fb977a0d025b7f"
+      "sha256": "9bda2014bde7f05867d2ce363e38f54fede3d748f7b2a822b76fa7b665483704"
     }
   ],
   "schema_version": 2,
   "source_sentinels": [
     {
       "contract": "0x59e16fccd424cc24e280be16e11bcd56fb0ce547",
-      "log_index": 394,
-      "receipt_sha256": "69421951b383c8a7d21169f5c5e168e5f0f14c4762255065684d8f43c7f1f988",
-      "transaction_hash": "0xbfb8c48680203bb91d6e3629e1a707a20772beb3b13af1e5999f583f1d76277f"
+      "log_index": 250,
+      "receipt_sha256": "141bb0ce2b40707d7f6af89da457b7e6e5702a0864dd8de56d90a20602da556b",
+      "transaction_hash": "0x74b1583fde27dc7b7c94429a239c51ec46fdafe3311f0723d9d92d5929e207c4"
     },
     {
       "contract": "0xf55575bde5953ee4272d5ce7cdd924c74d8fa81a",
-      "log_index": 121,
-      "receipt_sha256": "a1f296ca91b034c6348b14c98f0676a5eeb10e8992cc436f7a01e9fe30d89873",
-      "transaction_hash": "0xed446c4c455290e977bed6c73900ce97ec021b796b26076e4bec908b356d79bc"
+      "log_index": 245,
+      "receipt_sha256": "a671c16f9385a648e629711ef996156a6b4fccc4939ab3152582e0230cdc3c27",
+      "transaction_hash": "0x6c3002fb1b9932042dd67358b2a16c7cbc1836e09a06f1da70c5c250d3b3ea87"
     }
   ],
   "start": "2026-09-10T00:00:00Z",
   "start_block": 25943261,
-  "target_finalized_block": 26217427,
-  "through_block": 26217427,
-  "through_block_hash": "0xf68e1b58a17bcf17c59bec4b80f57d0a2d025ad79403119a45fa56fcd693d626",
-  "through_timestamp": "2026-10-18T05:42:47Z"
+  "target_finalized_block": 26218989,
+  "through_block": 26218989,
+  "through_block_hash": "0x967c994b8d243db2313c60f4a8d498b1ddeb9b14df68184398fc04207652b906",
+  "through_timestamp": "2026-10-18T10:56:23Z"
 }
