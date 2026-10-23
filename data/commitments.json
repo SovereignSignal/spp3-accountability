@@ -902,7 +902,12 @@
           "confirmed": false
         }
       ],
-      "reports": [],
+      "reports": [
+        {
+          "quarter": "2026Q3",
+          "url": "https://discuss.ens.domains/t/fluidkey-spp3-quarterly-reports/22362/2?u=moritz"
+        }
+      ],
       "milestones_source_url": "https://bronze-accused-porpoise-217.mypinata.cloud/ipfs/bafkreiaplckhk72bu3wuxofgkbdoky7jb3o24kk7olbb6urfaquz2os4sm",
       "report_thread": "https://discuss.ens.domains/t/fluidkey-spp3-quarterly-reports/22362"
     }
